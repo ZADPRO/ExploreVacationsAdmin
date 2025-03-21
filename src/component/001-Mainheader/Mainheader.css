@@ -1,0 +1,18 @@
+.primaryNav {
+    align-items: center;
+    background-color: #fff;
+    box-shadow: 0 1px 1px #0000001a;
+    display: flex;
+    justify-content: space-between;
+    left: 0;
+    padding: 5px 20px;
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0;
+    z-index: 10;
+    height: 10vh;
+}
+.profileicon{
+    font-size:x-large;
+    color: #0a5c9c;
+}
