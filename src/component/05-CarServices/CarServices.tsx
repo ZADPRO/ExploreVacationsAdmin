@@ -11,7 +11,7 @@ import { DropdownChangeEvent } from "primereact/dropdown";
 import { RadioButton } from "primereact/radiobutton";
 import AddForm from "../05-CarServices/AddForm";
 import { addItemBaseOnKey } from "../../services/carservice";
-import { addNewcarpackage } from "../../services/NewCarService";
+// import { addNewcarpackage } from "../../services/NewCarService";
 import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import { Form } from "react-router-dom";
@@ -75,6 +75,15 @@ const CarServices: React.FC = () => {
     refIncludeName: "",
     refExcludeName: "",
     refVehicleTypeId: "",
+    refPersonCount: "",
+    refBag: "",
+    refFuelType: "",
+    refcarManufactureYear: "",
+    refMileage: "",
+    refTrasmissionType: "",
+    refFuleLimit: "",
+    refOtherRequirements: "",
+    refTermsAndConditionsId: "",
   });
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
@@ -84,7 +93,7 @@ const CarServices: React.FC = () => {
   const [exclude, setExclude] = useState<Excludes[]>([]);
   const [extra, setExtra] = useState<Form[]>([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [isFormSubmitting, setIsFormSubmitting] = useState(false);
+  const isFormSubmitting= false;
   const [vechiletype, setVechileType] = useState<any[]>([]);
   const [selectesvechile, setSelectedvechile] = useState<any[]>([]);
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
@@ -128,6 +137,21 @@ const CarServices: React.FC = () => {
     refFormDetails: "",
   });
   const [formData, setFormData] = useState<any>([]);
+  // const [person, setPerson] = useState<any>([]);
+  // const [bag, setBag] = useState<any>([]);
+  // const [fuel, setFuel] = useState<any>([]);
+  // const [manufacture, setManufacture] = useState<any>([]);
+  // const [mileage, setMileage] = useState<any>([]);
+  // const [transmisson, setTransmisson] = useState<any>([]);
+  // const [fuellimit, setfuelLimit] = useState<any>([]);
+  // const [driverId, setDriverId] = useState<any>([]);
+  // const [otherrequirement, setotherrequirement] = useState<any>([]);
+  // const [terms, setTerms] = useState<any>([]);
+  // const [benefits, setBenefits] = useState<any>([]);
+  // const [includes, setIncludes] = useState<any>([]);
+  // const [excludes, setExcludes] = useState<any>([]);
+  // const [formDats, setFormDatas] = useState<any>([]);
+  // const [carsImg, setCarsImg] = useState<any>([]);
 
   console.log(vechiletype, formData, showupdatemodel);
 
@@ -693,14 +717,14 @@ const CarServices: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsFormSubmitting(true);
+    // setIsFormSubmitting(true);
     const formDataobject = Object.fromEntries(
       new FormData(e.target as HTMLFormElement)
     );
     console.log("formDataobject------------>handleform-------", formDataobject);
 
     const payload = {
-      refVehicleTypeId: formDataobject.refVehicleTypeId,
+      refVehicleTypeId: selectesvechile,
       refPersonCount: formDataobject.refPersonCount,
       refBag: formDataobject.refBag,
       refFuelType: formDataobject.refFuelType,
@@ -708,19 +732,68 @@ const CarServices: React.FC = () => {
       refMileage: formDataobject.refMileage,
       refTrasmissionType: formDataobject.refTrasmissionType,
       refFuleLimit: formDataobject.refFuleLimit,
-      refDriverDetailsId: formDataobject.refDriverDetailsId,
+      refDriverDetailsId: selectedDriver,
       refTermsAndConditionsId: formDataobject.refTermsAndConditionsId,
       refOtherRequirements: formDataobject.refOtherRequirements,
-      refBenifits: selectedbenefits.map((act) => act.refBenifits),
-      refInclude: selectedinclude.map((act) => act.refInclude),
-      refExclude: selectedexclude.map((act) => act.refExclude),
-      refFormDetails: selectedform.map((act) => act.refFormDetails),
-      carImage: "data:image/jpeg;base64,",
+      refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
+      refInclude: selectedinclude.map((act) => act.refIncludeId),
+      refExclude: selectedexclude.map((act) => act.refExcludeId),
+      refFormDetails: selectedform.map((act) => act.refFormDetailsId),
+      carImage: formData.productImage,
     };
     console.log("payload", payload);
 
-    await addNewcarpackage(payload);
-    setIsFormSubmitting(false);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/addCars",
+        {
+          refVehicleTypeId: selectesvechile,
+          refPersonCount: formDataobject.refPersonCount,
+          refBag: formDataobject.refBag,
+          refFuelType: formDataobject.refFuelType,
+          refcarManufactureYear: formDataobject.refcarManufactureYear,
+          refMileage: formDataobject.refMileage,
+          refTrasmissionType: formDataobject.refTrasmissionType,
+          refFuleLimit: formDataobject.refFuleLimit,
+          refDriverDetailsId: selectedDriver,
+          refTermsAndConditionsId: formDataobject.refTermsAndConditionsId,
+          refOtherRequirements: formDataobject.refOtherRequirements,
+          refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
+          refInclude: selectedinclude.map((act) => act.refIncludeId),
+          refExclude: selectedexclude.map((act) => act.refExcludeId),
+          refFormDetails: selectedform.map((act) => act.refFormDetailsId),
+          carImagePath: formData.productImage,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("+++++++++++++++++++++=",data)
+
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        setEditDriverId(null);
+        fetchDriver();
+      }
+    } catch (e) {
+      console.error("Error updating driver:", e);
+      setSubmitLoading(false);
+      setEditDriverId(null);
+    }
+
+    // await addNewcarpackage(payload);
+    // setIsFormSubmitting(false);
   };
   const handleEditClick = (rowData: any) => {
     setEditingRowCars(rowData.refVehicleTypeId);
@@ -1234,7 +1307,7 @@ const CarServices: React.FC = () => {
     console.table("event", event);
     const file = event.files[0];
     const formData = new FormData();
-    formData.append("logo", file);
+    formData.append("Image", file);
     console.log("formData", formData);
 
     for (let pair of formData.entries()) {
@@ -1763,6 +1836,7 @@ const CarServices: React.FC = () => {
                     name="refPersonCount"
                     placeholder="Enter Person Count"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
                 {/* Noof bage  and FuelType */}
@@ -1771,11 +1845,13 @@ const CarServices: React.FC = () => {
                     name="refBag"
                     placeholder="Enter No of Bags"
                     className="w-full"
+                    onChange={handleInput}
                   />
                   <InputText
                     name="refFuelType"
                     placeholder="Enter Fuel Type"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
                 {/* ManufactureYear  and Mileage */}
@@ -1784,11 +1860,13 @@ const CarServices: React.FC = () => {
                     name="refcarManufactureYear"
                     placeholder="Enter Manufacture Year"
                     className="w-full"
+                    onChange={handleInput}
                   />
                   <InputText
                     name="refMileage"
                     placeholder="Enter Mileage"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
                 {/* Transmissiontype  and FuelType */}
@@ -1797,11 +1875,13 @@ const CarServices: React.FC = () => {
                     name="refTrasmissionType"
                     placeholder="Enter Transmission Type"
                     className="w-full"
+                    onChange={handleInput}
                   />
                   <InputText
                     name="refFuleLimit"
                     placeholder="Enter Fuel Limit"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
                 {/* DriverDetailsId  and OtherRequirements */}
@@ -1809,6 +1889,7 @@ const CarServices: React.FC = () => {
                   <Dropdown
                     value={selectedDriver}
                     onChange={(e: DropdownChangeEvent) => {
+                      console.log("-------", e.value);
                       setSelectedDriver(e.value);
                       fetchDriver();
                     }}
@@ -1822,6 +1903,7 @@ const CarServices: React.FC = () => {
                     name="refOtherRequirements"
                     placeholder="Enter Other Requirements"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
 
@@ -1831,6 +1913,7 @@ const CarServices: React.FC = () => {
                     name="refTermsAndConditionsId"
                     placeholder="Enter Terms and Condition"
                     className="w-full"
+                    onChange={handleInput}
                   />
                 </div>
                 {/* Benifits  and  Include*/}
@@ -1838,6 +1921,7 @@ const CarServices: React.FC = () => {
                   <MultiSelect
                     value={selectedbenefits}
                     onChange={(e) => {
+                      console.log(e.value);
                       setSelectedbenefits(e.value);
                     }}
                     options={benefit}
@@ -1866,6 +1950,7 @@ const CarServices: React.FC = () => {
                   <MultiSelect
                     value={selectedexclude}
                     onChange={(e) => {
+                      console.log(e.value);
                       setSelectedexclude(e.value);
                     }}
                     options={exclude}

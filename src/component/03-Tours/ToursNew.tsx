@@ -20,6 +20,7 @@ import AddForm from "../05-CarServices/AddForm";
 import { addTourBaseOnKey } from "../../services/Travel";
 import { FileUpload } from "primereact/fileupload";
 import { EditorTextChangeEvent } from "primereact/editor";
+import { fetchNewcarservices } from "../../services/NewServices";
 interface Destination {
   refDestinationId: string;
   refDestinationName: string;
@@ -49,7 +50,7 @@ function ToursNew() {
   const [allcategories, setAllcategories] = useState<any[]>([]);
   const [selectedcategory, setSelectedCategory] = useState<any | null>(null);
   const [selectedDestination, setSelectedDestination] =
-    useState<Destination | null>(null);
+    useState<any | null>();
   const [activities, setActivities] = useState<any[]>([]);
   const [selectedactivities, setSelectedactivities] = useState<any[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
@@ -66,6 +67,7 @@ function ToursNew() {
     refTravalIncludeId: "",
     refTravalInclude: "",
   });
+  const [specialNotes, setSpecialNotes]: any = useState("");
   const [editExcludeId, setEditExcludeId] = useState<number | null>(null);
   const [editExcludeValue, setEditExcludeValue] = useState({
     refTravalExcludeId: "",
@@ -111,6 +113,13 @@ function ToursNew() {
     fetchTours().then((result) => {
       setTours(result);
     });
+    fetchNewcarservices().then((result) => {
+      setTours(result);
+    });
+    fetchTours().then((result) => {
+      setTours(result);
+    });
+    
     fetchInclude();
     fetchExclude();
   }, []);
@@ -170,8 +179,52 @@ function ToursNew() {
     };
     console.log("payload", payload);
 
-    // await addTour(payload);
-    // setIsFormSubmitting(false);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/addPackage",
+        {
+          refPackageName: formDataobject.packageName,
+          refDesignationId: parseInt(selectedDestination.refDestinationId),
+          refDurationIday: formDataobject.noOfDays,
+          refDurationINight: formDataobject.noOfNights,
+          refLocation: selectedLocations.map((loc) => loc.refLocationId),
+          refCategoryId: parseInt(selectedcategory.refCategoryId),
+          refGroupSize: "Not Specified",
+          refTourCode: formDataobject.tourCode,
+          refTourPrice: formDataobject.price,
+          refSeasonalPrice: formDataobject.seasonalPrice,
+          images: formDataImages,
+          refItinary: text,
+          refItinaryMapPath: formData,
+          refSpecialNotes: specialNotes,
+          refActivity: selectedactivities.map((act) => act.refActivitiesId),
+          refTravalInclude: selectedInclude,
+          refTravalExclude: selectexclude,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      if (data.success) {
+        console.log("data------------->192", data);
+        // await addTour(payload);
+        // setIsFormSubmitting(false);
+        localStorage.setItem("token", "Bearer " + data.token);
+      }
+    } catch (e) {
+      console.error("Error fetching locations:", e);
+    }
+
+    
   };
   const snoTemplate = (
     _rowData: Destination,
@@ -474,20 +527,21 @@ function ToursNew() {
 
   const customMap = async (event: any) => {
     console.table("event", event);
-    const file = event.files[0];
-    const Image = new FormData();
-    Image.append("Image", file);
-    console.log("Image", Image);
+    const file = event.files[0]; // Assuming single file upload
+    const formData = new FormData();
+    formData.append("Image", file);
+    console.log("formData", formData);
 
-    for (let pair of Image.entries()) {
-      console.log(pair[0] + ":", pair[1]);
+    for (let pair of formData.entries()) {
+      console.log("-------->______________", pair[0] + ":", pair[1]); // Log each field in the FormData
     }
+
     console.log("formData------------>", formData);
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/userRoutes/uploadMap",
 
-        Image,
+        formData,
 
         {
           headers: {
@@ -521,46 +575,45 @@ function ToursNew() {
 
   const customUploader = async (event: any) => {
     console.table("event", event);
-    const file = event.files[0];
-    const Image = new FormData();
-    Image.append("images", file);
-    console.log("images", Image);
 
-    for (let pair of Image.entries()) {
-      console.log(pair[0] + ":", pair[1]);
-    }
-    console.log("formData------------>", formData);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+    // Create a FormData object
 
-        Image,
+    // Loop through the selected files and append each one to the FormData
+    for (let i = 0; i < event.files.length; i++) {
+      const formData = new FormData();
+      const file = event.files[i];
+      formData.append("images", file);
 
-        {
-          headers: {
-            Authorization: localStorage.getItem("JWTtoken"),
-          },
+      try {
+        const response = await axios.post(
+          import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+
+          formData,
+
+          {
+            headers: {
+              Authorization: localStorage.getItem("JWTtoken"),
+            },
+          }
+        );
+
+        const data = decrypt(
+          response.data[1],
+          response.data[0],
+          import.meta.env.VITE_ENCRYPTION_KEY
+        );
+
+        localStorage.setItem("JWTtoken", "Bearer " + data.token);
+        console.log("data==============", data);
+
+        if (data.success) {
+          handleUploadSuccess(data);
+        } else {
+          handleUploadFailure(data);
         }
-      );
-
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-
-      localStorage.setItem("JWTtoken", "Bearer " + data.token);
-      console.log("data==============", data);
-
-      if (data.success) {
-        console.log("data+", data);
-        handleUploadSuccess(data);
-      } else {
-        console.log("data-", data);
-        handleUploadFailure(data);
+      } catch (error) {
+        handleUploadFailure(error);
       }
-    } catch (error) {
-      handleUploadFailure(error);
     }
   };
 
@@ -770,6 +823,7 @@ function ToursNew() {
                   name="refSpecialNotes"
                   placeholder="Enter Special Notes"
                   className="w-full"
+                  onChange={(e) => setSpecialNotes(e.target.value)}
                 />
               </div>
 

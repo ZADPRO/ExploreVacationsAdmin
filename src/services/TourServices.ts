@@ -46,6 +46,7 @@ export const fetchTours = async () => {
     //     import.meta.env.VITE_ENCRYPTION_KEY
     //   );
     const data = response.data.text;
+    console.log('data---------------->toour', data)
     if (data.success) {
       return data.result;
     } else {

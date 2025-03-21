@@ -45,13 +45,18 @@ export const fetchNewcarservices = async () => {
     //     response.data[0],
     //     import.meta.env.VITE_ENCRYPTION_KEY
     //   );
+
+    console.log('tour details------------------>');
     const data = response.data.text;
+    console.log('tour details------------------>', data);
     if (data.success) {
+     
       return data.result;
     } else {
       return [];
     }
   } catch (e) {
+    
     console.error("Error fetching carservices:", e);
     return [];
   }
