@@ -76,7 +76,7 @@ function ToursNew() {
   const [activities, setActivities] = useState<any[]>([]);
   const [selectedactivities, setSelectedactivities] = useState<any[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
-  const [tours, setTours] = useState<any[]>([]);
+  const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
@@ -250,6 +250,11 @@ function ToursNew() {
         // await addTour(payload);
         // setIsFormSubmitting(false);
         localStorage.setItem("token", "Bearer " + data.token);
+
+        setIsAddTourOpen(false);
+        fetchTours().then((result) => {
+          setTourDetails(result);
+        });
       }
     } catch (e) {
       console.error("Error fetching locations:", e);
@@ -589,6 +594,7 @@ function ToursNew() {
       console.log("data==============", data);
 
       if (data.success) {
+        event.options.onUpload({}); 
         console.log("data+", data);
         handleUploadSuccessMap(data);
       } else {
@@ -621,7 +627,7 @@ function ToursNew() {
 
           {
             headers: {
-              Authorization: localStorage.getItem("JWTtoken"),
+              Authorization: localStorage.getItem("token"),
             },
           }
         );
@@ -665,7 +671,7 @@ function ToursNew() {
 
           {
             headers: {
-              Authorization: localStorage.getItem("JWTtoken"),
+              Authorization: localStorage.getItem("token"),
             },
           }
         );
@@ -728,11 +734,11 @@ function ToursNew() {
   // Update Tours Package
 
   // Handle Edit Button Click
-  const handleEditClick = (rowData: any) => {
-    if (!rowData) return;
-    setEditTourId(rowData.refPackageId);
-    setEditTourData({ ...rowData }); // Ensure it's correctly populated
-  };
+  // const handleEditClick = (rowData: any) => {
+  //   if (!rowData) return;
+  //   setEditTourId(rowData.refPackageId);
+  //   setEditTourData({ ...rowData }); // Ensure it's correctly populated
+  // };
 
   // Handle Input Change
   const handleInputChange = (
@@ -746,20 +752,78 @@ function ToursNew() {
   };
 
   // Update Tour
-  const updateTourPackage = async () => {
-    console.log("Updating with data:", editTourData); // Debugging step
+  // const updateTourPackage = async () => {
+  //   console.log("Updating with data:", editTourData); // Debugging step
 
-    if (!editTourData.refPackageId) {
-      console.error("Invalid data: Missing ID");
-      return;
-    }
+  //   if (!editTourData.refPackageId) {
+  //     console.error("Invalid data: Missing ID");
+  //     return;
+  //   }
 
-    setSubmitLoading(true);
+  //   setSubmitLoading(true);
 
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/packageRoutes/UpdatePackage",
+  //       editTourData,
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     console.log("API Response:", response.data);
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+
+  //     setSubmitLoading(false);
+  //     if (data.success) {
+  //       console.log("Update successful");
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       setEditTourId(null); // Exit edit mode
+  //       fetchTours(); // Refresh the list
+  //     } else {
+  //       console.error("API update failed:", data);
+  //     }
+  //   } catch (e) {
+  //     console.error("Error updating package:", e);
+  //     setSubmitLoading(false);
+  //     setEditTourId(null);
+  //   }
+  // };
+
+  // Action Buttons (Edit / Update)
+  // const _actionTemplate = (rowData: any) => {
+  //   return editTourId === rowData.refPackageId ? (
+  //     <Button
+  //       label="Update"
+  //       icon="pi pi-check"
+  //       className="p-button-success p-button-sm"
+  //       onClick={updateTourPackage}
+  //     />
+  //   ) : (
+  //     <Button
+  //       icon="pi pi-pencil"
+  //       className="p-button-warning p-button-sm"
+  //       // onClick={() => handleEditClick(rowData)}
+  //     />
+  //   );
+  // };
+
+
+  const deleteTour = async (id: any) => {
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/packageRoutes/UpdatePackage",
-        editTourData,
+        import.meta.env.VITE_API_URL + "/packageRoutes/deletePackage",
+        {
+          refPackageId: id
+        },
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -768,20 +832,19 @@ function ToursNew() {
         }
       );
 
-      console.log("API Response:", response.data);
-
+      
       const data = decrypt(
         response.data[1],
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-
-      setSubmitLoading(false);
+      console.log("API Response:", data);
+      
       if (data.success) {
-        console.log("Update successful");
         localStorage.setItem("token", "Bearer " + data.token);
-        setEditTourId(null); // Exit edit mode
-        fetchTours(); // Refresh the list
+        fetchTours().then((result) => {
+          setTourDetails(result);
+        });
       } else {
         console.error("API update failed:", data);
       }
@@ -790,25 +853,21 @@ function ToursNew() {
       setSubmitLoading(false);
       setEditTourId(null);
     }
-  };
+  }
 
-  // Action Buttons (Edit / Update)
-  const actionTemplate = (rowData: any) => {
-    return editTourId === rowData.refPackageId ? (
+
+  const actionDeleteTour = (rowData: any) => {
+
+    console.log(rowData)
+
+    return (
       <Button
-        label="Update"
-        icon="pi pi-check"
-        className="p-button-success p-button-sm"
-        onClick={updateTourPackage}
+        icon="pi pi-trash"
+        severity="danger"
+        onClick={() => deleteTour(rowData.refPackageId)}
       />
-    ) : (
-      <Button
-        icon="pi pi-pencil"
-        className="p-button-warning p-button-sm"
-        onClick={() => handleEditClick(rowData)}
-      />
-    );
-  };
+    )
+  }
 
   return (
     <>
@@ -823,7 +882,7 @@ function ToursNew() {
 
       <div className=" p-3 -mt-5">
         <h3 className="text-lg font-bold">Added Tours</h3>
-        <DataTable value={tourDetails} tableStyle={{ minWidth: "50rem" }}>
+        <DataTable value={tourDetails} tableStyle={{ minWidth: "50rem" }} paginator rows={4}>
           <Column
             header="S.No"
             headerStyle={{ width: "3rem" }}
@@ -958,7 +1017,8 @@ function ToursNew() {
             }
           />
 
-          <Column body={actionTemplate} header="Actions" />
+          {/* <Column body={actionTemplate} header="Actions" /> */}
+          <Column body={actionDeleteTour} header="Delete" />
         </DataTable>
       </div>
 
@@ -969,7 +1029,7 @@ function ToursNew() {
         position="right"
       >
         <h2 className="text-xl font-bold">Add New Tour</h2>
-        <TabView>
+        <TabView >
           <TabPanel header="Tour Form Details">
             <form onSubmit={handleSubmit} method="post">
               <InputText

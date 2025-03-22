@@ -35,7 +35,7 @@ const UserDetails: React.FC = () => {
 
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
-    const [UserDetail, setTourDetail] = useState<UserDetail[]>([]);
+    const [_UserDetail, setTourDetail] = useState<UserDetail[]>([]);
   const [TourBooking, setTourBooking] = useState<any[]>([]);
   const [CarBookingqs, setCarBookings] = useState<any[]>([]);
   // const packageDetails = [
@@ -209,7 +209,7 @@ const UserDetails: React.FC = () => {
     <div className="p-10 mt-0">
       <h2 className="text-2xl font-semibold">User Details</h2>
       <TabView>
-        <TabPanel header="Tour Form Details">
+        {/* <TabPanel header="Tour Form Details">
           <div className="mt-4 p-2 ">
             <h3 className="text-lg font-bold mb-4">Customize TourBookings</h3>
             <DataTable value={UserDetail} tableStyle={{ minWidth: "50rem" }}>
@@ -286,7 +286,7 @@ const UserDetails: React.FC = () => {
               />
             </DataTable>
           </div>
-        </TabPanel>
+        </TabPanel> */}
         <TabPanel header="TourBookings">
           <div className="mt-4 p-2 ">
             <h3 className="text-lg font-bold mb-4">Added TourBookings</h3>
@@ -457,7 +457,6 @@ const UserDetails: React.FC = () => {
                 style={{ minWidth: "200px" }}
               /> */}
             </DataTable>
-            ;
           </div>
         </TabPanel>
       </TabView>

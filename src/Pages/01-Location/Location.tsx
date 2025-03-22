@@ -29,8 +29,8 @@ const Location: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [locations, setLocations] = useState<string[]>([""]);
   const [allLocations, setAllLocations] = useState<any[]>([]);
-  const [editLocationId, setEditLocationId] = useState<number | null>(null);
-  const [editLocationValue, setEditLocationValue] = useState({
+  const [editLocationId, _setEditLocationId] = useState<number | null>(null);
+  const [_editLocationValue, _setEditLocationValue] = useState({
     refLocationId: "",
     refLocationName: "",
     refDestinationId: "",
@@ -219,60 +219,60 @@ const Location: React.FC = () => {
   //update Location
 
   // Handle Edit Button Click
-  const handleEditIncludeClick = (rowData: any) => {
-    setEditLocationId(rowData.refDestinationId);
-    setEditLocationValue({ ...rowData });
-  };
+  // const handleEditIncludeClick = (rowData: any) => {
+  //   setEditLocationId(rowData.refDestinationId);
+  //   setEditLocationValue({ ...rowData });
+  // };
 
   // Handle Input Change
-  const handleDestinationInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setEditLocationValue((prevData) => ({
-      ...prevData,
-      refDestinationId: e.target.value,
-    }));
-  };
+  // const handleDestinationInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>
+  // ) => {
+  //   setEditLocationValue((prevData) => ({
+  //     ...prevData,
+  //     refDestinationId: e.target.value,
+  //   }));
+  // };
 
   // Update API Call
-  const UpdateDestination = async () => {
-    setSubmitLoading(true);
+  // const UpdateDestination = async () => {
+  //   setSubmitLoading(true);
 
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
-        editLocationId,
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
+  //       editLocationId,
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
 
-      setSubmitLoading(false);
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-        setEditLocationId(null);
-        fetchData();
-      }
-    } catch (e) {
-      console.error("Error updating include:", e);
-      setSubmitLoading(false);
-      setEditLocationId(null);
-    }
-  };
+  //     setSubmitLoading(false);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       setEditLocationId(null);
+  //       fetchData();
+  //     }
+  //   } catch (e) {
+  //     console.error("Error updating include:", e);
+  //     setSubmitLoading(false);
+  //     setEditLocationId(null);
+  //   }
+  // };
 
-  const handleUpdate = (rowData: any) => {
-    console.log("Updating:", rowData);
-    // Add logic to open an edit modal or update state
-  };
+  // const handleUpdate = (rowData: any) => {
+  //   console.log("Updating:", rowData);
+  //   // Add logic to open an edit modal or update state
+  // };
 
   const deleteLocation = async (refLocationId: number) => {
     setSubmitLoading(true);
@@ -313,20 +313,20 @@ const Location: React.FC = () => {
     }
   };
 
-  const actionTemplate = (rowData) => (
+  const actionTemplate = (rowData:any) => (
     <div className="flex gap-2">
       {editLocationId === rowData.refLocationId ? (
         <Button
           label="Update"
           icon="pi pi-check"
           className="p-button-success p-button-sm"
-          onClick={updateLocation}
+          // onClick={updateLocation}
         />
       ) : (
         <Button
           icon="pi pi-pencil"
           className="p-button-warning p-button-sm"
-          onClick={() => handleEditLocationClick(rowData)}
+          // onClick={() => handleEditLocationClick(rowData)}
         />
       )}
       <Button

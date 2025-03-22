@@ -762,7 +762,6 @@ const CarServices: React.FC = () => {
           refTrasmissionType: formDataobject.refTrasmissionType,
           refFuleLimit: formDataobject.refFuleLimit,
           refDriverDetailsId: selectedDriver,
-          refTermsAndConditionsId: formDataobject.refTermsAndConditionsId,
           refOtherRequirements: formDataobject.refOtherRequirements,
           refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
           refInclude: selectedinclude.map((act) => act.refIncludeId),
@@ -790,7 +789,10 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditDriverId(null);
-        fetchDriver();
+        fetchNewcarservices().then((result) => {
+          setCabDetails(result);
+        });
+        setVisible(false);
       }
     } catch (e) {
       console.error("Error updating driver:", e);
@@ -1367,70 +1369,73 @@ const CarServices: React.FC = () => {
     // Add your failure handling logic here
   };
 
-  const handleUpdateCar = async (editCarId: number, updatedCarDetails: any) => {
+  // const handleUpdateCar = async (editCarId: number, updatedCarDetails: any) => {
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
+  //       {
+  //         refCarsId: editCarId, // Ensure the correct ID is sent
+  //         refVehicleTypeId: updatedCarDetails.refVehicleTypeId,
+  //         refPersonCount: updatedCarDetails.refPersonCount,
+  //         refBag: updatedCarDetails.refBag,
+  //         refFuelType: updatedCarDetails.refFuelType,
+  //         refcarManufactureYear: updatedCarDetails.refcarManufactureYear,
+  //         refMileage: updatedCarDetails.refMileage,
+  //         refTrasmissionType: updatedCarDetails.refTrasmissionType,
+  //         refFuleLimit: updatedCarDetails.refFuleLimit,
+  //         refBenifits: updatedCarDetails.refBenifits,
+  //         refInclude: updatedCarDetails.refInclude,
+  //         refExclude: updatedCarDetails.refExclude,
+  //         refDriverDetailsId: updatedCarDetails.refDriverDetailsId,
+  //         refTermsAndConditionsId: updatedCarDetails.refTermsAndConditionsId,
+  //         refFormDetails: updatedCarDetails.refFormDetails,
+  //         refOtherRequirements: updatedCarDetails.refOtherRequirements,
+  //         carImage: updatedCarDetails.carImage, // Optional: Can be Base64 or File
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("Update car response:", data);
+
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+
+  //       // Update car list without re-fetching
+  //       setCabDetails(
+  //         cabDetils.map((car) =>
+  //           car.refCarsId === editCarId ? { ...car, ...updatedCarDetails } : car
+  //         )
+  //       );
+
+  //       // toast.success("Car details updated successfully!", {
+  //       //   position: "top-right",
+  //       //   autoClose: 3000,
+  //       // });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating car:", error);
+  //     // toast.error("Failed to update car details.");
+  //   }
+  // };
+
+  const handleDeleteCar = async (rowdata:any) => {
+
+
+    console.log(rowdata.refCarsId)
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
-        {
-          refCarsId: editCarId, // Ensure the correct ID is sent
-          refVehicleTypeId: updatedCarDetails.refVehicleTypeId,
-          refPersonCount: updatedCarDetails.refPersonCount,
-          refBag: updatedCarDetails.refBag,
-          refFuelType: updatedCarDetails.refFuelType,
-          refcarManufactureYear: updatedCarDetails.refcarManufactureYear,
-          refMileage: updatedCarDetails.refMileage,
-          refTrasmissionType: updatedCarDetails.refTrasmissionType,
-          refFuleLimit: updatedCarDetails.refFuleLimit,
-          refBenifits: updatedCarDetails.refBenifits,
-          refInclude: updatedCarDetails.refInclude,
-          refExclude: updatedCarDetails.refExclude,
-          refDriverDetailsId: updatedCarDetails.refDriverDetailsId,
-          refTermsAndConditionsId: updatedCarDetails.refTermsAndConditionsId,
-          refFormDetails: updatedCarDetails.refFormDetails,
-          refOtherRequirements: updatedCarDetails.refOtherRequirements,
-          carImage: updatedCarDetails.carImage, // Optional: Can be Base64 or File
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("Update car response:", data);
-
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-
-        // Update car list without re-fetching
-        setCabDetails(
-          cabDetils.map((car) =>
-            car.refCarsId === editCarId ? { ...car, ...updatedCarDetails } : car
-          )
-        );
-
-        toast.success("Car details updated successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-      }
-    } catch (error) {
-      console.error("Error updating car:", error);
-      toast.error("Failed to update car details.");
-    }
-  };
-
-  const handleDeleteCar = async (carId: number) => {
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/packageRoutes/deletePackage",
-        { refCarsId: carId }, // Send the car ID to delete
+        import.meta.env.VITE_API_URL + "/carsRoutes/deleteCars",
+        { refCarsId: rowdata.refCarsId }, // Send the car ID to delete
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -1450,17 +1455,18 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
-        // Remove the deleted car from the state
-        setCabDetails(cabDetils.filter((car) => car.refCarsId !== carId));
-
-        toast.success("Car deleted successfully!", {
-          position: "top-right",
-          autoClose: 3000,
+        fetchNewcarservices().then((result) => {
+          setCabDetails(result);
         });
+
+        // toast.success("Car deleted successfully!", {
+        //   position: "top-right",
+        //   autoClose: 3000,
+        // });
       }
     } catch (error) {
       console.error("Error deleting car:", error);
-      toast.error("Failed to delete car.");
+      // toast.error("Failed to delete car.");
     }
   };
 
@@ -1476,7 +1482,7 @@ const CarServices: React.FC = () => {
       </div>
       <div className="mt-3 p-2">
         <h3 className="text-lg font-bold">Added Car Package</h3>
-        <DataTable value={cabDetils} tableStyle={{ minWidth: "50rem" }}>
+        <DataTable value={cabDetils} tableStyle={{ minWidth: "50rem" }} paginator rows={4}>
           <Column
             header="S.No"
             headerStyle={{ width: "3rem" }}
@@ -1528,7 +1534,7 @@ const CarServices: React.FC = () => {
             header="Actions"
             body={(rowData) => (
               <div style={{ display: "flex", gap: "8px" }}>
-                <button
+                {/* <button
                   onClick={() => handleUpdateCar(rowData.refCarsId, rowData)}
                   style={{
                     background: "#007bff",
@@ -1540,10 +1546,10 @@ const CarServices: React.FC = () => {
                   }}
                 >
                   Update
-                </button>
+                </button> */}
 
                 <button
-                  onClick={() => handleDeleteCar(rowData.refCarsId)}
+                  onClick={() => handleDeleteCar(rowData)}
                   style={{
                     background: "#dc3545",
                     color: "#fff",
