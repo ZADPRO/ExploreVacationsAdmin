@@ -190,47 +190,38 @@ function ToursNew() {
     const formDataobject = Object.fromEntries(
       new FormData(e.target as HTMLFormElement)
     );
-
-    const payload = {
-      refPackageName: formDataobject.packageName,
-      refDesignationId: selectedDestination?.refDestinationId,
-      refDurationIday: formDataobject.noOfDays,
-      refDurationINight: formDataobject.noOfNights,
-      refLocation: selectedLocations.map((loc) => loc.refLocationId),
-      refCategoryId: selectedcategory.refCategoryId,
-      refActivity: selectedactivities.map((act) => act.refActivitiesId),
-      refGroupSize: "Not Specified",
-      refTourCode: formDataobject.tourCode,
-      refTourPrice: formDataobject.price,
-      refSeasonalPrice: formDataobject.seasonalPrice,
-      refUploadMap: formData,
-      refUploadImage: formDataImages,
-      refCoverImage: coverImage,
-    };
-    console.log("payload", payload);
-
+    console.log("selectedLocations", selectedLocations);
+    console.log("selectedactivities", selectedactivities);
+    console.log("selectedInclude", selectedInclude);
+    console.log("selectexclude", selectexclude);
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/packageRoutes/addPackage",
         {
           refPackageName: formDataobject.packageName,
           refDesignationId: parseInt(selectedDestination.refDestinationId),
-          refDurationIday: formDataobject.noOfDays,
-          refDurationINight: formDataobject.noOfNights,
-          refLocation: selectedLocations.map((loc) => loc.refLocationId),
+          refDurationIday: +formDataobject.noOfDays,
+          refDurationINight: +formDataobject.noOfNights,
+          refLocation: selectedLocations.map((loc) => loc.refLocationName),
           refCategoryId: parseInt(selectedcategory.refCategoryId),
-          refGroupSize: "Not Specified",
+          refGroupSize: 0,
           refTourCode: formDataobject.tourCode,
-          refTourPrice: formDataobject.price,
-          refSeasonalPrice: formDataobject.seasonalPrice,
+          refTourPrice: +formDataobject.price,
+          refSeasonalPrice: +formDataobject.seasonalPrice,
           images: formDataImages,
           refItinary: text,
           refItinaryMapPath: formData,
           refSpecialNotes: specialNotes,
-          refActivity: selectedactivities.map((act) => act.refActivitiesId),
-          refTravalInclude: selectedInclude,
-          refTravalExclude: selectexclude,
-          refCoverImage: coverImage
+          refActivity: selectedactivities.map(
+            (act) => act.refActivitiesId + ""
+          ),
+          refTravalInclude: selectedInclude.map(
+            (inc) => inc.refTravalIncludeId + ""
+          ),
+          refTravalExclude: selectexclude.map(
+            (exc) => exc.refTravalExcludeId + ""
+          ),
+          refCoverImage: coverImage,
         },
         {
           headers: {
@@ -594,7 +585,7 @@ function ToursNew() {
       console.log("data==============", data);
 
       if (data.success) {
-        event.options.onUpload({}); 
+        event.options.onUpload({});
         console.log("data+", data);
         handleUploadSuccessMap(data);
       } else {
@@ -816,13 +807,12 @@ function ToursNew() {
   //   );
   // };
 
-
   const deleteTour = async (id: any) => {
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/packageRoutes/deletePackage",
         {
-          refPackageId: id
+          refPackageId: id,
         },
         {
           headers: {
@@ -832,14 +822,13 @@ function ToursNew() {
         }
       );
 
-      
       const data = decrypt(
         response.data[1],
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
       console.log("API Response:", data);
-      
+
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchTours().then((result) => {
@@ -853,12 +842,10 @@ function ToursNew() {
       setSubmitLoading(false);
       setEditTourId(null);
     }
-  }
-
+  };
 
   const actionDeleteTour = (rowData: any) => {
-
-    console.log(rowData)
+    console.log(rowData);
 
     return (
       <Button
@@ -866,8 +853,8 @@ function ToursNew() {
         severity="danger"
         onClick={() => deleteTour(rowData.refPackageId)}
       />
-    )
-  }
+    );
+  };
 
   return (
     <>
@@ -882,7 +869,12 @@ function ToursNew() {
 
       <div className=" p-3 -mt-5">
         <h3 className="text-lg font-bold">Added Tours</h3>
-        <DataTable value={tourDetails} tableStyle={{ minWidth: "50rem" }} paginator rows={4}>
+        <DataTable
+          value={tourDetails}
+          tableStyle={{ minWidth: "50rem" }}
+          paginator
+          rows={4}
+        >
           <Column
             header="S.No"
             headerStyle={{ width: "3rem" }}
@@ -1029,7 +1021,7 @@ function ToursNew() {
         position="right"
       >
         <h2 className="text-xl font-bold">Add New Tour</h2>
-        <TabView >
+        <TabView>
           <TabPanel header="Tour Form Details">
             <form onSubmit={handleSubmit} method="post">
               <InputText
