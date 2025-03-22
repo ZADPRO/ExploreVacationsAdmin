@@ -37,29 +37,27 @@ interface Location {
   refLocationId: number;
 }
 
-interface TourPacakge{
-  refPackageId:"";
-  refPackageName:"";
-  refDurationIday:"";
-  refDesignationId:"";
+interface TourPacakge {
+  refPackageId: "";
+  refPackageName: "";
+  refDurationIday: "";
+  refDesignationId: "";
   refDurationINight: "";
-  refCategoryId:"";
-  refGroupSize:"";
-  refTourCode:"";
-  refTourPrice:"";
-refSeasonalPrice:"";
-  refTravalDataId:"";
-  refTravalOverView:"";
-  refItinary:"";
-  refItinaryMapPath:"";
-  refTravalInclude:"";
-  refTravalExclude:"";
-  refSpecialNotes:"";
-  refLocation:"";
-  Activity:"";
+  refCategoryId: "";
+  refGroupSize: "";
+  refTourCode: "";
+  refTourPrice: "";
+  refSeasonalPrice: "";
+  refTravalDataId: "";
+  refTravalOverView: "";
+  refItinary: "";
+  refItinaryMapPath: "";
+  refTravalInclude: "";
+  refTravalExclude: "";
+  refSpecialNotes: "";
+  refLocation: "";
+  Activity: "";
 }
-
-
 
 function transformArrayToObject(array: string[], key: string) {
   return {
@@ -90,7 +88,7 @@ function ToursNew() {
   const [editIncludeId, setEditIncludeId] = useState<number | null>(null);
   const [editIncludeValue, setEditIncludeValue] = useState({
     refTravalIncludeId: "",
-    
+
     refTravalInclude: "",
   });
   const [specialNotes, setSpecialNotes]: any = useState("");
@@ -102,10 +100,11 @@ function ToursNew() {
   const [formData, setFormData] = useState<any>([]);
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
- 
+
   const [editTourId, setEditTourId] = useState<number | null>(null);
   const [editTourData, setEditTourData] = useState<any>({});
 
+  const [coverImage, setCoverImage] = useState("");
 
   type DecryptResult = any;
 
@@ -206,6 +205,7 @@ function ToursNew() {
       refSeasonalPrice: formDataobject.seasonalPrice,
       refUploadMap: formData,
       refUploadImage: formDataImages,
+      refCoverImage: coverImage,
     };
     console.log("payload", payload);
 
@@ -230,6 +230,7 @@ function ToursNew() {
           refActivity: selectedactivities.map((act) => act.refActivitiesId),
           refTravalInclude: selectedInclude,
           refTravalExclude: selectexclude,
+          refCoverImage: coverImage
         },
         {
           headers: {
@@ -645,6 +646,50 @@ function ToursNew() {
     }
   };
 
+  const customCoverUploader = async (event: any) => {
+    console.table("event", event);
+
+    // Create a FormData object
+
+    // Loop through the selected files and append each one to the FormData
+    for (let i = 0; i < event.files.length; i++) {
+      const formData = new FormData();
+      const file = event.files[i];
+      formData.append("Image", file);
+
+      try {
+        const response = await axios.post(
+          import.meta.env.VITE_API_URL + "/packageRoutes/uploadCoverImage",
+
+          formData,
+
+          {
+            headers: {
+              Authorization: localStorage.getItem("JWTtoken"),
+            },
+          }
+        );
+
+        const data = decrypt(
+          response.data[1],
+          response.data[0],
+          import.meta.env.VITE_ENCRYPTION_KEY
+        );
+
+        localStorage.setItem("JWTtoken", "Bearer " + data.token);
+        console.log("data==============", data);
+
+        if (data.success) {
+          handleUploadSuccessCover(data);
+        } else {
+          handleUploadFailure(data);
+        }
+      } catch (error) {
+        handleUploadFailure(error);
+      }
+    }
+  };
+
   const handleUploadSuccessMap = (response: any) => {
     // let temp = formDataImages;
 
@@ -652,6 +697,15 @@ function ToursNew() {
 
     console.log("Upload Successful:", response);
     setFormData(response.filePath);
+  };
+
+  const handleUploadSuccessCover = (response: any) => {
+    // let temp = formDataImages;
+
+    // temp.push(response.filePath);
+
+    console.log("Upload Successful:", response);
+    setCoverImage(response.filePath);
   };
 
   // const handleUploadFailure = (error: any) => {
@@ -679,7 +733,6 @@ function ToursNew() {
     setEditTourId(rowData.refPackageId);
     setEditTourData({ ...rowData }); // Ensure it's correctly populated
   };
-  
 
   // Handle Input Change
   const handleInputChange = (
@@ -692,7 +745,7 @@ function ToursNew() {
     }));
   };
 
-  // Update API Call
+  // Update Tour
   const updateTourPackage = async () => {
     console.log("Updating with data:", editTourData); // Debugging step
 
@@ -784,9 +837,9 @@ function ToursNew() {
             body={(rowData) =>
               editTourId === rowData.refPackageId ? (
                 <InputText
-                value={editTourData.refPackageName}
-                onChange={(e) => handleInputChange(e, "refPackageName")}
-              />
+                  value={editTourData.refPackageName}
+                  onChange={(e) => handleInputChange(e, "refPackageName")}
+                />
               ) : (
                 rowData.refPackageName
               )
@@ -817,14 +870,11 @@ function ToursNew() {
               editTourId === rowData.refPackageId && editTourData ? (
                 <InputText
                   value={editTourData?.refPackageName || ""}
-                  
                   onChange={(e) => handleInputChange(e, "refPackageName")}
                 />
               ) : (
                 rowData.refPackageName
               )
-              
-             
             }
           />
 
@@ -1076,6 +1126,26 @@ function ToursNew() {
                       Drag and drop your logo here to upload.
                     </p>
                   }
+                />
+              </div>
+
+              {/* Image Cover */}
+
+              <div>
+                <h2 className="mt-3">Upload Cover Image</h2>
+                <FileUpload
+                  name="cover"
+                  customUpload
+                  className="mt-3"
+                  uploadHandler={customCoverUploader}
+                  accept="image/*"
+                  maxFileSize={10000000}
+                  emptyTemplate={
+                    <p className="m-0">
+                      Drag and drop your logo here to upload.
+                    </p>
+                  }
+                  multiple
                 />
               </div>
 

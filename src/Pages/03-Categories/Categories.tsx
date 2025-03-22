@@ -135,6 +135,7 @@ const Categories: React.FC = () => {
   };
 
   const handleEditActivityClick = (rowData: categories) => {
+    console.log("____>", rowData.refCategoryId);
     setEditCategoryId(rowData.refCategoryId); // Ensure correct ID is used
     setEditCategoryValue(rowData.refCategoryName);
   };
@@ -183,7 +184,6 @@ const Categories: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
-       
         setCategories(
           categories.map((activity) =>
             activity.refCategoryId === editCategoryId
@@ -195,7 +195,7 @@ const Categories: React.FC = () => {
         // Reset edit state
         setEditCategoryId(null);
         setEditCategoryValue("");
-            fetchCategories();
+        fetchCategories();
         toast.success("Activity Updated!", {
           position: "top-right",
           autoClose: 3000,
@@ -303,16 +303,18 @@ const Categories: React.FC = () => {
             field="refCategoryName"
             style={{ color: "#0a5c9c" }}
             header="Categories Name"
-            body={(rowData) =>
-              editCategoryId === rowData.editCategoryId ? (
-                <InputText
-                  value={editCategoryValue}
-                  onChange={handleActivityInputChange}
-                />
-              ) : (
-                rowData.refCategoryName
-              )
-            }
+            body={(rowData) => (
+              <>
+                {editCategoryId === rowData.refCategoryId ? (
+                  <InputText
+                    value={editCategoryValue}
+                    onChange={handleActivityInputChange}
+                  />
+                ) : (
+                  <>{rowData.refCategoryName}</>
+                )}
+              </>
+            )}
           />
           <Column body={actionTemplate} header="Actions" />
         </DataTable>
