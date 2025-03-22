@@ -40,15 +40,15 @@ export const fetchNewcarservices = async () => {
       }
     );
 
-    //   const data = decryptAPIResponse(
-    //     response.data[1],
-    //     response.data[0],
-    //     import.meta.env.VITE_ENCRYPTION_KEY
-    //   );
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
 
-    console.log('tour details------------------>');
-    const data = response.data.text;
-    console.log('tour details------------------>', data);
+    console.log('car ------------------>');
+   
+    console.log('car detailssssssssssssssssssssssss ------------------>', data);
     if (data.success) {
      
       return data.result;

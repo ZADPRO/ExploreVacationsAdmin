@@ -36,6 +36,31 @@ interface Location {
   refLocationName: string;
   refLocationId: number;
 }
+
+interface TourPacakge{
+  refPackageId:"";
+  refPackageName:"";
+  refDurationIday:"";
+  refDesignationId:"";
+  refDurationINight: "";
+  refCategoryId:"";
+  refGroupSize:"";
+  refTourCode:"";
+  refTourPrice:"";
+refSeasonalPrice:"";
+  refTravalDataId:"";
+  refTravalOverView:"";
+  refItinary:"";
+  refItinaryMapPath:"";
+  refTravalInclude:"";
+  refTravalExclude:"";
+  refSpecialNotes:"";
+  refLocation:"";
+  Activity:"";
+}
+
+
+
 function transformArrayToObject(array: string[], key: string) {
   return {
     [key]: array.map((val) => ({ [key]: val })),
@@ -49,12 +74,12 @@ function ToursNew() {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [allcategories, setAllcategories] = useState<any[]>([]);
   const [selectedcategory, setSelectedCategory] = useState<any | null>(null);
-  const [selectedDestination, setSelectedDestination] =
-    useState<any | null>();
+  const [selectedDestination, setSelectedDestination] = useState<any | null>();
   const [activities, setActivities] = useState<any[]>([]);
   const [selectedactivities, setSelectedactivities] = useState<any[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
   const [tours, setTours] = useState<any[]>([]);
+  const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
   // const [imagePaths, setImagePaths] = useState<string[]>([]);
@@ -65,6 +90,7 @@ function ToursNew() {
   const [editIncludeId, setEditIncludeId] = useState<number | null>(null);
   const [editIncludeValue, setEditIncludeValue] = useState({
     refTravalIncludeId: "",
+    
     refTravalInclude: "",
   });
   const [specialNotes, setSpecialNotes]: any = useState("");
@@ -76,6 +102,10 @@ function ToursNew() {
   const [formData, setFormData] = useState<any>([]);
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
+ 
+  const [editTourId, setEditTourId] = useState<number | null>(null);
+  const [editTourData, setEditTourData] = useState<any>({});
+
 
   type DecryptResult = any;
 
@@ -117,9 +147,9 @@ function ToursNew() {
       setTours(result);
     });
     fetchTours().then((result) => {
-      setTours(result);
+      setTourDetails(result);
     });
-    
+
     fetchInclude();
     fetchExclude();
   }, []);
@@ -223,8 +253,6 @@ function ToursNew() {
     } catch (e) {
       console.error("Error fetching locations:", e);
     }
-
-    
   };
   const snoTemplate = (
     _rowData: Destination,
@@ -643,6 +671,92 @@ function ToursNew() {
     // Add your failure handling logic here
   };
 
+  // Update Tours Package
+
+  // Handle Edit Button Click
+  const handleEditClick = (rowData: any) => {
+    if (!rowData) return;
+    setEditTourId(rowData.refPackageId);
+    setEditTourData({ ...rowData }); // Ensure it's correctly populated
+  };
+  
+
+  // Handle Input Change
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: string
+  ) => {
+    setEditTourData((prevData: any) => ({
+      ...prevData,
+      [field]: e.target.value,
+    }));
+  };
+
+  // Update API Call
+  const updateTourPackage = async () => {
+    console.log("Updating with data:", editTourData); // Debugging step
+
+    if (!editTourData.refPackageId) {
+      console.error("Invalid data: Missing ID");
+      return;
+    }
+
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/UpdatePackage",
+        editTourData,
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("API Response:", response.data);
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      setSubmitLoading(false);
+      if (data.success) {
+        console.log("Update successful");
+        localStorage.setItem("token", "Bearer " + data.token);
+        setEditTourId(null); // Exit edit mode
+        fetchTours(); // Refresh the list
+      } else {
+        console.error("API update failed:", data);
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditTourId(null);
+    }
+  };
+
+  // Action Buttons (Edit / Update)
+  const actionTemplate = (rowData: any) => {
+    return editTourId === rowData.refPackageId ? (
+      <Button
+        label="Update"
+        icon="pi pi-check"
+        className="p-button-success p-button-sm"
+        onClick={updateTourPackage}
+      />
+    ) : (
+      <Button
+        icon="pi pi-pencil"
+        className="p-button-warning p-button-sm"
+        onClick={() => handleEditClick(rowData)}
+      />
+    );
+  };
+
   return (
     <>
       <div className="flex justify-between p-4">
@@ -654,56 +768,147 @@ function ToursNew() {
         />
       </div>
 
-      <div className="mt-4 p-5">
+      <div className=" p-3 -mt-5">
         <h3 className="text-lg font-bold">Added Tours</h3>
-        <DataTable value={tours} tableStyle={{ minWidth: "50rem" }}>
+        <DataTable value={tourDetails} tableStyle={{ minWidth: "50rem" }}>
           <Column
             header="S.No"
             headerStyle={{ width: "3rem" }}
             body={(_, options) => options.rowIndex + 1}
-          ></Column>
+          />
 
           <Column
             field="refPackageName"
             header="Package Name"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                value={editTourData.refPackageName}
+                onChange={(e) => handleInputChange(e, "refPackageName")}
+              />
+              ) : (
+                rowData.refPackageName
+              )
+            }
+          />
+
           <Column
             field="refDurationIday"
-            header="noo of Day"
+            header="No of Day"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refDurationIday}
+                  onChange={(e) => handleInputChange(e, "refDurationIday")}
+                />
+              ) : (
+                rowData.refDurationIday
+              )
+            }
+          />
+
           <Column
             field="refDurationINight"
-            header="no of night"
+            header="No of Night"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId && editTourData ? (
+                <InputText
+                  value={editTourData?.refPackageName || ""}
+                  
+                  onChange={(e) => handleInputChange(e, "refPackageName")}
+                />
+              ) : (
+                rowData.refPackageName
+              )
+              
+             
+            }
+          />
+
           <Column
             field="refGroupSize"
-            header="Group  
-                      size"
+            header="Group Size"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refGroupSize}
+                  onChange={(e) => handleInputChange(e, "refGroupSize")}
+                />
+              ) : (
+                rowData.refGroupSize
+              )
+            }
+          />
+
           <Column
             field="refTourPrice"
-            header="TourPrice"
+            header="Tour Price"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refTourPrice}
+                  onChange={(e) => handleInputChange(e, "refTourPrice")}
+                />
+              ) : (
+                rowData.refTourPrice
+              )
+            }
+          />
+
           <Column
             field="refSeasonalPrice"
-            header="SeasonalPrice"
+            header="Seasonal Price"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refSeasonalPrice}
+                  onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
+                />
+              ) : (
+                rowData.refSeasonalPrice
+              )
+            }
+          />
+
           <Column
-            field="reflocationlabel"
+            field="refLocation"
             header="Location"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refLocation}
+                  onChange={(e) => handleInputChange(e, "refLocation")}
+                />
+              ) : (
+                rowData.refLocation
+              )
+            }
+          />
+
           <Column
-            field="refactivitylabel"
+            field="refActivity"
             header="Activity"
             style={{ minWidth: "200px" }}
-          ></Column>
+            body={(rowData) =>
+              editTourId === rowData.refPackageId ? (
+                <InputText
+                  value={editTourData.refActivity}
+                  onChange={(e) => handleInputChange(e, "refActivity")}
+                />
+              ) : (
+                rowData.refActivity
+              )
+            }
+          />
+
+          <Column body={actionTemplate} header="Actions" />
         </DataTable>
       </div>
 

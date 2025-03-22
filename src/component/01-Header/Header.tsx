@@ -6,6 +6,7 @@ import { MdOutlineTravelExplore } from "react-icons/md";
 import { FaCarOn } from "react-icons/fa6";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
+import { FaUserGear } from "react-icons/fa6";
 
 import "./Header.css";
 
@@ -16,19 +17,25 @@ const routes: any = [
     icon: <MdOutlineTravelExplore />,
   },
   {
-    path: "/carrental",
+    path: "/carservices",
     label: "CarRental",
+    
     icon: <FaCar />,
   },
-  {
-    path: "/carservices",
+  {  path: "/carrental",
     label: "CarServices",
+   
     icon: <FaCarOn />,
   },
   {
     path: "/settings",
     label: "Settings",
     icon: <IoSettingsSharp />,
+  },
+  {
+    path: "/userdetails",
+    label: "User Details",
+    icon: <FaUserGear />,
   },
 ];
 

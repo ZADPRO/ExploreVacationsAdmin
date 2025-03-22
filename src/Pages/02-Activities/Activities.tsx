@@ -10,7 +10,8 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
 type DecryptResult = any;
-interface activities {
+interface Activities {
+  refActivitiesId: number;
   refActivitiesName: string;
 }
 
@@ -38,14 +39,13 @@ const Activities: React.FC = () => {
   };
 
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [inputs, setInputs]: any = useState({ refActivity: "" });
-  const [activities, setActivities]: any = useState<activities[]>([]);
+  const [inputs, setInputs] = useState({ refActivity: "" });
+  const [activities, setActivities] = useState<Activities[]>([]);
+  const [editActivityId, setEditActivityId] = useState<number | null>(null);
+  const [editActivityValue, setEditActivityValue] = useState("");
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs((prevState: any) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+    setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
 
   const fetchActivities = async () => {
@@ -65,24 +65,101 @@ const Activities: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
+      console.log("Fetched activities:", data);
+
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        console.log(data);
-        console.log("data - list api - line 62", data);
         setActivities(data.result);
       }
     } catch (e: any) {
-      console.log("Error fetching activities:", e);
+      console.error("Error fetching activities:", e);
     }
   };
-  const Addactivities = async () => {
+
+  const addActivity = async () => {
+    if (!inputs.refActivity.trim()) {
+      toast.error("Activity name cannot be empty!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
     setSubmitLoading(true);
 
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/settingRoutes/addActivities",
+        { refActivity: inputs.refActivity },
         {
-          refActivity: inputs.refActivity,
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("Add activity response:", data);
+
+      setSubmitLoading(false);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setActivities([
+          ...activities,
+          {
+            refActivitiesName: inputs.refActivity,
+            refActivitiesId: data.insertedId,
+          },
+        ]);
+
+        toast.success("Successfully Added!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+
+        setInputs({ refActivity: "" });
+      }
+    } catch (e: any) {
+      console.error("Error adding activity:", e);
+      setSubmitLoading(false);
+    }
+  };
+
+  const handleEditActivityClick = (rowData: Activities) => {
+    setEditActivityId(rowData.refActivitiesId); // Ensure correct ID is used
+    setEditActivityValue(rowData.refActivitiesName);
+  };
+
+  const handleActivityInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEditActivityValue(e.target.value);
+  };
+
+  const updateActivity = async () => {
+    if (!editActivityValue.trim()) {
+      toast.error("Activity name cannot be empty!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/settingRoutes/updateActivities",
+        {
+          refActivitiesId: editActivityId, // Ensure correct ID is sent
+          refActivitiesName: editActivityValue, // Ensure correct field name
         },
         {
           headers: {
@@ -97,79 +174,139 @@ const Activities: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data--------->87", data);
+      console.log("Update activity response:", data);
+
       setSubmitLoading(false);
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        console.log(data);
-        // localStorage.setItem("token", newToken);
 
-        toast.success("Successfully Added", {
+        // Update activity list without re-fetching
+        setActivities(
+          activities.map((activity) =>
+            activity.refActivitiesId === editActivityId
+              ? { ...activity, refActivitiesName: editActivityValue }
+              : activity
+          )
+        );
+
+        // Reset edit state
+        setEditActivityId(null);
+        setEditActivityValue("");
+
+        toast.success("Activity Updated!", {
           position: "top-right",
-          autoClose: 2999,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Slide,
+          autoClose: 3000,
         });
-
-        setInputs({ refCategory: "" });
-        fetchActivities();
       }
-    } catch (e: any) {
-      console.log(e);
+    } catch (e) {
+      console.error("Error updating activity:", e);
+      setSubmitLoading(false);
+      setEditActivityId(null);
+    }
+  };
+
+  const deleteActivity = async (refActivitiesId: number) => {
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/settingRoutes/deleteActivities",
+        { refActivitiesId },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("Delete activity response:", data);
+
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        setActivities(
+          activities.filter(
+            (activity) => activity.refActivitiesId !== refActivitiesId
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Error deleting activity:", e);
       setSubmitLoading(false);
     }
   };
 
+ const actionTemplate = (rowData: Activities) => (
+    <div className="flex gap-2">
+      {editActivityId === rowData.refActivitiesId ? (
+        <Button
+          label="Update"
+          icon="pi pi-check"
+          className="p-button-success p-button-sm"
+          onClick={updateActivity}
+        />
+      ) : (
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-warning p-button-sm"
+          onClick={() => handleEditActivityClick(rowData)}
+        />
+      )}
+      <Button
+        icon="pi pi-trash"
+        className="p-button-danger p-button-sm"
+        onClick={() => deleteActivity(rowData.refActivitiesId)}
+      />
+    </div>
+  );
+
+  const snoTemplate = (_rowData: Activities, options: { rowIndex: number }) =>
+    options.rowIndex + 1;
+
   useEffect(() => {
     fetchActivities();
   }, []);
-  const snoTemplate = (_rowData: activities, options: { rowIndex: number }) => {
-    return options.rowIndex + 1;
-  };
+
   return (
     <>
-      <div>
-        <h2 className="text-xl font-bold text-[#0a5c9c] mb-3">
-          Add New Activities
-        </h2>
-        <div className="mb-3">
-          <InputText
-            name="refActivity"
-            value={inputs.refActivity}
-            onChange={handleInput}
-            placeholder="Enter Activities"
-            className="p-inputtext-sm w-full"
-          />
-        </div>
-        <Button
-          label={submitLoading ? "Adding..." : "Add Activities"}
-          icon="pi pi-check"
-          className="p-button-primary"
-          onClick={Addactivities}
-          disabled={submitLoading}
+      <h2>Add New Activities</h2>
+      <InputText
+        name="refActivity"
+        value={inputs.refActivity}
+        onChange={handleInput}
+        placeholder="Enter Activity"
+      />
+      <Button
+        label={submitLoading ? "Adding..." : "Add Activity"}
+        onClick={addActivity}
+        disabled={submitLoading}
+      />
+
+      <DataTable value={activities} className="p-datatable-sm mt-2">
+        <Column header="S.No" body={snoTemplate} style={{ width: "10%" }} />
+        <Column
+           field="refActivitiesName"
+          header="Activity Name"
+          body={(rowData) =>
+            editActivityId === rowData.refActivitiesId ? (
+              <InputText
+                value={editActivityValue}
+                onChange={handleActivityInputChange}
+              />
+            ) : (
+              rowData.refActivitiesName
+            )
+          }
         />
-      </div>
-      <div className="mt-4">
-        <h3 className="text-lg font-bold">Added Destinations</h3>
-        <DataTable value={activities} className="p-datatable-sm mt-2">
-          <Column
-            body={snoTemplate}
-            header="S.No"
-            style={{ width: "10%", color: "#0a5c9c" }}
-          />
-          <Column
-            field="refActivitiesName"
-            style={{ color: "#0a5c9c" }}
-            header="Activities Name"
-          />
-        </DataTable>
-      </div>
+        <Column body={actionTemplate} header="Actions" />
+      </DataTable>
     </>
   );
 };

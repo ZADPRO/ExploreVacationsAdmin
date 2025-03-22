@@ -29,6 +29,13 @@ const Location: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
   const [locations, setLocations] = useState<string[]>([""]);
   const [allLocations, setAllLocations] = useState<any[]>([]);
+  const [editLocationId, setEditLocationId] = useState<number | null>(null);
+  const [editLocationValue, setEditLocationValue] = useState({
+    refLocationId: "",
+    refLocationName: "",
+    refDestinationId: "",
+  });
+
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -209,60 +216,129 @@ const Location: React.FC = () => {
     setLocations(updatedLocations);
   };
 
-  //Update Destination
+  //update Location
 
-  // // Handle Edit Button Click
-  // const handleEditIncludeClick = (rowData: any) => {
-  //   setEditdestinationId(rowData.refDestinationId);
-  //   setEditDestinationValue({ ...rowData });
-  // };
+  // Handle Edit Button Click
+  const handleEditIncludeClick = (rowData: any) => {
+    setEditLocationId(rowData.refDestinationId);
+    setEditLocationValue({ ...rowData });
+  };
 
-  // // Handle Input Change
-  // const handleDestinationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   setEditDestinationValue((prevData) => ({
-  //     ...prevData,
-  //     refDestinationId: e.target.value,
-  //   }));
-  // };
+  // Handle Input Change
+  const handleDestinationInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEditLocationValue((prevData) => ({
+      ...prevData,
+      refDestinationId: e.target.value,
+    }));
+  };
 
-  // // Update API Call
-  // const UpdateDestination = async () => {
-  //   setSubmitLoading(true);
+  // Update API Call
+  const UpdateDestination = async () => {
+    setSubmitLoading(true);
 
-  //   try {
-  //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
-  //       editDestinationId,
-  //       {
-  //         headers: {
-  //           Authorization: localStorage.getItem("token"),
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
+        editLocationId,
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  //     const data = decrypt(
-  //       response.data[1],
-  //       response.data[0],
-  //       import.meta.env.VITE_ENCRYPTION_KEY
-  //     );
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
 
-  //     setSubmitLoading(false);
-  //     if (data.success) {
-  //       localStorage.setItem("token", "Bearer " + data.token);
-  //       setEditdestinationId(null);
-  //       fetchDestinations().then(result => {
-  //         setDestinations(result);
-  //       })
-  //     }
-  //   } catch (e) {
-  //     console.error("Error updating include:", e);
-  //     setSubmitLoading(false);
-  //     setEditdestinationId(null);
-  //   }
-  // };
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        setEditLocationId(null);
+        fetchData();
+      }
+    } catch (e) {
+      console.error("Error updating include:", e);
+      setSubmitLoading(false);
+      setEditLocationId(null);
+    }
+  };
 
-  //Delete Location
+  const handleUpdate = (rowData: any) => {
+    console.log("Updating:", rowData);
+    // Add logic to open an edit modal or update state
+  };
+
+  const deleteLocation = async (refLocationId: number) => {
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/settingRoutes/deleteLocation",
+        { refLocationId },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("Delete location response:", data);
+
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        // ✅ Update state safely
+        setAllLocations((prevLocations) =>
+          prevLocations.filter(
+            (location) => location.refLocationId !== refLocationId
+          )
+        );
+      }
+    } catch (e) {
+      console.error("Error deleting location:", e);
+      setSubmitLoading(false);
+    }
+  };
+
+  const actionTemplate = (rowData) => (
+    <div className="flex gap-2">
+      {editLocationId === rowData.refLocationId ? (
+        <Button
+          label="Update"
+          icon="pi pi-check"
+          className="p-button-success p-button-sm"
+          onClick={updateLocation}
+        />
+      ) : (
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-warning p-button-sm"
+          onClick={() => handleEditLocationClick(rowData)}
+        />
+      )}
+      <Button
+        icon="pi pi-trash"
+        className="p-button-danger p-button-sm"
+        onClick={() => deleteLocation(rowData.refLocationId)}
+      />
+    </div>
+  );
+  
+
+  // Delete Location
 
   // const deleteDestination = async (refDestinationId: number) => {
 
@@ -424,6 +500,9 @@ const Location: React.FC = () => {
           )}
           style={{ minWidth: "300px" }}
         />
+
+        {/* Action Buttons */}
+        <Column header="Actions" body={actionTemplate} style={{ minWidth: "150px", textAlign: "center" }} />
       </DataTable>
     </div>
   );

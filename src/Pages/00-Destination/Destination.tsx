@@ -13,8 +13,7 @@ import { fetchDestinations } from "../../services/DestinationService";
 type DecryptResult = any;
 
 interface Destination {
-  createdAt: string;
-  createdBy: string;
+ 
   refDestinationId: number;
   refDestinationName: string;
 
@@ -47,10 +46,7 @@ const Destination: React.FC = () => {
   const [inputs, setInputs] = useState({ refDestination: "" });
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [editDestinationId, setEditdestinationId] = useState<number | null>(null);
-  const [editDestinationValue, setEditDestinationValue] = useState({
-    refDestinationId: "",
-    refDestinationName: "",
-  });
+  const [editDestinationValue, setEditDestinationValue] = useState("");
 
 
   useEffect(() => {
@@ -68,6 +64,7 @@ const Destination: React.FC = () => {
 
   const addDestination = async () => {
     setSubmitLoading(true);
+    if (!inputs.refDestination.trim()) return;
 
     try {
       const response = await axios.post(
@@ -106,6 +103,10 @@ const Destination: React.FC = () => {
         fetchDestinations().then(result => {
           setDestinations(result);
         })
+        setInputs((prevInputs) => ({
+          ...prevInputs,
+          refDestination: "", 
+        }));
                
       }
     } catch (e: any) {
@@ -118,27 +119,33 @@ const Destination: React.FC = () => {
 //Update Destination
 
   // Handle Edit Button Click
-  const handleEditIncludeClick = (rowData: any) => {
+  const handleEditIncludeClick = (rowData: Destination) => {
     setEditdestinationId(rowData.refDestinationId);
-    setEditDestinationValue({ ...rowData });
+    setEditDestinationValue(rowData.refDestinationName);
   };
 
   // Handle Input Change
-  const handleDestinationInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditDestinationValue((prevData) => ({
-      ...prevData,
-      refDestinationId: e.target.value,
-    }));
-  };
+
+    const handleDestinationInputChange = (
+      e: React.ChangeEvent<HTMLInputElement>
+    ) => {
+      setEditDestinationValue(e.target.value);
+    };
+  
 
   // Update API Call
   const UpdateDestination = async () => {
+    if (!editDestinationId || !editDestinationValue.trim()) return;
+    
     setSubmitLoading(true);
 
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
-        editDestinationId,
+        {
+          refDestinationId: editDestinationId,
+          refDestinationName: editDestinationValue,  // Send updated name
+        },
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -157,16 +164,17 @@ const Destination: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditdestinationId(null);
-        fetchDestinations().then(result => {
-          setDestinations(result);
-        })
+        setEditDestinationValue("");
+        
+        // Fetch updated destinations
+        fetchDestinations().then(setDestinations);
       }
     } catch (e) {
-      console.error("Error updating include:", e);
+      console.error("Error updating destination:", e);
       setSubmitLoading(false);
       setEditdestinationId(null);
     }
-  };
+};
 
 
 
@@ -283,7 +291,7 @@ const DeleteActionTemplateDelete = (rowData: any) => {
             body={(rowData) =>
               editDestinationId === rowData.refDestinationId ? (
                 <InputText
-                  value={editDestinationValue.refDestinationName}
+                  value={editDestinationValue}
                   onChange={handleDestinationInputChange}
                 />
               ) : (

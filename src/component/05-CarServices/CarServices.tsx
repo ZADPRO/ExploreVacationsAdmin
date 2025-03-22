@@ -16,6 +16,7 @@ import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import { Form } from "react-router-dom";
 import { FileUpload } from "primereact/fileupload";
+import { fetchNewcarservices } from "../../services/NewServices";
 interface Carname {
   createdAt: string;
   createdBy: string;
@@ -93,15 +94,15 @@ const CarServices: React.FC = () => {
   const [exclude, setExclude] = useState<Excludes[]>([]);
   const [extra, setExtra] = useState<Form[]>([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const isFormSubmitting= false;
+  const isFormSubmitting = false;
   const [vechiletype, setVechileType] = useState<any[]>([]);
   const [selectesvechile, setSelectedvechile] = useState<any[]>([]);
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
   const [selectedinclude, setSelectedinclude] = useState<any[]>([]);
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
   const [selectedform, setSelectedform] = useState<any[]>([]);
-  // const [selectedterms, setSelectedterms] = useState<any[]>([]);
-  // const [terms, setTerms] = useState([]);
+  const [cabDetils, setCabDetails] = useState<any[]>([]);
+
   const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
   const showupdatemodel = false;
   const [editingRowCars, setEditingRowCars] = useState(null);
@@ -137,6 +138,7 @@ const CarServices: React.FC = () => {
     refFormDetails: "",
   });
   const [formData, setFormData] = useState<any>([]);
+
   // const [person, setPerson] = useState<any>([]);
   // const [bag, setBag] = useState<any>([]);
   // const [fuel, setFuel] = useState<any>([]);
@@ -284,7 +286,7 @@ const CarServices: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->253 - car details", data);
+      console.log("data car details", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("data - list api - line 53", data);
@@ -704,6 +706,10 @@ const CarServices: React.FC = () => {
     fetchInclude();
     fetchExclude();
     fetchExtra();
+
+    fetchNewcarservices().then((result) => {
+      setCabDetails(result);
+    });
   }, []);
 
   const snoTemplate = (_rowData: Carname, options: { rowIndex: number }) => {
@@ -778,7 +784,7 @@ const CarServices: React.FC = () => {
         import.meta.env.VITE_ENCRYPTION_KEY
       );
 
-      console.log("+++++++++++++++++++++=",data)
+      console.log("+++++++++++++++++++++=", data);
 
       setSubmitLoading(false);
       if (data.success) {
@@ -1361,15 +1367,199 @@ const CarServices: React.FC = () => {
     // Add your failure handling logic here
   };
 
+  const handleUpdateCar = async (editCarId: number, updatedCarDetails: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
+        {
+          refCarsId: editCarId, // Ensure the correct ID is sent
+          refVehicleTypeId: updatedCarDetails.refVehicleTypeId,
+          refPersonCount: updatedCarDetails.refPersonCount,
+          refBag: updatedCarDetails.refBag,
+          refFuelType: updatedCarDetails.refFuelType,
+          refcarManufactureYear: updatedCarDetails.refcarManufactureYear,
+          refMileage: updatedCarDetails.refMileage,
+          refTrasmissionType: updatedCarDetails.refTrasmissionType,
+          refFuleLimit: updatedCarDetails.refFuleLimit,
+          refBenifits: updatedCarDetails.refBenifits,
+          refInclude: updatedCarDetails.refInclude,
+          refExclude: updatedCarDetails.refExclude,
+          refDriverDetailsId: updatedCarDetails.refDriverDetailsId,
+          refTermsAndConditionsId: updatedCarDetails.refTermsAndConditionsId,
+          refFormDetails: updatedCarDetails.refFormDetails,
+          refOtherRequirements: updatedCarDetails.refOtherRequirements,
+          carImage: updatedCarDetails.carImage, // Optional: Can be Base64 or File
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("Update car response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        // Update car list without re-fetching
+        setCabDetails(
+          cabDetils.map((car) =>
+            car.refCarsId === editCarId ? { ...car, ...updatedCarDetails } : car
+          )
+        );
+
+        toast.success("Car details updated successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating car:", error);
+      toast.error("Failed to update car details.");
+    }
+  };
+
+  const handleDeleteCar = async (carId: number) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/deletePackage",
+        { refCarsId: carId }, // Send the car ID to delete
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("Delete car response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        // Remove the deleted car from the state
+        setCabDetails(cabDetils.filter((car) => car.refCarsId !== carId));
+
+        toast.success("Car deleted successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error deleting car:", error);
+      toast.error("Failed to delete car.");
+    }
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Cab Services</h2>
+        <h2 className="text-2xl font-semibold">Cab Rental</h2>
         <Button
-          label="Add Cab Services"
+          label="Add Cab Rental"
           severity="success"
           onClick={() => setVisible(true)}
         />
+      </div>
+      <div className="mt-3 p-2">
+        <h3 className="text-lg font-bold">Added Car Package</h3>
+        <DataTable value={cabDetils} tableStyle={{ minWidth: "50rem" }}>
+          <Column
+            header="S.No"
+            headerStyle={{ width: "3rem" }}
+            body={(_, options) => options.rowIndex + 1}
+          ></Column>
+
+          <Column
+            field="refVehicleTypeName"
+            header="Car Name"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refTrasmissionType"
+            header="Transmission Type"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refcarManufactureYear"
+            header="Manufacture Year"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refPersonCount"
+            header="Person Count"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refMileage"
+            header="Mileage"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refFuleLimit"
+            header="Fuel Limit"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refFuelType"
+            header="Fuel Type"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refBagCount"
+            header="Bag Count"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          {/* Action Buttons Column */}
+          <Column
+            header="Actions"
+            body={(rowData) => (
+              <div style={{ display: "flex", gap: "8px" }}>
+                <button
+                  onClick={() => handleUpdateCar(rowData.refCarsId, rowData)}
+                  style={{
+                    background: "#007bff",
+                    color: "#fff",
+                    border: "none",
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                  }}
+                >
+                  Update
+                </button>
+
+                <button
+                  onClick={() => handleDeleteCar(rowData.refCarsId)}
+                  style={{
+                    background: "#dc3545",
+                    color: "#fff",
+                    border: "none",
+                    padding: "5px 10px",
+                    cursor: "pointer",
+                    borderRadius: "4px",
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
+            style={{ minWidth: "150px" }}
+          />
+        </DataTable>
       </div>
 
       <Sidebar
@@ -1378,7 +1568,7 @@ const CarServices: React.FC = () => {
         onHide={() => setVisible(false)}
         position="right"
       >
-        <h2 className="text-xl font-bold mb-4">Add Cab Services</h2>
+        <h2 className="text-xl font-bold mb-4">Add Cab Rental</h2>
 
         <TabView>
           <TabPanel header="Car Details">
@@ -1426,7 +1616,7 @@ const CarServices: React.FC = () => {
           <TabPanel header="Driver Details">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-3 items-center w-[100%]">
-                <h3>Add Driver Details:</h3>
+                <h3 className="font-bold">Add Driver Details:</h3>
 
                 <div className=" flex flex-row justify-between gap-2">
                   <InputText
@@ -1460,7 +1650,7 @@ const CarServices: React.FC = () => {
                     className="p-inputtext-sm w-[50%]"
                   />
                 </div>
-                <div className=" flex flex-col w-[80%] gap-2">
+                <div className=" flex flex-col w-[56%] gap-2">
                   <InputText
                     name="refDriverLocation"
                     value={inputs.refDriverLocation}
@@ -1816,7 +2006,7 @@ const CarServices: React.FC = () => {
 
           <TabPanel header="Add New Services">
             <div>
-              <h2 className="text-xl font-bold">Add New Tour Package</h2>
+              <h2 className="text-xl font-bold">Add New Car Package</h2>
               <form onSubmit={handleSubmit} method="post">
                 {/* Vechiletype  and Personcount */}
                 <div className="flex flex-row gap-3 mt-3">
