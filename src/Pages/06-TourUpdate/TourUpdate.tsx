@@ -11,6 +11,9 @@ import axios from "axios";
 import { decryptAPIResponse } from "../../utils";
 import { Editor, EditorTextChangeEvent } from "primereact/editor";
 import { FileUpload } from "primereact/fileupload";
+import { fetchActivities } from "../../services/ActivityService";
+import { fetchDestinations } from "../../services/DestinationService";
+import { fetchCategories } from "../../services/CategoriesService";
 interface Destination {
   refDestinationId: string;
   refDestinationName: string;
@@ -78,7 +81,13 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   const [text, setText]: any = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
-   const [locations, setLocations] = useState<Location[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [packageName, setPackageName] = useState("");
+  const [numberofDays, setNumberOfDays] = useState(null);
+  const [numberofNights, setNumberofNights] = useState(null);
+  const [tourPrice, setTourPrice] = useState(null);
+  const [tourCode, setTourCode] = useState("");
+  const [seasonalPrice, setSeasonalPrice] = useState(null);
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -102,8 +111,11 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   };
   const fetchTourdata = async () => {
     try {
-      const response = await axios.get(
-        import.meta.env.VITE_API_URL + "/packageRoutes/listPackage",
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/getTour",
+        {
+          refPackageId: tourupdateID
+        },
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -117,16 +129,114 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data--------added", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
-        setTourDetails(data.result);
+
+        console.log("---------------->sdfhsdbf", data)
+
+        // data.result.map((item: any) => {
+        //   if (item.refPackageId) {
+        //     setTourDetails(item);
+        //     setSelectedDestination(parseInt(item.refDesignationId))
+        //     fetchLocations(item.refDesignationId);
+        //     setSelectedCategory(item.refCategoryId)
+        //     setPackageName(item.refPackageName);
+        //     setNumberOfDays(item.refDurationIday);
+        //     setNumberofNights(item.refDurationINight);
+        //     setTourPrice(item.refTourPrice);
+        //     setTourCode(item.refTourCode);
+        //     setSeasonalPrice(item.refSeasonalPrice);
+        //     setText(item.refItinary);
+        //     setSpecialNotes(item.refSpecialNotes);
+        //     setSelectedInclude(item.refTravalInclude.replace(/[{}]/g, '').split(',').map(Number));
+        //     setSelectedExclude(item.refTravalExclude.replace(/[{}]/g, '').split(',').map(Number));
+        //     console.log(item)
+        //   }
+        // })
+
       }
     } catch (e: any) {
       console.log("Error fetching Includes:", e);
     }
   };
+
+  useEffect(() => {
+    fetchDestinations().then((result) => {
+      setDestinations(result);
+    });
+    fetchCategories().then((result) => {
+      setAllcategories(result);
+    });
+    fetchActivities().then((result) => {
+      setActivities(result);
+    });
+    fetchTourdata();
+    // fetchTours().then((result) => {
+    //   setTourDetails(result);
+    //   console.log('result------>tourdetails', result)
+
+    // });
+
+    fetchInclude();
+    fetchExclude();
+  }, []);
+
+  const fetchInclude = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/packageRoutes/listTravalInclude",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->include", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setInclude(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching Includes:", e);
+    }
+  };
+  const fetchExclude = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/packageRoutes/listTravalExclude",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->exclude", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setExclude(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching exclude:", e);
+    }
+  };
+
   const fetchLocations = async (id: any) => {
     try {
       const response = await axios.get(
@@ -160,166 +270,166 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   };
 
 
-    //Map image upload
+  //Map image upload
 
-    const customMap = async (event: any) => {
-      console.table("event", event);
-      const file = event.files[0]; // Assuming single file upload
-      const formData = new FormData();
-      formData.append("Image", file);
-      console.log("formData", formData);
-  
-      for (let pair of formData.entries()) {
-        console.log("-------->______________", pair[0] + ":", pair[1]);
+  const customMap = async (event: any) => {
+    console.table("event", event);
+    const file = event.files[0]; // Assuming single file upload
+    const formData = new FormData();
+    formData.append("Image", file);
+    console.log("formData", formData);
+
+    for (let pair of formData.entries()) {
+      console.log("-------->______________", pair[0] + ":", pair[1]);
+    }
+
+    console.log("formData------------>", formData);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/userRoutes/uploadMap",
+
+        formData,
+
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      localStorage.setItem("JWTtoken", "Bearer " + data.token);
+      console.log("data==============", data);
+
+      if (data.success) {
+        console.log("data+", data);
+        handleUploadSuccessMap(data);
+      } else {
+        console.log("data-", data);
+        handleUploadFailure(data);
       }
-  
-      console.log("formData------------>", formData);
+    } catch (error) {
+      handleUploadFailure(error);
+    }
+  };
+
+  //galary image upload
+
+  const customUploader = async (event: any) => {
+    console.table("event", event);
+
+    // Create a FormData object
+
+    // Loop through the selected files and append each one to the FormData
+    for (let i = 0; i < event.files.length; i++) {
+      const formData = new FormData();
+      const file = event.files[i];
+      formData.append("images", file);
+
       try {
         const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/userRoutes/uploadMap",
-  
+          import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+
           formData,
-  
+
           {
             headers: {
               Authorization: localStorage.getItem("token"),
             },
           }
         );
-  
+
         const data = decrypt(
           response.data[1],
           response.data[0],
           import.meta.env.VITE_ENCRYPTION_KEY
         );
-  
+
         localStorage.setItem("JWTtoken", "Bearer " + data.token);
         console.log("data==============", data);
-  
+
         if (data.success) {
-          console.log("data+", data);
-          handleUploadSuccessMap(data);
+          handleUploadSuccess(data);
         } else {
-          console.log("data-", data);
           handleUploadFailure(data);
         }
       } catch (error) {
         handleUploadFailure(error);
       }
-    };
-  
-    //galary image upload
-  
-    const customUploader = async (event: any) => {
-      console.table("event", event);
-  
-      // Create a FormData object
-  
-      // Loop through the selected files and append each one to the FormData
-      for (let i = 0; i < event.files.length; i++) {
-        const formData = new FormData();
-        const file = event.files[i];
-        formData.append("images", file);
-  
-        try {
-          const response = await axios.post(
-            import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
-  
-            formData,
-  
-            {
-              headers: {
-                Authorization: localStorage.getItem("token"),
-              },
-            }
-          );
-  
-          const data = decrypt(
-            response.data[1],
-            response.data[0],
-            import.meta.env.VITE_ENCRYPTION_KEY
-          );
-  
-          localStorage.setItem("JWTtoken", "Bearer " + data.token);
-          console.log("data==============", data);
-  
-          if (data.success) {
-            handleUploadSuccess(data);
-          } else {
-            handleUploadFailure(data);
+    }
+  };
+
+  const customCoverUploader = async (event: any) => {
+    console.table("event", event);
+
+    // Create a FormData object
+
+    // Loop through the selected files and append each one to the FormData
+    for (let i = 0; i < event.files.length; i++) {
+      const formData = new FormData();
+      const file = event.files[i];
+      formData.append("Image", file);
+
+      try {
+        const response = await axios.post(
+          import.meta.env.VITE_API_URL + "/packageRoutes/uploadCoverImage",
+
+          formData,
+
+          {
+            headers: {
+              Authorization: localStorage.getItem("token"),
+            },
           }
-        } catch (error) {
-          handleUploadFailure(error);
+        );
+
+        const data = decrypt(
+          response.data[1],
+          response.data[0],
+          import.meta.env.VITE_ENCRYPTION_KEY
+        );
+
+        localStorage.setItem("JWTtoken", "Bearer " + data.token);
+        console.log("data==============", data);
+
+        if (data.success) {
+          handleUploadSuccessCover(data);
+        } else {
+          handleUploadFailure(data);
         }
+      } catch (error) {
+        handleUploadFailure(error);
       }
-    };
-  
-    const customCoverUploader = async (event: any) => {
-      console.table("event", event);
-  
-      // Create a FormData object
-  
-      // Loop through the selected files and append each one to the FormData
-      for (let i = 0; i < event.files.length; i++) {
-        const formData = new FormData();
-        const file = event.files[i];
-        formData.append("Image", file);
-  
-        try {
-          const response = await axios.post(
-            import.meta.env.VITE_API_URL + "/packageRoutes/uploadCoverImage",
-  
-            formData,
-  
-            {
-              headers: {
-                Authorization: localStorage.getItem("token"),
-              },
-            }
-          );
-  
-          const data = decrypt(
-            response.data[1],
-            response.data[0],
-            import.meta.env.VITE_ENCRYPTION_KEY
-          );
-  
-          localStorage.setItem("JWTtoken", "Bearer " + data.token);
-          console.log("data==============", data);
-  
-          if (data.success) {
-            handleUploadSuccessCover(data);
-          } else {
-            handleUploadFailure(data);
-          }
-        } catch (error) {
-          handleUploadFailure(error);
-        }
-      }
-    };
-  
-    const handleUploadSuccessMap = (response: any) => {
-      console.log("Upload Successful:", response);
-      setMapformdata(response.filePath);
-    };
-  
-    const handleUploadSuccessCover = (response: any) => {
-      console.log("Upload Successful:", response);
-      setCoverImage(response.filePath);
-    };
-  
-    const handleUploadSuccess = (response: any) => {
-      let temp = [...formDataImages]; // Create a new array to avoid mutation
-      temp.push(response.filePath); // Add the new file path
-      console.log("Upload Successful:", response);
-      setFormdataImages(temp); // Update the state with the new array
-    };
-  
-    const handleUploadFailure = (error: any) => {
-      console.error("Upload Failed:", error);
-      // Add your failure handling logic here
-    };
-  
+    }
+  };
+
+  const handleUploadSuccessMap = (response: any) => {
+    console.log("Upload Successful:", response);
+    setMapformdata(response.filePath);
+  };
+
+  const handleUploadSuccessCover = (response: any) => {
+    console.log("Upload Successful:", response);
+    setCoverImage(response.filePath);
+  };
+
+  const handleUploadSuccess = (response: any) => {
+    let temp = [...formDataImages]; // Create a new array to avoid mutation
+    temp.push(response.filePath); // Add the new file path
+    console.log("Upload Successful:", response);
+    setFormdataImages(temp); // Update the state with the new array
+  };
+
+  const handleUploadFailure = (error: any) => {
+    console.error("Upload Failed:", error);
+    // Add your failure handling logic here
+  };
+
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formDataobject = Object.fromEntries(
@@ -391,17 +501,23 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
           name="packageName"
           placeholder="Enter Package Name"
           className="w-full mt-4"
+          value={packageName}
+          onChange={(e: any) => {
+            setPackageName(e.value)
+          }}
         />
         {/* Destination and locations */}
         <div className="flex flex-row gap-3 mt-3">
           <Dropdown
             value={selectedDestination}
             onChange={(e) => {
+              console.log(e.value);
               setSelectedDestination(e.value);
               fetchLocations(e.value.refDestinationId);
             }}
             options={destinations}
             optionLabel="refDestinationName"
+            optionValue="refDestinationId"
             placeholder="Choose a Destination"
             className="w-full"
           />
@@ -423,10 +539,12 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
           <Dropdown
             value={selectedcategory}
             onChange={(e) => {
+              console.log(e.value)
               setSelectedCategory(e.value);
             }}
             options={allcategories}
             optionLabel="refCategoryName"
+            optionValue="refCategoryId"
             placeholder="Choose a Category"
             className="w-full"
           />
@@ -449,11 +567,19 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             placeholder="Number of Days"
             name="noOfDays"
             className="w-full"
+            value={numberofDays}
+            onChange={(e: any) => {
+              setNumberOfDays(e.value)
+            }}
           />
           <InputNumber
             name="noOfNights"
             placeholder="Number of Nights"
             className="w-full"
+            value={numberofNights}
+            onChange={(e: any) => {
+              setNumberofNights(e.value)
+            }}
           />
         </div>
         {/* Price */}
@@ -462,11 +588,19 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             name="price"
             placeholder="Enter Price P/P"
             className="w-full"
+            value={tourPrice}
+            onChange={(e: any) => {
+              setTourPrice(e.value)
+            }}
           />
           <InputText
             name="tourCode"
             placeholder="Enter Code"
             className="w-full"
+            value={tourCode}
+            onChange={(e: any) => {
+              setTourCode(e.value)
+            }}
           />
         </div>
         {/* Notes */}
@@ -475,6 +609,10 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             name="seasonalPrice"
             placeholder="Enter Seasonal Price"
             className="w-full"
+            value={seasonalPrice}
+            onChange={(e: any) => {
+              setTourCode(e.seasonalPrice)
+            }}
           />
         </div>
 
@@ -491,6 +629,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             name="refSpecialNotes"
             placeholder="Enter Special Notes"
             className="w-full"
+            value={specialNotes}
             onChange={(e) => setSpecialNotes(e.target.value)}
           />
         </div>
@@ -505,6 +644,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             }}
             options={include}
             optionLabel="refTravalInclude"
+            optionValue="refTravalIncludeId"
             display="chip"
             placeholder="Select Includes"
             maxSelectedLabels={3}
@@ -513,10 +653,12 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
           <MultiSelect
             value={selectexclude}
             onChange={(e) => {
+              console.log(e.value)
               setSelectedExclude(e.value);
             }}
             options={exclude}
             optionLabel="refTravalExclude"
+            optionValue="refTravalExcludeId"
             display="chip"
             placeholder="Select Excludes"
             maxSelectedLabels={3}
@@ -525,7 +667,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         </div>
         {/* Map upload */}
 
-        <div>
+        {/* <div>
           <h2 className="mt-3">Upload Map </h2>
           <FileUpload
             name="logo"
@@ -538,11 +680,11 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
               <p className="m-0">Drag and drop your Map here to upload.</p>
             }
           />
-        </div>
+        </div> */}
 
         {/* Image Cover */}
 
-        <div>
+        {/* <div>
           <h2 className="mt-3">Upload Cover Image</h2>
           <FileUpload
             name="cover"
@@ -556,11 +698,11 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             }
             multiple
           />
-        </div>
+        </div> */}
 
         {/* Image Upload */}
 
-        <div>
+        {/* <div>
           <h2 className="mt-3">Upload Image</h2>
           <FileUpload
             name="logo"
@@ -574,13 +716,13 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             }
             multiple
           />
-        </div>
+        </div> */}
         <div className="mt-4 flex justify-end">
-          <Button type="submit" onClick={closeTourupdatesidebar}  label="Submit" loading={isFormSubmitting} />
+          <Button type="submit" onClick={closeTourupdatesidebar} label="Submit" loading={isFormSubmitting} />
         </div>
       </form>
 
-     
+
     </div>
   );
 };

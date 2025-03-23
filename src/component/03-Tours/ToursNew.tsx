@@ -854,7 +854,7 @@ function ToursNew() {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-       fetchTourdata();
+        fetchTourdata();
       } else {
         console.error("API update failed:", data);
       }
@@ -903,7 +903,7 @@ function ToursNew() {
           />
 
           <Column
-          className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Package Name"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
@@ -922,173 +922,173 @@ function ToursNew() {
             field="refDesignationId"
             header="Destination"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refDesignationId}
-            //       onChange={(e) => handleInputChange(e, "refDesignationId")}
-            //     />
-            //   ) : (
-            //     rowData.refDesignationId
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refDesignationId}
+          //       onChange={(e) => handleInputChange(e, "refDesignationId")}
+          //     />
+          //   ) : (
+          //     rowData.refDesignationId
+          //   )
+          // }
           />
           <Column
             field="refDurationIday"
             header="No of Day"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refDurationIday}
-            //       onChange={(e) => handleInputChange(e, "refDurationIday")}
-            //     />
-            //   ) : (
-            //     rowData.refDurationIday
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refDurationIday}
+          //       onChange={(e) => handleInputChange(e, "refDurationIday")}
+          //     />
+          //   ) : (
+          //     rowData.refDurationIday
+          //   )
+          // }
           />
 
           <Column
             field="refDurationINight"
             header="No of Night"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId && editTourData ? (
-            //     <InputText
-            //       value={editTourData?.refDurationINight || ""}
-            //       onChange={(e) => handleInputChange(e, "refDurationINight")}
-            //     />
-            //   ) : (
-            //     rowData.refDurationINight
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId && editTourData ? (
+          //     <InputText
+          //       value={editTourData?.refDurationINight || ""}
+          //       onChange={(e) => handleInputChange(e, "refDurationINight")}
+          //     />
+          //   ) : (
+          //     rowData.refDurationINight
+          //   )
+          // }
           />
 
           <Column
             field="refGroupSize"
             header="Group Size"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refGroupSize}
-            //       onChange={(e) => handleInputChange(e, "refGroupSize")}
-            //     />
-            //   ) : (
-            //     rowData.refGroupSize
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refGroupSize}
+          //       onChange={(e) => handleInputChange(e, "refGroupSize")}
+          //     />
+          //   ) : (
+          //     rowData.refGroupSize
+          //   )
+          // }
           />
 
           <Column
             field="refTourPrice"
             header="Tour Price"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refTourPrice}
-            //       onChange={(e) => handleInputChange(e, "refTourPrice")}
-            //     />
-            //   ) : (
-            //     rowData.refTourPrice
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refTourPrice}
+          //       onChange={(e) => handleInputChange(e, "refTourPrice")}
+          //     />
+          //   ) : (
+          //     rowData.refTourPrice
+          //   )
+          // }
           />
 
           <Column
             field="refTourCode"
             header="Tour Code"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refTourCode}
-            //       onChange={(e) => handleInputChange(e, "refTourCode")}
-            //     />
-            //   ) : (
-            //     rowData.refTourCode
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refTourCode}
+          //       onChange={(e) => handleInputChange(e, "refTourCode")}
+          //     />
+          //   ) : (
+          //     rowData.refTourCode
+          //   )
+          // }
           />
 
           <Column
             field="refSeasonalPrice"
             header="Seasonal Price"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refSeasonalPrice}
-            //       onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
-            //     />
-            //   ) : (
-            //     rowData.refSeasonalPrice
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refSeasonalPrice}
+          //       onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
+          //     />
+          //   ) : (
+          //     rowData.refSeasonalPrice
+          //   )
+          // }
           />
           <Column
             field="refTravalDataId"
             header="Travel Data "
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refTravalDataId ? (
-            //     <InputText
-            //       value={editTourData.refTravalDataId}
-            //       onChange={(e) => handleInputChange(e, "refTravalDataId")}
-            //     />
-            //   ) : (
-            //     rowData.refTravalDataId
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refTravalDataId ? (
+          //     <InputText
+          //       value={editTourData.refTravalDataId}
+          //       onChange={(e) => handleInputChange(e, "refTravalDataId")}
+          //     />
+          //   ) : (
+          //     rowData.refTravalDataId
+          //   )
+          // }
           />
 
           <Column
             field="refLocation"
             header="Location"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refLocation}
-            //       onChange={(e) => handleInputChange(e, "refLocation")}
-            //     />
-            //   ) : (
-            //     rowData.refLocation
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refLocation}
+          //       onChange={(e) => handleInputChange(e, "refLocation")}
+          //     />
+          //   ) : (
+          //     rowData.refLocation
+          //   )
+          // }
           />
 
           <Column
             field="refActivity"
             header="Activity"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refActivity}
-            //       onChange={(e) => handleInputChange(e, "refActivity")}
-            //     />
-            //   ) : (
-            //     rowData.refActivity
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refActivity}
+          //       onChange={(e) => handleInputChange(e, "refActivity")}
+          //     />
+          //   ) : (
+          //     rowData.refActivity
+          //   )
+          // }
           />
           <Column
             field="refCategoryId"
             header="Category"
             style={{ minWidth: "200px" }}
-            // body={(rowData) =>
-            //   editTourId === rowData.refPackageId ? (
-            //     <InputText
-            //       value={editTourData.refCategoryId}
-            //       onChange={(e) => handleInputChange(e, "refCategoryId")}
-            //     />
-            //   ) : (
-            //     rowData.refCategoryId
-            //   )
-            // }
+          // body={(rowData) =>
+          //   editTourId === rowData.refPackageId ? (
+          //     <InputText
+          //       value={editTourData.refCategoryId}
+          //       onChange={(e) => handleInputChange(e, "refCategoryId")}
+          //     />
+          //   ) : (
+          //     rowData.refCategoryId
+          //   )
+          // }
           />
           {/* <Column body={actionTemplate} header="Actions" /> */}
           <Column body={actionDeleteTour} header="Delete" />
