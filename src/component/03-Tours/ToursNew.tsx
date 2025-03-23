@@ -17,10 +17,12 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { TabPanel, TabView } from "primereact/tabview";
 import AddForm from "../05-CarServices/AddForm";
-import { addTourBaseOnKey } from "../../services/Travel";
+import { addTourBaseOnKey } from "../../services/TravelService";
 import { FileUpload } from "primereact/fileupload";
 import { EditorTextChangeEvent } from "primereact/editor";
 import { fetchNewcarservices } from "../../services/NewServices";
+import TourUpdate from "../../Pages/06-TourUpdate/TourUpdate";
+import { Divider } from "primereact/divider";
 interface Destination {
   refDestinationId: string;
   refDestinationName: string;
@@ -78,6 +80,12 @@ function ToursNew() {
   const [selectedLocations, setSelectedLocations] = useState<Location[]>([]);
   const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
+  const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
+  const [tourupdateID, setTourupdateID] = useState("");
+
+  const closeTourupdatesidebar = () => {
+    setTourupdatesidebar(false);
+  };
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
   // const [imagePaths, setImagePaths] = useState<string[]>([]);
@@ -98,6 +106,7 @@ function ToursNew() {
     refTravalExclude: "",
   });
   const [formData, setFormData] = useState<any>([]);
+  const [mapformData, setMapformdata] = useState<any>([]);
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
 
@@ -145,9 +154,12 @@ function ToursNew() {
     fetchNewcarservices().then((result) => {
       setTours(result);
     });
-    fetchTours().then((result) => {
-      setTourDetails(result);
-    });
+    fetchTourdata();
+    // fetchTours().then((result) => {
+    //   setTourDetails(result);
+    //   console.log('result------>tourdetails', result)
+
+    // });
 
     fetchInclude();
     fetchExclude();
@@ -202,7 +214,7 @@ function ToursNew() {
           refDesignationId: parseInt(selectedDestination.refDestinationId),
           refDurationIday: +formDataobject.noOfDays,
           refDurationINight: +formDataobject.noOfNights,
-          refLocation: selectedLocations.map((loc) => loc.refLocationName),
+          refLocation: selectedLocations.map((loc) => loc.refLocationId + ""),
           refCategoryId: parseInt(selectedcategory.refCategoryId),
           refGroupSize: 0,
           refTourCode: formDataobject.tourCode,
@@ -210,7 +222,7 @@ function ToursNew() {
           refSeasonalPrice: +formDataobject.seasonalPrice,
           images: formDataImages,
           refItinary: text,
-          refItinaryMapPath: formData,
+          refItinaryMapPath: mapformData,
           refSpecialNotes: specialNotes,
           refActivity: selectedactivities.map(
             (act) => act.refActivitiesId + ""
@@ -236,16 +248,14 @@ function ToursNew() {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
+      console.log("data----240", data);
       if (data.success) {
-        console.log("data------------->192", data);
         // await addTour(payload);
         // setIsFormSubmitting(false);
         localStorage.setItem("token", "Bearer " + data.token);
 
         setIsAddTourOpen(false);
-        fetchTours().then((result) => {
-          setTourDetails(result);
-        });
+        fetchTourdata();
       }
     } catch (e) {
       console.error("Error fetching locations:", e);
@@ -258,6 +268,33 @@ function ToursNew() {
     return options.rowIndex + 1;
   };
 
+  const fetchTourdata = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/packageRoutes/listPackage",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data--------added", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setTourDetails(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching Includes:", e);
+    }
+  };
   const fetchInclude = async () => {
     try {
       const response = await axios.get(
@@ -335,7 +372,7 @@ function ToursNew() {
 
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/updateInclude",
+        import.meta.env.VITE_API_URL + "/packageRoutes/updateTravalInclude",
         editIncludeValue,
         {
           headers: {
@@ -386,7 +423,7 @@ function ToursNew() {
 
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/UpdateExclude",
+        import.meta.env.VITE_API_URL + "/packageRoutes/updateTravalExclude",
         editExcludeValue,
         {
           headers: {
@@ -558,7 +595,7 @@ function ToursNew() {
     console.log("formData", formData);
 
     for (let pair of formData.entries()) {
-      console.log("-------->______________", pair[0] + ":", pair[1]); // Log each field in the FormData
+      console.log("-------->______________", pair[0] + ":", pair[1]);
     }
 
     console.log("formData------------>", formData);
@@ -585,7 +622,6 @@ function ToursNew() {
       console.log("data==============", data);
 
       if (data.success) {
-        event.options.onUpload({});
         console.log("data+", data);
         handleUploadSuccessMap(data);
       } else {
@@ -688,27 +724,14 @@ function ToursNew() {
   };
 
   const handleUploadSuccessMap = (response: any) => {
-    // let temp = formDataImages;
-
-    // temp.push(response.filePath);
-
     console.log("Upload Successful:", response);
-    setFormData(response.filePath);
+    setMapformdata(response.filePath);
   };
 
   const handleUploadSuccessCover = (response: any) => {
-    // let temp = formDataImages;
-
-    // temp.push(response.filePath);
-
     console.log("Upload Successful:", response);
     setCoverImage(response.filePath);
   };
-
-  // const handleUploadFailure = (error: any) => {
-  //   console.error("Upload Failed:", error);
-  //   // Add your failure handling logic here
-  // };
 
   const handleUploadSuccess = (response: any) => {
     let temp = [...formDataImages]; // Create a new array to avoid mutation
@@ -831,9 +854,7 @@ function ToursNew() {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        fetchTours().then((result) => {
-          setTourDetails(result);
-        });
+       fetchTourdata();
       } else {
         console.error("API update failed:", data);
       }
@@ -882,133 +903,193 @@ function ToursNew() {
           />
 
           <Column
-            field="refPackageName"
+          className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Package Name"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refPackageName}
-                  onChange={(e) => handleInputChange(e, "refPackageName")}
-                />
-              ) : (
-                rowData.refPackageName
-              )
-            }
-          />
+            body={(rowData) => (
+              <div
+                onClick={() => {
+                  setTourupdateID(rowData.refPackageId);
+                  setTourupdatesidebar(true);
+                }}
+              >
+                {rowData.refPackageName}
 
+              </div>
+            )}
+          />
+          <Column
+            field="refDesignationId"
+            header="Destination"
+            style={{ minWidth: "200px" }}
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refDesignationId}
+            //       onChange={(e) => handleInputChange(e, "refDesignationId")}
+            //     />
+            //   ) : (
+            //     rowData.refDesignationId
+            //   )
+            // }
+          />
           <Column
             field="refDurationIday"
             header="No of Day"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refDurationIday}
-                  onChange={(e) => handleInputChange(e, "refDurationIday")}
-                />
-              ) : (
-                rowData.refDurationIday
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refDurationIday}
+            //       onChange={(e) => handleInputChange(e, "refDurationIday")}
+            //     />
+            //   ) : (
+            //     rowData.refDurationIday
+            //   )
+            // }
           />
 
           <Column
             field="refDurationINight"
             header="No of Night"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId && editTourData ? (
-                <InputText
-                  value={editTourData?.refPackageName || ""}
-                  onChange={(e) => handleInputChange(e, "refPackageName")}
-                />
-              ) : (
-                rowData.refPackageName
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId && editTourData ? (
+            //     <InputText
+            //       value={editTourData?.refDurationINight || ""}
+            //       onChange={(e) => handleInputChange(e, "refDurationINight")}
+            //     />
+            //   ) : (
+            //     rowData.refDurationINight
+            //   )
+            // }
           />
 
           <Column
             field="refGroupSize"
             header="Group Size"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refGroupSize}
-                  onChange={(e) => handleInputChange(e, "refGroupSize")}
-                />
-              ) : (
-                rowData.refGroupSize
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refGroupSize}
+            //       onChange={(e) => handleInputChange(e, "refGroupSize")}
+            //     />
+            //   ) : (
+            //     rowData.refGroupSize
+            //   )
+            // }
           />
 
           <Column
             field="refTourPrice"
             header="Tour Price"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refTourPrice}
-                  onChange={(e) => handleInputChange(e, "refTourPrice")}
-                />
-              ) : (
-                rowData.refTourPrice
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refTourPrice}
+            //       onChange={(e) => handleInputChange(e, "refTourPrice")}
+            //     />
+            //   ) : (
+            //     rowData.refTourPrice
+            //   )
+            // }
+          />
+
+          <Column
+            field="refTourCode"
+            header="Tour Code"
+            style={{ minWidth: "200px" }}
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refTourCode}
+            //       onChange={(e) => handleInputChange(e, "refTourCode")}
+            //     />
+            //   ) : (
+            //     rowData.refTourCode
+            //   )
+            // }
           />
 
           <Column
             field="refSeasonalPrice"
             header="Seasonal Price"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refSeasonalPrice}
-                  onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
-                />
-              ) : (
-                rowData.refSeasonalPrice
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refSeasonalPrice}
+            //       onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
+            //     />
+            //   ) : (
+            //     rowData.refSeasonalPrice
+            //   )
+            // }
+          />
+          <Column
+            field="refTravalDataId"
+            header="Travel Data "
+            style={{ minWidth: "200px" }}
+            // body={(rowData) =>
+            //   editTourId === rowData.refTravalDataId ? (
+            //     <InputText
+            //       value={editTourData.refTravalDataId}
+            //       onChange={(e) => handleInputChange(e, "refTravalDataId")}
+            //     />
+            //   ) : (
+            //     rowData.refTravalDataId
+            //   )
+            // }
           />
 
           <Column
             field="refLocation"
             header="Location"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refLocation}
-                  onChange={(e) => handleInputChange(e, "refLocation")}
-                />
-              ) : (
-                rowData.refLocation
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refLocation}
+            //       onChange={(e) => handleInputChange(e, "refLocation")}
+            //     />
+            //   ) : (
+            //     rowData.refLocation
+            //   )
+            // }
           />
 
           <Column
             field="refActivity"
             header="Activity"
             style={{ minWidth: "200px" }}
-            body={(rowData) =>
-              editTourId === rowData.refPackageId ? (
-                <InputText
-                  value={editTourData.refActivity}
-                  onChange={(e) => handleInputChange(e, "refActivity")}
-                />
-              ) : (
-                rowData.refActivity
-              )
-            }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refActivity}
+            //       onChange={(e) => handleInputChange(e, "refActivity")}
+            //     />
+            //   ) : (
+            //     rowData.refActivity
+            //   )
+            // }
           />
-
+          <Column
+            field="refCategoryId"
+            header="Category"
+            style={{ minWidth: "200px" }}
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refCategoryId}
+            //       onChange={(e) => handleInputChange(e, "refCategoryId")}
+            //     />
+            //   ) : (
+            //     rowData.refCategoryId
+            //   )
+            // }
+          />
           {/* <Column body={actionTemplate} header="Actions" /> */}
           <Column body={actionDeleteTour} header="Delete" />
         </DataTable>
@@ -1095,7 +1176,7 @@ function ToursNew() {
               </div>
               {/* Price */}
               <div className="flex flex-row gap-3 mt-3">
-                <InputText
+                <InputNumber
                   name="price"
                   placeholder="Enter Price P/P"
                   className="w-full"
@@ -1108,9 +1189,9 @@ function ToursNew() {
               </div>
               {/* Notes */}
               <div className="flex flex-col gap-3 mt-3">
-                <InputText
+                <InputNumber
                   name="seasonalPrice"
-                  placeholder="Enter Notes"
+                  placeholder="Enter Seasonal Price"
                   className="w-full"
                 />
               </div>
@@ -1175,7 +1256,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your logo here to upload.
+                      Drag and drop your Map here to upload.
                     </p>
                   }
                 />
@@ -1194,7 +1275,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your logo here to upload.
+                      Drag and drop your Cover Image here to upload.
                     </p>
                   }
                   multiple
@@ -1214,7 +1295,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your logo here to upload.
+                      Drag and drop your Image here to upload.
                     </p>
                   }
                   multiple
@@ -1331,6 +1412,17 @@ function ToursNew() {
             </div>
           </TabPanel>
         </TabView>
+      </Sidebar>
+      <Sidebar
+        visible={tourupdatesidebar}
+        style={{ width: "50%" }}
+        onHide={() => setTourupdatesidebar(false)}
+        position="right"
+      >
+        <TourUpdate
+          closeTourupdatesidebar={closeTourupdatesidebar}
+          tourupdateID={tourupdateID}
+        />
       </Sidebar>
     </>
   );

@@ -31,7 +31,7 @@ export async function addTour(payload: Record<string, any>): Promise<any> {
 export const fetchTours = async () => {
   try {
     const response = await axios.get(
-      import.meta.env.VITE_API_URL + "/userRoutes/getAllTour",
+      import.meta.env.VITE_API_URL + "/packageRoutes/listPackage",
       {
         headers: {
           Authorization: localStorage.getItem("token"),
@@ -45,10 +45,9 @@ export const fetchTours = async () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-    console.log('dataa---------------->toour')
-  
-    console.log('data----------------hlo', data)
+   
     if (data.success) {
+      console.log('data retuned ---->', data);
       return data.tourDetails;
     } else {
       return [];

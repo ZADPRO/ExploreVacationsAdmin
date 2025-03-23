@@ -43,7 +43,7 @@ function AddForm({ submitCallback }: AddFormProps) {
         label="Add"
         className="p-button-success p-button-sm"
         onClick={addInputField}
-        tooltip="Add another benefit"
+        tooltip="Add another Input"
       />
       <form onSubmit={handleFormSubmit}>
         {values.map((value, i) =>

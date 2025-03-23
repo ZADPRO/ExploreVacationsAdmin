@@ -72,7 +72,7 @@ export default function Login() {
             localStorage.setItem("token", "Bearer " + data.token);
             localStorage.setItem("roleId", data.roleId);
 
-            navigate("/dashboard");
+            navigate("/tour");
 
             setLoading(false);
           } else {

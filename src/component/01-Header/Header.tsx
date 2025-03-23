@@ -7,7 +7,7 @@ import { FaCarOn } from "react-icons/fa6";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaUserGear } from "react-icons/fa6";
-
+import { FaSignOutAlt } from "react-icons/fa";
 import "./Header.css";
 
 const routes: any = [
@@ -36,6 +36,11 @@ const routes: any = [
     path: "/userdetails",
     label: "User Details",
     icon: <FaUserGear />,
+  },
+  {
+    path: "/logout",
+    label: "Logout",
+    icon: <FaSignOutAlt />,
   },
 ];
 
@@ -112,6 +117,7 @@ export default function Header({ children }: HeaderProps) {
                     onClick={() => {
                       if (route.label === "Logout") {
                         localStorage.clear();
+                        window.location.href = "/"; // Redirect to login page
                       }
                     }}
                   >

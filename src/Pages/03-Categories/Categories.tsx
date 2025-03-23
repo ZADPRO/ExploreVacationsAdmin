@@ -75,7 +75,7 @@ const Categories: React.FC = () => {
         import.meta.env.VITE_ENCRYPTION_KEY
       );
       setSubmitLoading(false);
-
+      console.log("data----------->categories");
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("data----------->", data);
@@ -292,7 +292,7 @@ const Categories: React.FC = () => {
         />
       </div>
       <div className="mt-4">
-        <h3 className="text-lg font-bold">Added Destinations</h3>
+        <h3 className="text-lg font-bold">Added Categories</h3>
         <DataTable value={categories} className="p-datatable-sm mt-2">
           <Column
             body={snoTemplate}

@@ -21,8 +21,7 @@ const MainRoutes: React.FC = () => {
         <Header>
           <Routes>
             <Route index path="/" element={<Login />} />
-            {/* <Route path="/tour" element={<Torus/>} /> */}
-            <Route path="/tour" element={<ToursNew />} />
+             <Route path="/tour" element={<ToursNew />} />
             <Route path="/carservices" element={<CarServices />} />
             <Route path="/carrental" element={<CarRentals />} />
             <Route path="/settings" element={<Settings />} />

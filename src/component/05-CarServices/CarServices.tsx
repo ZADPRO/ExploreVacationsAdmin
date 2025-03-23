@@ -17,6 +17,8 @@ import { MultiSelect } from "primereact/multiselect";
 import { Form } from "react-router-dom";
 import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
+import { InputNumber } from "primereact/inputnumber";
+import CarUpdate from "../../Pages/07-CarUpdate/CarUpdate";
 interface Carname {
   createdAt: string;
   createdBy: string;
@@ -85,6 +87,10 @@ const CarServices: React.FC = () => {
     refFuleLimit: "",
     refOtherRequirements: "",
     refTermsAndConditionsId: "",
+    refrefRentalAgreement:"",
+    refFuelPolicy:"",
+    refDriverRequirements:"",
+    refPaymentTerms:"",
   });
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
@@ -102,6 +108,12 @@ const CarServices: React.FC = () => {
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [cabDetils, setCabDetails] = useState<any[]>([]);
+  const [carupdatesidebar, setCarupdatesidebar] = useState(false);
+  const [carupdateID, setCarupdateID] = useState("");
+
+  const closeCarupdatesidebar = () => {
+    setCarupdatesidebar(false);
+  };
 
   const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
   const showupdatemodel = false;
@@ -157,12 +169,18 @@ const CarServices: React.FC = () => {
 
   console.log(vechiletype, formData, showupdatemodel);
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputs((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
+  const handleInput = (event: React.ChangeEvent<HTMLInputElement> | { value: number | null }, name?: string) => {
+    if ("target" in event) {
+      // Handling for InputText
+      const { name, value } = event.target;
+      setFormData((prev:any) => ({ ...prev, [name]: value }));
+    } else if (name) {
+      // Handling for InputNumber
+      setFormData((prev:any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
+    }
   };
+  
+  
 
   const decrypt = (
     encryptedData: string,
@@ -729,44 +747,28 @@ const CarServices: React.FC = () => {
     );
     console.log("formDataobject------------>handleform-------", formDataobject);
 
-    const payload = {
-      refVehicleTypeId: selectesvechile,
-      refPersonCount: formDataobject.refPersonCount,
-      refBag: formDataobject.refBag,
-      refFuelType: formDataobject.refFuelType,
-      refcarManufactureYear: formDataobject.refcarManufactureYear,
-      refMileage: formDataobject.refMileage,
-      refTrasmissionType: formDataobject.refTrasmissionType,
-      refFuleLimit: formDataobject.refFuleLimit,
-      refDriverDetailsId: selectedDriver,
-      refTermsAndConditionsId: formDataobject.refTermsAndConditionsId,
-      refOtherRequirements: formDataobject.refOtherRequirements,
-      refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
-      refInclude: selectedinclude.map((act) => act.refIncludeId),
-      refExclude: selectedexclude.map((act) => act.refExcludeId),
-      refFormDetails: selectedform.map((act) => act.refFormDetailsId),
-      carImage: formData.productImage,
-    };
-    console.log("payload", payload);
-
-    try {
+     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/addCars",
         {
           refVehicleTypeId: selectesvechile,
-          refPersonCount: formDataobject.refPersonCount,
-          refBag: formDataobject.refBag,
+          refPersonCount: +formDataobject.refPersonCount,
+          refBag: +formDataobject.refBag,
           refFuelType: formDataobject.refFuelType,
-          refcarManufactureYear: formDataobject.refcarManufactureYear,
-          refMileage: formDataobject.refMileage,
+          refcarManufactureYear: +formDataobject.refcarManufactureYear,
+          refMileage: +formDataobject.refMileage,
           refTrasmissionType: formDataobject.refTrasmissionType,
           refFuleLimit: formDataobject.refFuleLimit,
           refDriverDetailsId: selectedDriver,
           refOtherRequirements: formDataobject.refOtherRequirements,
-          refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
-          refInclude: selectedinclude.map((act) => act.refIncludeId),
-          refExclude: selectedexclude.map((act) => act.refExcludeId),
-          refFormDetails: selectedform.map((act) => act.refFormDetailsId),
+          refrefRentalAgreement:formDataobject.refrefRentalAgreement,
+          refFuelPolicy:formDataobject.refFuelPolicy,
+          refDriverRequirements:formDataobject.refDriverRequirements,
+          refPaymentTerms:formDataobject.refPaymentTerms,
+          refBenifits: selectedbenefits.map((act) => act.refBenifitsId+""),
+          refInclude: selectedinclude.map((act) => act.refIncludeId+""),
+          refExclude: selectedexclude.map((act) => act.refExcludeId+""),
+          refFormDetails: selectedform.map((act) => act.refFormDetailsId+""),
           carImagePath: formData.productImage,
         },
         {
@@ -1490,9 +1492,20 @@ const CarServices: React.FC = () => {
           ></Column>
 
           <Column
-            field="refVehicleTypeName"
+             className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Car Name"
             style={{ minWidth: "200px" }}
+            body={(rowData) => (
+              <div
+                onClick={() => {
+                  setCarupdateID(rowData.refVehicleTypeId);
+                  setCarupdatesidebar(true);
+                }}
+              >
+                {rowData.refVehicleTypeName}
+
+              </div>
+            )}
           ></Column>
           <Column
             field="refTrasmissionType"
@@ -2028,7 +2041,7 @@ const CarServices: React.FC = () => {
                     placeholder="Choose a VechileType"
                     className="w-full"
                   />
-                  <InputText
+                  <InputNumber
                     name="refPersonCount"
                     placeholder="Enter Person Count"
                     className="w-full"
@@ -2037,7 +2050,7 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* Noof bage  and FuelType */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <InputText
+                  <InputNumber
                     name="refBag"
                     placeholder="Enter No of Bags"
                     className="w-full"
@@ -2052,13 +2065,14 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* ManufactureYear  and Mileage */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <InputText
+                  <InputNumber
                     name="refcarManufactureYear"
                     placeholder="Enter Manufacture Year"
                     className="w-full"
+                    useGrouping={false}
                     onChange={handleInput}
                   />
-                  <InputText
+                  <InputNumber
                     name="refMileage"
                     placeholder="Enter Mileage"
                     className="w-full"
@@ -2102,8 +2116,38 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                   />
                 </div>
+                 {/* RentalAgreement  and Fuel Policy */}
+                 <div className="flex flex-row gap-3 mt-3">
+                  <InputText
+                    name="refrefRentalAgreement"
+                    placeholder="Enter RentalAgreement"
+                    className="w-full"
+                    onChange={handleInput}
+                  />
+                  <InputText
+                    name="refFuelPolicy"
+                    placeholder="Enter Fuel Policy"
+                    className="w-full"
+                    onChange={handleInput}
+                  />
+                </div>
+                 {/* DriverRequirements  and PaymentTerms */}
+                 <div className="flex flex-row gap-3 mt-3">
+                  <InputText
+                    name="refDriverRequirements"
+                    placeholder="Enter DriverRequirements"
+                    className="w-full"
+                    onChange={handleInput}
+                  />
+                  <InputText
+                    name="refPaymentTerms"
+                    placeholder="Enter PaymentTerms"
+                    className="w-full"
+                    onChange={handleInput}
+                  />
+                </div>
 
-                {/*  TermsAndConditionsId */}
+                 {/* TermsAndConditionsId
                 <div className="flex  gap-3 mt-3">
                   <InputText
                     name="refTermsAndConditionsId"
@@ -2111,7 +2155,7 @@ const CarServices: React.FC = () => {
                     className="w-full"
                     onChange={handleInput}
                   />
-                </div>
+                </div> */}
                 {/* Benifits  and  Include*/}
                 <div className="flex flex-row w-[100%] gap-3 mt-3">
                   <MultiSelect
@@ -2179,7 +2223,7 @@ const CarServices: React.FC = () => {
                     maxFileSize={10000000}
                     emptyTemplate={
                       <p className="m-0">
-                        Drag and drop your logo here to upload.
+                        Drag and drop your Image here to upload.
                       </p>
                     }
                   />
@@ -2197,6 +2241,17 @@ const CarServices: React.FC = () => {
             </div>
           </TabPanel>
         </TabView>
+      </Sidebar>
+      <Sidebar
+        visible={carupdatesidebar}
+        style={{ width: "50%" }}
+        onHide={() => setCarupdatesidebar(false)}
+        position="right"
+      >
+        <CarUpdate
+          closeCarupdatesidebar={closeCarupdatesidebar}
+          carupdateID={carupdateID}
+        />
       </Sidebar>
     </div>
   );
