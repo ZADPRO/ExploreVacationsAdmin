@@ -84,7 +84,7 @@ function ToursNew() {
   const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
   const [tourupdateID, _setTourupdateID] = useState("");
   const [packageDetails, _setPackageDetails] = useState(null);
-  const [_loading, _setLoading] = useState(false);
+  const [_loading,_setLoading] = useState(false);
   const closeTourupdatesidebar = () => {
     setTourupdatesidebar(false);
   };
@@ -114,8 +114,8 @@ function ToursNew() {
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
 
-  const [_editTourID, setEditTourId] = useState<number | null>(null);
-  // const [setEditTourData] = useState<any>({});
+  const [_editTourId, setEditTourId] = useState<number | null>(null);
+  const [_editTourData,_setEditTourData] = useState<any>({});
 
   const [coverImage, setCoverImage] = useState("");
 
@@ -623,7 +623,7 @@ function ToursNew() {
         import.meta.env.VITE_ENCRYPTION_KEY
       );
 
-      localStorage.setItem("JWTtoken", "Bearer " + data.token);
+      localStorage.setItem("token", "Bearer " + data.token);
       console.log("data==============", data);
 
       if (data.success) {
@@ -670,7 +670,7 @@ function ToursNew() {
           import.meta.env.VITE_ENCRYPTION_KEY
         );
 
-        localStorage.setItem("JWTtoken", "Bearer " + data.token);
+        localStorage.setItem("token", "Bearer " + data.token);
         console.log("data==============", data);
 
         if (data.success) {
@@ -714,7 +714,7 @@ function ToursNew() {
           import.meta.env.VITE_ENCRYPTION_KEY
         );
 
-        localStorage.setItem("JWTtoken", "Bearer " + data.token);
+        localStorage.setItem("token", "Bearer " + data.token);
         console.log("data==============", data);
 
         if (data.success) {
@@ -852,7 +852,7 @@ function ToursNew() {
   //   }
   // };
 
-  // Action Buttons (Edit / Update)
+ // Action Buttons (Edit / Update)
   // const _actionTemplate = (rowData: any) => {
   //   return editTourId === rowData.refPackageId ? (
   //     <Button
@@ -945,18 +945,20 @@ function ToursNew() {
           <Column
             // className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Package Name"
+            field="refPackageName"
             style={{ minWidth: "200px" }}
-            body={(rowData) => (
-              <div
-                // onClick={() => {
-                //   setTourupdateID(rowData.refPackageId);
-                //   setTourupdatesidebar(true);
-                //   fetchPackageDetails(rowData.refPackageId);
-                // }}
-              >
-                {rowData.refPackageName}
-              </div>
-            )}
+            // body={(rowData) => (
+            //   <div
+            //     onClick={() => {
+            //       setTourupdateID(rowData.refPackageId);
+            //       setTourupdatesidebar(true);
+            //       fetchPackageDetails(rowData.refPackageId);
+            //     }}
+            //   >
+         
+            //   </div>
+               //     {rowData.refPackageName}
+            // )}
           />
           <Column
             field="refDesignationId"
@@ -1221,7 +1223,7 @@ function ToursNew() {
               </div>
               {/* Price */}
               <div className="flex flex-row gap-3 mt-3">
-                <InputNumber
+                <InputText
                   name="price"
                   placeholder="Enter Price P/P"
                   className="w-full"

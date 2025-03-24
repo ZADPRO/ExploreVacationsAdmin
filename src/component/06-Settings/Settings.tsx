@@ -14,9 +14,9 @@ const Settings: React.FC = () => {
         <>
             <div>
                 <div className="text-2xl font-semibold p-3">Settings</div>
-                <div className="flex flex-row justify-evenly">
+                <div className="flex flex-row gap-3 px-5  justify-evenly">
                     {/* Destination */}
-                    <div className="text-[#0a5c9c]">
+                    <div className="text-[#0a5c9c] flex-1">
                         <Card style={{ color: "#0a5c9c" }} title="Destination">
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("destination")} />
@@ -25,7 +25,7 @@ const Settings: React.FC = () => {
                     </div>
 
                     {/* Location */}
-                    <div>
+                    <div className="flex-1">
                         <Card style={{ color: "#0a5c9c" }} title="Location">
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("location")} />
@@ -34,7 +34,7 @@ const Settings: React.FC = () => {
                     </div>
 
                     {/* Activities */}
-                    <div>
+                    <div className="flex-1">
                         <Card style={{ color: "#0a5c9c" }} title="Activities">
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("activities")} />
@@ -43,7 +43,7 @@ const Settings: React.FC = () => {
                     </div>
 
                     {/* Categories */}
-                    <div>
+                    <div className="flex-1">
                         <Card style={{ color: "#0a5c9c" }} title="Categories">
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("categories")} />

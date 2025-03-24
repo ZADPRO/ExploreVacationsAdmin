@@ -148,7 +148,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 
         {
           headers: {
-            Authorization: localStorage.getItem("JWTtoken"),
+            Authorization: localStorage.getItem("token"),
           },
         }
       );
@@ -159,7 +159,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
         import.meta.env.VITE_ENCRYPTION_KEY
       );
 
-      localStorage.setItem("JWTtoken", "Bearer " + data.token);
+      localStorage.setItem("token", "Bearer " + data.token);
       console.log("data==============", data);
 
       if (data.success) {

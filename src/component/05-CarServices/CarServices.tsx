@@ -1349,7 +1349,7 @@ const CarServices: React.FC = () => {
 
         {
           headers: {
-            Authorization: localStorage.getItem("JWTtoken"),
+            Authorization: localStorage.getItem("token"),
           },
         }
       );
@@ -1360,7 +1360,7 @@ const CarServices: React.FC = () => {
         import.meta.env.VITE_ENCRYPTION_KEY
       );
 
-      localStorage.setItem("JWTtoken", "Bearer " + data.token);
+      localStorage.setItem("token", "Bearer " + data.token);
       console.log("data==============", data);
 
       if (data.success) {

@@ -201,6 +201,17 @@ const UserDetails: React.FC = () => {
     fetchTourBookings();
     fetchCarBookings();
   }, []);
+
+  const formatDate = (rowData: any) => {
+    if (!rowData.refPickupDate) return ""; // Handle empty values
+    const date = new Date(rowData.refPickupDate);
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    }).format(date);
+  };
+
   return (
     <div className="p-10 mt-0">
       <h2 className="text-2xl font-semibold">User Details</h2>
@@ -338,14 +349,13 @@ const UserDetails: React.FC = () => {
                 field="refLocationName"
                 header="Location"
                 style={{ minWidth: "200px" }}
-                body={(rowData) => rowData.refLocationName?.join(", ")} 
+                body={(rowData) => rowData.refLocationName?.join(", ")}
               />
               <Column
                 field="Activity"
                 header="Activity"
                 style={{ minWidth: "250px" }}
-
-                body={(rowData) => rowData.Activity?.join(", ")} 
+                body={(rowData) => rowData.Activity?.join(", ")}
               />
               <Column
                 field="refUserName"
@@ -365,6 +375,7 @@ const UserDetails: React.FC = () => {
               <Column
                 field="refPickupDate"
                 header="Pickup Date"
+                body={formatDate}
                 style={{ minWidth: "200px" }}
               />
               <Column
