@@ -17,7 +17,7 @@ import { MultiSelect } from "primereact/multiselect";
 import { Form } from "react-router-dom";
 import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
-import { InputNumber } from "primereact/inputnumber";
+
 import CarUpdate from "../../Pages/07-CarUpdate/CarUpdate";
 interface Carname {
   createdAt: string;
@@ -87,10 +87,11 @@ const CarServices: React.FC = () => {
     refFuleLimit: "",
     refOtherRequirements: "",
     refTermsAndConditionsId: "",
-    refrefRentalAgreement:"",
-    refFuelPolicy:"",
-    refDriverRequirements:"",
-    refPaymentTerms:"",
+    refrefRentalAgreement: "",
+    refFuelPolicy: "",
+    refCarPrice: "",
+    refDriverRequirements: "",
+    refPaymentTerms: "",
   });
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
@@ -109,7 +110,7 @@ const CarServices: React.FC = () => {
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [cabDetils, setCabDetails] = useState<any[]>([]);
   const [carupdatesidebar, setCarupdatesidebar] = useState(false);
-  const [carupdateID, setCarupdateID] = useState("");
+  const [carupdateID, _setCarupdateID] = useState("");
 
   const closeCarupdatesidebar = () => {
     setCarupdatesidebar(false);
@@ -169,18 +170,28 @@ const CarServices: React.FC = () => {
 
   console.log(vechiletype, formData, showupdatemodel);
 
-  const handleInput = (event: React.ChangeEvent<HTMLInputElement> | { value: number | null }, name?: string) => {
-    if ("target" in event) {
-      // Handling for InputText
-      const { name, value } = event.target;
-      setFormData((prev:any) => ({ ...prev, [name]: value }));
-    } else if (name) {
-      // Handling for InputNumber
-      setFormData((prev:any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
-    }
+  // const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setInputs((prevState) => ({
+  //     ...prevState,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  const handleInput = (
+    e:
+      | React.ChangeEvent<HTMLInputElement>
+      | { value: number | null; originalEvent: Event }
+  ) => {
+    const { name, value } =
+      "target" in e
+        ? e.target
+        : { name: "refPersonCount", value: e.value ?? 0 };
+
+    setInputs((prevState) => ({
+      ...prevState,
+      [name]: value ?? 0,
+    }));
   };
-  
-  
 
   const decrypt = (
     encryptedData: string,
@@ -205,8 +216,6 @@ const CarServices: React.FC = () => {
   };
 
   const AddCarname = async () => {
-    if (!inputs.refVehicleTypeName.trim()) return;
-
     setSubmitLoading(true);
 
     try {
@@ -228,10 +237,16 @@ const CarServices: React.FC = () => {
       );
 
       setSubmitLoading(false);
-      console.log("data-------------?", data);
+
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        fetchCarname();
+        fetchCarname(); // Refresh list
+
+        // **Clear only the input field**
+        setInputs((prevState) => ({
+          ...prevState,
+          refVehicleTypeName: "", // Reset this field only
+        }));
       }
     } catch (e) {
       console.log("Error adding car:", e);
@@ -281,6 +296,7 @@ const CarServices: React.FC = () => {
         //   isVerified: true,
         // });
         localStorage.setItem("token", "Bearer " + data.token);
+        fetchDriver();
       }
     } catch (e) {
       console.log("Error adding car:", e);
@@ -555,7 +571,7 @@ const CarServices: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->include", data);
+      console.log("data-------------->include$$$$$$$$$$$$$$$$", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
@@ -747,28 +763,29 @@ const CarServices: React.FC = () => {
     );
     console.log("formDataobject------------>handleform-------", formDataobject);
 
-     try {
+    try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/addCars",
         {
-          refVehicleTypeId: selectesvechile,
-          refPersonCount: +formDataobject.refPersonCount,
-          refBag: +formDataobject.refBag,
+          refVehicleTypeId: +selectesvechile,
+          refPersonCount: formDataobject.refPersonCount,
+          refBag: formDataobject.refBag,
           refFuelType: formDataobject.refFuelType,
-          refcarManufactureYear: +formDataobject.refcarManufactureYear,
-          refMileage: +formDataobject.refMileage,
+          refcarManufactureYear: formDataobject.refcarManufactureYear,
+          refMileage: formDataobject.refMileage,
           refTrasmissionType: formDataobject.refTrasmissionType,
           refFuleLimit: formDataobject.refFuleLimit,
-          refDriverDetailsId: selectedDriver,
+          refDriverDetailsId: +selectedDriver,
           refOtherRequirements: formDataobject.refOtherRequirements,
-          refrefRentalAgreement:formDataobject.refrefRentalAgreement,
-          refFuelPolicy:formDataobject.refFuelPolicy,
-          refDriverRequirements:formDataobject.refDriverRequirements,
-          refPaymentTerms:formDataobject.refPaymentTerms,
-          refBenifits: selectedbenefits.map((act) => act.refBenifitsId+""),
-          refInclude: selectedinclude.map((act) => act.refIncludeId+""),
-          refExclude: selectedexclude.map((act) => act.refExcludeId+""),
-          refFormDetails: selectedform.map((act) => act.refFormDetailsId+""),
+          refrefRentalAgreement: formDataobject.refrefRentalAgreement,
+          refFuelPolicy: formDataobject.refFuelPolicy,
+          refDriverRequirements: formDataobject.refDriverRequirements,
+          refPaymentTerms: formDataobject.refPaymentTerms,
+          refCarPrice: formDataobject.refCarPrice,
+          refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
+          refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
+          refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
+          refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
           carImagePath: formData.productImage,
         },
         {
@@ -1430,10 +1447,8 @@ const CarServices: React.FC = () => {
   //   }
   // };
 
-  const handleDeleteCar = async (rowdata:any) => {
-
-
-    console.log(rowdata.refCarsId)
+  const handleDeleteCar = async (rowdata: any) => {
+    console.log(rowdata.refCarsId);
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/deleteCars",
@@ -1484,7 +1499,12 @@ const CarServices: React.FC = () => {
       </div>
       <div className="mt-3 p-2">
         <h3 className="text-lg font-bold">Added Car Package</h3>
-        <DataTable value={cabDetils} tableStyle={{ minWidth: "50rem" }} paginator rows={4}>
+        <DataTable
+          value={cabDetils}
+          tableStyle={{ minWidth: "50rem" }}
+          paginator
+          rows={4}
+        >
           <Column
             header="S.No"
             headerStyle={{ width: "3rem" }}
@@ -1492,18 +1512,17 @@ const CarServices: React.FC = () => {
           ></Column>
 
           <Column
-             className="underline   text-[#0a5c9c]  cursor-pointer "
+            // className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Car Name"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
               <div
-                onClick={() => {
-                  setCarupdateID(rowData.refVehicleTypeId);
-                  setCarupdatesidebar(true);
-                }}
+              // onClick={() => {
+              //   setCarupdateID(rowData.refVehicleTypeId);
+              //   setCarupdatesidebar(true);
+              // }}
               >
                 {rowData.refVehicleTypeName}
-
               </div>
             )}
           ></Column>
@@ -1525,6 +1544,11 @@ const CarServices: React.FC = () => {
           <Column
             field="refMileage"
             header="Mileage"
+            style={{ minWidth: "200px" }}
+          ></Column>
+          <Column
+            field="refCarPrice"
+            header="Car Price"
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
@@ -1619,6 +1643,7 @@ const CarServices: React.FC = () => {
                   <Column
                     field="refVehicleTypeId"
                     header="S.No"
+                    body={(_rowData, { rowIndex }) => rowIndex + 1}
                     style={{ width: "10%", color: "#0a5c9c" }}
                   />
                   <Column
@@ -1634,91 +1659,101 @@ const CarServices: React.FC = () => {
           </TabPanel>
           <TabPanel header="Driver Details">
             <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-3 items-center w-[100%]">
-                <h3 className="font-bold">Add Driver Details:</h3>
+            <div className="flex flex-col items-center justify-center gap-4 w-[60%] sm:w-full p-4 ">
+                <h3 className="font-bold text-lg">Add Driver Details:</h3>
 
-                <div className=" flex flex-row justify-between gap-2">
+                {/* Input Fields (Row 1) */}
+                <div className="flex flex-row w-[70%] gap-4 sm:w-full">
                   <InputText
                     name="refDriverName"
                     value={inputs.refDriverName}
                     onChange={handleInput}
                     placeholder="Enter Driver Name"
-                    className="p-inputtext-sm w-[50%]"
+                    className="p-inputtext-sm w-full"
                   />
                   <InputText
                     name="refDriverAge"
                     value={inputs.refDriverAge}
                     onChange={handleInput}
                     placeholder="Enter Age"
-                    className="p-inputtext-sm w-[50%]"
+                    className="p-inputtext-sm w-full"
                   />
                 </div>
-                <div className=" flex flex-row justify-between gap-2">
+
+                {/* Input Fields (Row 2) */}
+                <div className="flex flex-row w-[70%] gap-4 sm:w-full">
                   <InputText
                     name="refDriverMail"
                     value={inputs.refDriverMail}
                     onChange={handleInput}
                     placeholder="Enter Mail ID"
-                    className="p-inputtext-sm w-[50%]"
+                    className="p-inputtext-sm w-full"
                   />
                   <InputText
                     name="refDriverMobile"
                     value={inputs.refDriverMobile}
                     onChange={handleInput}
                     placeholder="Enter Mobile number"
-                    className="p-inputtext-sm w-[50%]"
+                    className="p-inputtext-sm w-full"
                   />
                 </div>
-                <div className=" flex flex-col w-[56%] gap-2">
+
+                {/* Input Fields (Row 3) */}
+                <div className="w-[70%] sm:w-full">
                   <InputText
                     name="refDriverLocation"
                     value={inputs.refDriverLocation}
                     onChange={handleInput}
                     placeholder="Enter Location"
-                    className="p-inputtext-sm  w-[100%]"
+                    className="p-inputtext-sm w-full"
                   />
-                  <div className="flex flex-row mt-3 justify-evenly w-[100%] gap-2">
-                    <div className="flex align-items-center">
-                      <RadioButton
-                        inputId="verifiedYes"
-                        name="isVerified"
-                        value={true}
-                        onChange={(e) =>
-                          setInputs({ ...inputs, isVerified: e.value })
-                        }
-                        checked={inputs.isVerified === true}
-                      />
-                      <label htmlFor="verifiedYes" className="ml-2">
-                        Yes
-                      </label>
-                    </div>
+                </div>
 
-                    <div className="flex align-items-center">
-                      <RadioButton
-                        inputId="verifiedNo"
-                        name="isVerified"
-                        value={false}
-                        onChange={(e) =>
-                          setInputs({ ...inputs, isVerified: e.value })
-                        }
-                        checked={inputs.isVerified === false}
-                      />
-                      <label htmlFor="verifiedNo" className="ml-2">
-                        No
-                      </label>
-                    </div>
+                {/* Verification Section */}
+                <div className="flex flex-row items-center gap-4 w-[70%] sm:w-full mt-3">
+                  <h3 className="font-semibold">Verification:</h3>
+                  <div className="flex items-center">
+                    <RadioButton
+                      inputId="verifiedYes"
+                      name="isVerified"
+                      value={true}
+                      onChange={(e) =>
+                        setInputs({ ...inputs, isVerified: e.value })
+                      }
+                      checked={inputs.isVerified === true}
+                    />
+                    <label htmlFor="verifiedYes" className="ml-2">
+                      Yes
+                    </label>
+                  </div>
+                  <div className="flex items-center">
+                    <RadioButton
+                      inputId="verifiedNo"
+                      name="isVerified"
+                      value={false}
+                      onChange={(e) =>
+                        setInputs({ ...inputs, isVerified: e.value })
+                      }
+                      checked={inputs.isVerified === false}
+                    />
+                    <label htmlFor="verifiedNo" className="ml-2">
+                      No
+                    </label>
                   </div>
                 </div>
-                <div>
+
+                {/* Submit Button */}
+                <div className="mt-4">
                   <Button
                     label={submitLoading ? "Adding..." : "Add Details"}
                     icon="pi pi-check"
-                    className="p-button-primary"
+                    className="p-button-primary w-full"
                     onClick={AddDriver}
                     disabled={submitLoading}
                   />
                 </div>
               </div>
+
               <div className="">
                 <h3 className="text-lg font-bold">Added Driver Details</h3>
                 <DataTable value={driver} className="p-datatable-sm mt-2">
@@ -2041,7 +2076,7 @@ const CarServices: React.FC = () => {
                     placeholder="Choose a VechileType"
                     className="w-full"
                   />
-                  <InputNumber
+                  <InputText
                     name="refPersonCount"
                     placeholder="Enter Person Count"
                     className="w-full"
@@ -2050,7 +2085,7 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* Noof bage  and FuelType */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <InputNumber
+                  <InputText
                     name="refBag"
                     placeholder="Enter No of Bags"
                     className="w-full"
@@ -2065,14 +2100,14 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* ManufactureYear  and Mileage */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <InputNumber
+                  <InputText
                     name="refcarManufactureYear"
                     placeholder="Enter Manufacture Year"
                     className="w-full"
-                    useGrouping={false}
+                    // useGrouping={false}
                     onChange={handleInput}
                   />
-                  <InputNumber
+                  <InputText
                     name="refMileage"
                     placeholder="Enter Mileage"
                     className="w-full"
@@ -2094,7 +2129,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                   />
                 </div>
-                {/* DriverDetailsId  and OtherRequirements */}
+                {/* DriverDetailsId  and Carprice */}
                 <div className="flex flex-row gap-3 mt-3">
                   <Dropdown
                     value={selectedDriver}
@@ -2110,14 +2145,23 @@ const CarServices: React.FC = () => {
                     className="w-full"
                   />
                   <InputText
+                    name="refCarPrice"
+                    placeholder="Enter Car Price"
+                    className="w-full"
+                    onChange={handleInput}
+                  />
+                </div>
+                {/*OtherRequirements */}
+                <div className="flex flex-row gap-3 mt-3">
+                  <InputText
                     name="refOtherRequirements"
                     placeholder="Enter Other Requirements"
                     className="w-full"
                     onChange={handleInput}
                   />
                 </div>
-                 {/* RentalAgreement  and Fuel Policy */}
-                 <div className="flex flex-row gap-3 mt-3">
+                {/* RentalAgreement  and Fuel Policy */}
+                <div className="flex flex-row gap-3 mt-3">
                   <InputText
                     name="refrefRentalAgreement"
                     placeholder="Enter RentalAgreement"
@@ -2131,8 +2175,8 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                   />
                 </div>
-                 {/* DriverRequirements  and PaymentTerms */}
-                 <div className="flex flex-row gap-3 mt-3">
+                {/* DriverRequirements  and PaymentTerms */}
+                <div className="flex flex-row gap-3 mt-3">
                   <InputText
                     name="refDriverRequirements"
                     placeholder="Enter DriverRequirements"
@@ -2147,7 +2191,7 @@ const CarServices: React.FC = () => {
                   />
                 </div>
 
-                 {/* TermsAndConditionsId
+                {/* TermsAndConditionsId
                 <div className="flex  gap-3 mt-3">
                   <InputText
                     name="refTermsAndConditionsId"
@@ -2250,7 +2294,7 @@ const CarServices: React.FC = () => {
       >
         <CarUpdate
           closeCarupdatesidebar={closeCarupdatesidebar}
-          carupdateID={carupdateID}
+          CarupdateID={carupdateID}
         />
       </Sidebar>
     </div>

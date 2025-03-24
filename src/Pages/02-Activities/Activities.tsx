@@ -192,7 +192,7 @@ const Activities: React.FC = () => {
         // Reset edit state
         setEditActivityId(null);
         setEditActivityValue("");
-
+  fetchActivities();
         toast.success("Activity Updated!", {
           position: "top-right",
           autoClose: 3000,

@@ -22,7 +22,7 @@ import { FileUpload } from "primereact/fileupload";
 import { EditorTextChangeEvent } from "primereact/editor";
 import { fetchNewcarservices } from "../../services/NewServices";
 import TourUpdate from "../../Pages/06-TourUpdate/TourUpdate";
-import { Divider } from "primereact/divider";
+
 interface Destination {
   refDestinationId: string;
   refDestinationName: string;
@@ -57,6 +57,7 @@ interface TourPacakge {
   refTravalInclude: "";
   refTravalExclude: "";
   refSpecialNotes: "";
+
   refLocation: "";
   Activity: "";
 }
@@ -81,13 +82,15 @@ function ToursNew() {
   const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
-  const [tourupdateID, setTourupdateID] = useState("");
-
+  const [tourupdateID, _setTourupdateID] = useState("");
+  const [packageDetails, _setPackageDetails] = useState(null);
+  const [_loading, _setLoading] = useState(false);
   const closeTourupdatesidebar = () => {
     setTourupdatesidebar(false);
   };
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
+  const [_error, _setError] = useState<string | null>(null);
   // const [imagePaths, setImagePaths] = useState<string[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
   const [selectedInclude, setSelectedInclude] = useState<any[]>([]);
@@ -99,19 +102,20 @@ function ToursNew() {
 
     refTravalInclude: "",
   });
+  const[overview, setOverview]: any = useState("");
   const [specialNotes, setSpecialNotes]: any = useState("");
   const [editExcludeId, setEditExcludeId] = useState<number | null>(null);
   const [editExcludeValue, setEditExcludeValue] = useState({
     refTravalExcludeId: "",
     refTravalExclude: "",
   });
-  const [formData, setFormData] = useState<any>([]);
+
   const [mapformData, setMapformdata] = useState<any>([]);
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
 
-  const [editTourId, setEditTourId] = useState<number | null>(null);
-  const [editTourData, setEditTourData] = useState<any>({});
+  const [_editTourID, setEditTourId] = useState<number | null>(null);
+  // const [setEditTourData] = useState<any>({});
 
   const [coverImage, setCoverImage] = useState("");
 
@@ -212,18 +216,19 @@ function ToursNew() {
         {
           refPackageName: formDataobject.packageName,
           refDesignationId: parseInt(selectedDestination.refDestinationId),
-          refDurationIday: +formDataobject.noOfDays,
-          refDurationINight: +formDataobject.noOfNights,
+          refDurationIday: formDataobject.noOfDays.toString(),
+          refDurationINight: formDataobject.noOfNights.toString(),
           refLocation: selectedLocations.map((loc) => loc.refLocationId + ""),
           refCategoryId: parseInt(selectedcategory.refCategoryId),
-          refGroupSize: 0,
+          refGroupSize: "0",
           refTourCode: formDataobject.tourCode,
-          refTourPrice: +formDataobject.price,
-          refSeasonalPrice: +formDataobject.seasonalPrice,
+          refTourPrice: formDataobject.price.toString(),
+          refSeasonalPrice: formDataobject.seasonalPrice,
           images: formDataImages,
           refItinary: text,
           refItinaryMapPath: mapformData,
           refSpecialNotes: specialNotes,
+          refTravalOverView: text,
           refActivity: selectedactivities.map(
             (act) => act.refActivitiesId + ""
           ),
@@ -755,15 +760,50 @@ function ToursNew() {
   // };
 
   // Handle Input Change
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    setEditTourData((prevData: any) => ({
-      ...prevData,
-      [field]: e.target.value,
-    }));
-  };
+  // const handleInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   field: string
+  // ) => {
+  //   setEditTourData((prevData: any) => ({
+  //     ...prevData,
+  //     [field]: e.target.value,
+  //   }));
+  // };
+
+  // const fetchPackageDetails = async (packageId: string) => {
+  //   console.log("packageID", packageId);
+  //   setLoading(true);
+  //   setError(null);
+  //   try {
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_API_URL}/packageRoutes/getTour`,
+  //       { refPackageId: packageId },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decryptAPIResponse(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+
+  //     if (data.success) {
+  //       setPackageDetails(data.tourDetails);
+  //       console.log("Package Details:", data.tourDetails);
+  //     } else {
+  //       setError("Failed to fetch package details.");
+  //     }
+  //   } catch (err) {
+  //     setError("Error fetching package details.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Update Tour
   // const updateTourPackage = async () => {
@@ -903,18 +943,18 @@ function ToursNew() {
           />
 
           <Column
-            className="underline   text-[#0a5c9c]  cursor-pointer "
+            // className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Package Name"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
               <div
-                onClick={() => {
-                  setTourupdateID(rowData.refPackageId);
-                  setTourupdatesidebar(true);
-                }}
+                // onClick={() => {
+                //   setTourupdateID(rowData.refPackageId);
+                //   setTourupdatesidebar(true);
+                //   fetchPackageDetails(rowData.refPackageId);
+                // }}
               >
                 {rowData.refPackageName}
-
               </div>
             )}
           />
@@ -922,174 +962,179 @@ function ToursNew() {
             field="refDesignationId"
             header="Destination"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refDesignationId}
-          //       onChange={(e) => handleInputChange(e, "refDesignationId")}
-          //     />
-          //   ) : (
-          //     rowData.refDesignationId
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refDesignationId}
+            //       onChange={(e) => handleInputChange(e, "refDesignationId")}
+            //     />
+            //   ) : (
+            //     rowData.refDesignationId
+            //   )
+            // }
           />
           <Column
             field="refDurationIday"
             header="No of Day"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refDurationIday}
-          //       onChange={(e) => handleInputChange(e, "refDurationIday")}
-          //     />
-          //   ) : (
-          //     rowData.refDurationIday
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refDurationIday}
+            //       onChange={(e) => handleInputChange(e, "refDurationIday")}
+            //     />
+            //   ) : (
+            //     rowData.refDurationIday
+            //   )
+            // }
           />
 
           <Column
             field="refDurationINight"
             header="No of Night"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId && editTourData ? (
-          //     <InputText
-          //       value={editTourData?.refDurationINight || ""}
-          //       onChange={(e) => handleInputChange(e, "refDurationINight")}
-          //     />
-          //   ) : (
-          //     rowData.refDurationINight
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId && editTourData ? (
+            //     <InputText
+            //       value={editTourData?.refDurationINight || ""}
+            //       onChange={(e) => handleInputChange(e, "refDurationINight")}
+            //     />
+            //   ) : (
+            //     rowData.refDurationINight
+            //   )
+            // }
           />
 
           <Column
             field="refGroupSize"
             header="Group Size"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refGroupSize}
-          //       onChange={(e) => handleInputChange(e, "refGroupSize")}
-          //     />
-          //   ) : (
-          //     rowData.refGroupSize
-          //   )
-          // }
           />
 
           <Column
             field="refTourPrice"
             header="Tour Price"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refTourPrice}
-          //       onChange={(e) => handleInputChange(e, "refTourPrice")}
-          //     />
-          //   ) : (
-          //     rowData.refTourPrice
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refTourPrice}
+            //       onChange={(e) => handleInputChange(e, "refTourPrice")}
+            //     />
+            //   ) : (
+            //     rowData.refTourPrice
+            //   )
+            // }
           />
 
           <Column
             field="refTourCode"
             header="Tour Code"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refTourCode}
-          //       onChange={(e) => handleInputChange(e, "refTourCode")}
-          //     />
-          //   ) : (
-          //     rowData.refTourCode
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refTourCode}
+            //       onChange={(e) => handleInputChange(e, "refTourCode")}
+            //     />
+            //   ) : (
+            //     rowData.refTourCode
+            //   )
+            // }
           />
 
           <Column
             field="refSeasonalPrice"
             header="Seasonal Price"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refSeasonalPrice}
-          //       onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
-          //     />
-          //   ) : (
-          //     rowData.refSeasonalPrice
-          //   )
-          // }
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refSeasonalPrice}
+            //       onChange={(e) => handleInputChange(e, "refSeasonalPrice")}
+            //     />
+            //   ) : (
+            //     rowData.refSeasonalPrice
+            //   )
+            // }
           />
-          <Column
+          {/* <Column
             field="refTravalDataId"
             header="Travel Data "
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refTravalDataId ? (
-          //     <InputText
-          //       value={editTourData.refTravalDataId}
-          //       onChange={(e) => handleInputChange(e, "refTravalDataId")}
-          //     />
-          //   ) : (
-          //     rowData.refTravalDataId
-          //   )
-          // }
-          />
+            // body={(rowData) =>
+            //   editTourId === rowData.refTravalDataId ? (
+            //     <InputText
+            //       value={editTourData.refTravalDataId}
+            //       onChange={(e) => handleInputChange(e, "refTravalDataId")}
+            //     />
+            //   ) : (
+            //     rowData.refTravalDataId
+            //   )
+            // }
+          /> */}
 
           <Column
-            field="refLocation"
             header="Location"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refLocation}
-          //       onChange={(e) => handleInputChange(e, "refLocation")}
-          //     />
-          //   ) : (
-          //     rowData.refLocation
-          //   )
-          // }
+            body={(rowData) => (
+              <>
+                {/* {rowData.refLocationName} */}
+                {rowData.refLocationName.map((loc: any) => (
+                  <div>{loc}</div>
+                ))}
+              </>
+            )}
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refLocation}
+            //       onChange={(e) => handleInputChange(e, "refLocation")}
+            //     />
+            //   ) : (
+            //     rowData.refLocation
+            //   )
+            // }
           />
 
           <Column
             field="refActivity"
             header="Activity"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refActivity}
-          //       onChange={(e) => handleInputChange(e, "refActivity")}
-          //     />
-          //   ) : (
-          //     rowData.refActivity
-          //   )
-          // }
+            body={(rowData) => (
+              <>
+                {/* {rowData.refLocationName} */}
+                {rowData.Activity.map((loc: any) => (
+                  <div>{loc}</div>
+                ))}
+              </>
+            )}
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refActivity}
+            //       onChange={(e) => handleInputChange(e, "refActivity")}
+            //     />
+            //   ) : (
+            //     rowData.refActivity
+            //   )
+            // }
           />
-          <Column
+          {/* <Column
             field="refCategoryId"
             header="Category"
             style={{ minWidth: "200px" }}
-          // body={(rowData) =>
-          //   editTourId === rowData.refPackageId ? (
-          //     <InputText
-          //       value={editTourData.refCategoryId}
-          //       onChange={(e) => handleInputChange(e, "refCategoryId")}
-          //     />
-          //   ) : (
-          //     rowData.refCategoryId
-          //   )
-          // }
-          />
+            // body={(rowData) =>
+            //   editTourId === rowData.refPackageId ? (
+            //     <InputText
+            //       value={editTourData.refCategoryId}
+            //       onChange={(e) => handleInputChange(e, "refCategoryId")}
+            //     />
+            //   ) : (
+            //     rowData.refCategoryId
+            //   )
+            // }
+          /> */}
           {/* <Column body={actionTemplate} header="Actions" /> */}
           <Column body={actionDeleteTour} header="Delete" />
         </DataTable>
@@ -1189,9 +1234,9 @@ function ToursNew() {
               </div>
               {/* Notes */}
               <div className="flex flex-col gap-3 mt-3">
-                <InputNumber
+                <InputText
                   name="seasonalPrice"
-                  placeholder="Enter Seasonal Price"
+                  placeholder="Enter Seasonal Price Notes"
                   className="w-full"
                 />
               </div>
@@ -1213,6 +1258,19 @@ function ToursNew() {
                   className="w-full"
                   onChange={(e) => setSpecialNotes(e.target.value)}
                 />
+               <Editor
+  value={overview} // Bind state variable
+  onTextChange={(e: EditorTextChangeEvent) => setOverview(e.htmlValue)} // Handle input changes
+  style={{ height: "320px", width: "100%" }} // Custom styles
+  placeholder="Enter Overview Notes"
+/>
+
+                   {/* <InputText
+                  name="refTravalOverView"
+                  placeholder="Enter Overview Notes"
+                  className="w-full"
+                  onChange={(e) => setOverview(e.target.value)}
+                /> */}
               </div>
 
               {/* Include  Exclude */}
@@ -1422,6 +1480,7 @@ function ToursNew() {
         <TourUpdate
           closeTourupdatesidebar={closeTourupdatesidebar}
           tourupdateID={tourupdateID}
+          packageDetail={packageDetails} // Passing the fetched package details as props
         />
       </Sidebar>
     </>

@@ -48,7 +48,7 @@ export const fetchNewcarservices = async () => {
 
     console.log('car ------------------>');
    
-    console.log('car detailssssssssssssssssssssssss ------------------>', data);
+    console.log('car detailssssssssssssssssssssssss ------------------>carsRoutes/listCars', data);
     if (data.success) {
      
       return data.result;

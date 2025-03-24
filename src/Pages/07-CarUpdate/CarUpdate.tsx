@@ -1,6 +1,6 @@
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { fetchNewcarservices } from "../../services/NewServices";
@@ -12,19 +12,19 @@ interface CarUpdateProps {
   closeCarupdatesidebar: () => void;
   CarupdateID: string;
 }
-interface Carname {
-  createdAt: string;
-  createdBy: string;
-  refDummy1: null;
-  refDummy2: null;
-  refDummy3: null;
-  refDummy4: null;
-  refDummy5: null;
-  refVehicleTypeId: number;
-  refVehicleTypeName: string;
-  updatedAt: null;
-  updatedBy: null;
-}
+// interface Carname {
+//   createdAt: string;
+//   createdBy: string;
+//   refDummy1: null;
+//   refDummy2: null;
+//   refDummy3: null;
+//   refDummy4: null;
+//   refDummy5: null;
+//   refVehicleTypeId: number;
+//   refVehicleTypeName: string;
+//   updatedAt: null;
+//   updatedBy: null;
+// }
 
 interface Driverdetails {
   refDriverName: "";
@@ -56,26 +56,26 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   CarupdateID,
 }) => {
   const [formData, setFormData] = useState<any>([]);
-  const [visible, setVisible] = useState(false);
-  const [car, setCar] = useState<Carname[]>([]);
+  const [_visible, setVisible] = useState(false);
+
   const [driver, setDriver] = useState<Driverdetails[]>([]);
-  const [benefit, setBenefit] = useState<Benefits[]>([]);
-  const [include, setInclude] = useState<Includes[]>([]);
-  const [exclude, setExclude] = useState<Excludes[]>([]);
-  const [extra, setExtra] = useState<Form[]>([]);
-  const [submitLoading, setSubmitLoading] = useState(false);
+  const [benefit, _setBenefit] = useState<Benefits[]>([]);
+  const [include, _setInclude] = useState<Includes[]>([]);
+  const [exclude, _setExclude] = useState<Excludes[]>([]);
+  const [extra, _setExtra] = useState<Form[]>([]);
+  const [_submitLoading, setSubmitLoading] = useState(false);
   const isFormSubmitting = false;
 
-  const [selectesvechile, setSelectedvechile] = useState<any[]>([]);
+  const [selectesvechile, _setSelectedvechile] = useState<any[]>([]);
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
   const [selectedinclude, setSelectedinclude] = useState<any[]>([]);
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
   const [selectedform, setSelectedform] = useState<any[]>([]);
-  const [cabDetils, setCabDetails] = useState<any[]>([]);
+  const [_cabDetils, setCabDetails] = useState<any[]>([]);
 
   const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
 
-  const [editDriverId, setEditDriverId] = useState<number | null>(null);
+  const [_editDriverId, setEditDriverId] = useState<number | null>(null);
 
   const decrypt = (
     encryptedData: string,
@@ -263,6 +263,42 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     } else if (name) {
       // Handling for InputNumber
       setFormData((prev: any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
+    }
+  };
+ useEffect(() => {
+  fetchCardataForm();
+  }, [CarupdateID]);
+
+
+  const fetchCardataForm = async () => {
+    
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/getCars",
+        {
+          refCarsId:CarupdateID
+          },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+          console.log("response", response)
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->Updatecardata", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+      
+      }
+    } catch (e: any) {
+      console.log("Error fetching Includes:", e);
     }
   };
   return (

@@ -7,11 +7,7 @@ import { TabPanel, TabView } from "primereact/tabview";
 
 type DecryptResult = any;
 
-
-interface UserDetail {
-
-}
-
+interface UserDetail {}
 
 const UserDetails: React.FC = () => {
   const decrypt = (
@@ -35,7 +31,7 @@ const UserDetails: React.FC = () => {
 
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
-    const [_UserDetail, setTourDetail] = useState<UserDetail[]>([]);
+  const [_UserDetail, setTourDetail] = useState<UserDetail[]>([]);
   const [TourBooking, setTourBooking] = useState<any[]>([]);
   const [CarBookingqs, setCarBookings] = useState<any[]>([]);
   // const packageDetails = [
@@ -116,7 +112,7 @@ const UserDetails: React.FC = () => {
   //     refFormDetails: [4, 5],
   //   },
   // ];
-  
+
   const fetchCustomize = async () => {
     try {
       const response = await axios.get(
@@ -162,7 +158,7 @@ const UserDetails: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->Customise", data);
+      console.log("data-------------->listTourBookings", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
@@ -288,9 +284,11 @@ const UserDetails: React.FC = () => {
           </div>
         </TabPanel> */}
         <TabPanel header="TourBookings">
-          <div className="mt-4 p-2 ">
-            <h3 className="text-lg font-bold mb-4">Added TourBookings</h3>
+          <div className=" ">
+            <h3 className="text-lg font-bold">Added TourBookings</h3>
             <DataTable
+              paginator
+              rows={4}
               value={TourBooking}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -319,6 +317,12 @@ const UserDetails: React.FC = () => {
                 field="refGroupSize"
                 header="Group Size"
                 style={{ minWidth: "150px" }}
+                body={(rowData) => {
+                  const adultCount = Number(rowData.refAdultCount) || 0;
+                  const childrenCount = Number(rowData.refChildrenCount) || 0;
+                  const infantCount = Number(rowData.refInfants) || 0;
+                  return <>{adultCount + childrenCount + infantCount}</>;
+                }}
               />
               <Column
                 field="refTourPrice"
@@ -328,17 +332,20 @@ const UserDetails: React.FC = () => {
               <Column
                 field="refSeasonalPrice"
                 header="Seasonal Price ($)"
-                style={{ minWidth: "150px" }}
+                style={{ minWidth: "250px" }}
               />
               <Column
-                field="refLocation"
+                field="refLocationName"
                 header="Location"
                 style={{ minWidth: "200px" }}
+                body={(rowData) => rowData.refLocationName?.join(", ")} 
               />
               <Column
-                field="refActivity"
+                field="Activity"
                 header="Activity"
                 style={{ minWidth: "250px" }}
+
+                body={(rowData) => rowData.Activity?.join(", ")} 
               />
               <Column
                 field="refUserName"
@@ -384,9 +391,14 @@ const UserDetails: React.FC = () => {
           </div>
         </TabPanel>
         <TabPanel header="CarBookings">
-          <div className="mt-4 p-2 ">
+          <div className="mt-2 p-1  ">
             <h3 className="text-lg font-bold mb-4">Added CarBookings</h3>
-            <DataTable value={CarBookingqs} tableStyle={{ minWidth: "50rem" }}>
+            <DataTable
+              paginator
+              rows={4}
+              value={CarBookingqs}
+              tableStyle={{ minWidth: "50rem" }}
+            >
               <Column
                 header="S.No"
                 headerStyle={{ width: "3rem" }}

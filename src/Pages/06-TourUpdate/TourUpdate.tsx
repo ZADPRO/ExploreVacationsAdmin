@@ -10,7 +10,7 @@ import { InputText } from "primereact/inputtext";
 import axios from "axios";
 import { decryptAPIResponse } from "../../utils";
 import { Editor, EditorTextChangeEvent } from "primereact/editor";
-import { FileUpload } from "primereact/fileupload";
+// import { FileUpload } from "primereact/fileupload";
 import { fetchActivities } from "../../services/ActivityService";
 import { fetchDestinations } from "../../services/DestinationService";
 import { fetchCategories } from "../../services/CategoriesService";
@@ -30,31 +30,32 @@ interface Location {
   refLocationId: number;
 }
 
-interface TourPacakge {
-  refPackageId: "";
-  refPackageName: "";
-  refDurationIday: "";
-  refDesignationId: "";
-  refDurationINight: "";
-  refCategoryId: "";
-  refGroupSize: "";
-  refTourCode: "";
-  refTourPrice: "";
-  refSeasonalPrice: "";
-  refTravalDataId: "";
-  refTravalOverView: "";
-  refItinary: "";
-  refItinaryMapPath: "";
-  refTravalInclude: "";
-  refTravalExclude: "";
-  refSpecialNotes: "";
-  refLocation: "";
-  Activity: "";
-}
+// interface TourPacakge {
+//   refPackageId: "";
+//   refPackageName: "";
+//   refDurationIday: "";
+//   refDesignationId: "";
+//   refDurationINight: "";
+//   refCategoryId: "";
+//   refGroupSize: "";
+//   refTourCode: "";
+//   refTourPrice: "";
+//   refSeasonalPrice: "";
+//   refTravalDataId: "";
+//   refTravalOverView: "";
+//   refItinary: "";
+//   refItinaryMapPath: "";
+//   refTravalInclude: "";
+//   refTravalExclude: "";
+//   refSpecialNotes: "";
+//   refLocation: "";
+//   Activity: "";
+// }
 
 interface TourUpdateProps {
   closeTourupdatesidebar: () => void;
   tourupdateID: string;
+  packageDetail?: any; 
 }
 
 type DecryptResult = any;
@@ -64,7 +65,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
 }) => {
   const isFormSubmitting = false;
   const [selectexclude, setSelectedExclude] = useState<any[]>([]);
-  const [isAddTourOpen, setIsAddTourOpen] = useState(false);
+  const [_isAddTourOpen, setIsAddTourOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [allcategories, setAllcategories] = useState<any[]>([]);
   const [selectedcategory, setSelectedCategory] = useState<any | null>(null);
@@ -76,18 +77,18 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   const [include, setInclude] = useState<Includes[]>([]);
   const [selectedInclude, setSelectedInclude] = useState<any[]>([]);
   const [exclude, setExclude] = useState<Excludes[]>([]);
-  const [mapformData, setMapformdata] = useState<any>([]);
-  const [formDataImages, setFormdataImages] = useState<any>([]);
+  const [mapformData, _setMapformdata] = useState<any>([]);
+  const [formDataImages, _setFormdataImages] = useState<any>([]);
   const [text, setText]: any = useState("");
-  const [coverImage, setCoverImage] = useState("");
-  const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
+  const [coverImage, _setCoverImage] = useState("");
+  // const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [packageName, setPackageName] = useState("");
   const [numberofDays, setNumberOfDays] = useState(null);
   const [numberofNights, setNumberofNights] = useState(null);
   const [tourPrice, setTourPrice] = useState(null);
   const [tourCode, setTourCode] = useState("");
-  const [seasonalPrice, setSeasonalPrice] = useState(null);
+  const [seasonalPrice, _setSeasonalPrice] = useState(null);
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -272,163 +273,163 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
 
   //Map image upload
 
-  const customMap = async (event: any) => {
-    console.table("event", event);
-    const file = event.files[0]; // Assuming single file upload
-    const formData = new FormData();
-    formData.append("Image", file);
-    console.log("formData", formData);
+  // const customMap = async (event: any) => {
+  //   console.table("event", event);
+  //   const file = event.files[0]; // Assuming single file upload
+  //   const formData = new FormData();
+  //   formData.append("Image", file);
+  //   console.log("formData", formData);
 
-    for (let pair of formData.entries()) {
-      console.log("-------->______________", pair[0] + ":", pair[1]);
-    }
+  //   for (let pair of formData.entries()) {
+  //     console.log("-------->______________", pair[0] + ":", pair[1]);
+  //   }
 
-    console.log("formData------------>", formData);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/userRoutes/uploadMap",
+  //   console.log("formData------------>", formData);
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/userRoutes/uploadMap",
 
-        formData,
+  //       formData,
 
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      );
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
 
-      localStorage.setItem("JWTtoken", "Bearer " + data.token);
-      console.log("data==============", data);
+  //     localStorage.setItem("JWTtoken", "Bearer " + data.token);
+  //     console.log("data==============", data);
 
-      if (data.success) {
-        console.log("data+", data);
-        handleUploadSuccessMap(data);
-      } else {
-        console.log("data-", data);
-        handleUploadFailure(data);
-      }
-    } catch (error) {
-      handleUploadFailure(error);
-    }
-  };
+  //     if (data.success) {
+  //       console.log("data+", data);
+  //       handleUploadSuccessMap(data);
+  //     } else {
+  //       console.log("data-", data);
+  //       handleUploadFailure(data);
+  //     }
+  //   } catch (error) {
+  //     handleUploadFailure(error);
+  //   }
+  // };
 
   //galary image upload
 
-  const customUploader = async (event: any) => {
-    console.table("event", event);
+  // const customUploader = async (event: any) => {
+  //   console.table("event", event);
 
-    // Create a FormData object
+  //   // Create a FormData object
 
-    // Loop through the selected files and append each one to the FormData
-    for (let i = 0; i < event.files.length; i++) {
-      const formData = new FormData();
-      const file = event.files[i];
-      formData.append("images", file);
+  //   // Loop through the selected files and append each one to the FormData
+  //   for (let i = 0; i < event.files.length; i++) {
+  //     const formData = new FormData();
+  //     const file = event.files[i];
+  //     formData.append("images", file);
 
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+  //     try {
+  //       const response = await axios.post(
+  //         import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
 
-          formData,
+  //         formData,
 
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-            },
-          }
-        );
+  //         {
+  //           headers: {
+  //             Authorization: localStorage.getItem("token"),
+  //           },
+  //         }
+  //       );
 
-        const data = decrypt(
-          response.data[1],
-          response.data[0],
-          import.meta.env.VITE_ENCRYPTION_KEY
-        );
+  //       const data = decrypt(
+  //         response.data[1],
+  //         response.data[0],
+  //         import.meta.env.VITE_ENCRYPTION_KEY
+  //       );
 
-        localStorage.setItem("JWTtoken", "Bearer " + data.token);
-        console.log("data==============", data);
+  //       localStorage.setItem("JWTtoken", "Bearer " + data.token);
+  //       console.log("data==============", data);
 
-        if (data.success) {
-          handleUploadSuccess(data);
-        } else {
-          handleUploadFailure(data);
-        }
-      } catch (error) {
-        handleUploadFailure(error);
-      }
-    }
-  };
+  //       if (data.success) {
+  //         handleUploadSuccess(data);
+  //       } else {
+  //         handleUploadFailure(data);
+  //       }
+  //     } catch (error) {
+  //       handleUploadFailure(error);
+  //     }
+  //   }
+  // };
 
-  const customCoverUploader = async (event: any) => {
-    console.table("event", event);
+  // const customCoverUploader = async (event: any) => {
+  //   console.table("event", event);
 
-    // Create a FormData object
+  //   // Create a FormData object
 
-    // Loop through the selected files and append each one to the FormData
-    for (let i = 0; i < event.files.length; i++) {
-      const formData = new FormData();
-      const file = event.files[i];
-      formData.append("Image", file);
+  //   // Loop through the selected files and append each one to the FormData
+  //   for (let i = 0; i < event.files.length; i++) {
+  //     const formData = new FormData();
+  //     const file = event.files[i];
+  //     formData.append("Image", file);
 
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/packageRoutes/uploadCoverImage",
+  //     try {
+  //       const response = await axios.post(
+  //         import.meta.env.VITE_API_URL + "/packageRoutes/uploadCoverImage",
 
-          formData,
+  //         formData,
 
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-            },
-          }
-        );
+  //         {
+  //           headers: {
+  //             Authorization: localStorage.getItem("token"),
+  //           },
+  //         }
+  //       );
 
-        const data = decrypt(
-          response.data[1],
-          response.data[0],
-          import.meta.env.VITE_ENCRYPTION_KEY
-        );
+  //       const data = decrypt(
+  //         response.data[1],
+  //         response.data[0],
+  //         import.meta.env.VITE_ENCRYPTION_KEY
+  //       );
 
-        localStorage.setItem("JWTtoken", "Bearer " + data.token);
-        console.log("data==============", data);
+  //       localStorage.setItem("JWTtoken", "Bearer " + data.token);
+  //       console.log("data==============", data);
 
-        if (data.success) {
-          handleUploadSuccessCover(data);
-        } else {
-          handleUploadFailure(data);
-        }
-      } catch (error) {
-        handleUploadFailure(error);
-      }
-    }
-  };
+  //       if (data.success) {
+  //         handleUploadSuccessCover(data);
+  //       } else {
+  //         handleUploadFailure(data);
+  //       }
+  //     } catch (error) {
+  //       handleUploadFailure(error);
+  //     }
+  //   }
+  // };
 
-  const handleUploadSuccessMap = (response: any) => {
-    console.log("Upload Successful:", response);
-    setMapformdata(response.filePath);
-  };
+  // const handleUploadSuccessMap = (response: any) => {
+  //   console.log("Upload Successful:", response);
+  //   setMapformdata(response.filePath);
+  // };
 
-  const handleUploadSuccessCover = (response: any) => {
-    console.log("Upload Successful:", response);
-    setCoverImage(response.filePath);
-  };
+  // const handleUploadSuccessCover = (response: any) => {
+  //   console.log("Upload Successful:", response);
+  //   setCoverImage(response.filePath);
+  // };
 
-  const handleUploadSuccess = (response: any) => {
-    let temp = [...formDataImages]; // Create a new array to avoid mutation
-    temp.push(response.filePath); // Add the new file path
-    console.log("Upload Successful:", response);
-    setFormdataImages(temp); // Update the state with the new array
-  };
+  // const handleUploadSuccess = (response: any) => {
+  //   let temp = [...formDataImages]; // Create a new array to avoid mutation
+  //   temp.push(response.filePath); // Add the new file path
+  //   console.log("Upload Successful:", response);
+  //   setFormdataImages(temp); // Update the state with the new array
+  // };
 
-  const handleUploadFailure = (error: any) => {
-    console.error("Upload Failed:", error);
-    // Add your failure handling logic here
-  };
+  // const handleUploadFailure = (error: any) => {
+  //   console.error("Upload Failed:", error);
+  //   // Add your failure handling logic here
+  // };
 
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
