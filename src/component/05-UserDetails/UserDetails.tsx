@@ -7,9 +7,7 @@ import { TabPanel, TabView } from "primereact/tabview";
 
 type DecryptResult = any;
 
-interface UserDetail {
 
-}
 
 const UserDetails: React.FC = () => {
   const decrypt = (
