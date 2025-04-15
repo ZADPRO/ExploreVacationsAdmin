@@ -1,11 +1,11 @@
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
-import { InputNumber } from "primereact/inputnumber";
+
 import { FormEvent, useEffect, useState } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { fetchNewcarservices } from "../../services/NewServices";
 import { InputText } from "primereact/inputtext";
-import { FileUpload } from "primereact/fileupload";
+
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
 interface CarUpdateProps {
@@ -62,10 +62,9 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   closeCarupdatesidebar,
   CarupdateID,
 }) => {
-  const [formData, setFormData] = useState<any>([]);
   const [_visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
-  const [vechiletype, setVechileType] = useState<any[]>([]);
+  const [_vechiletype, setVechileType] = useState<any[]>([]);
   const [driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
@@ -93,23 +92,19 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     // refBenifits: [],
     // refInclude: [],
     // refExclude: [],
-    Benifits:[],
-    Include:[],
+    Benifits: [],
+    Include: [],
     Exclude: [],
     refFormDetails: [],
     carImagePath: null,
   });
-  const [selectedVehicle, setSelectedVehicle] = useState("");
 
   const [selectesvechile, _setSelectedvechile] = useState<any[]>([]);
-  const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
-  const [selectedinclude, setSelectedinclude] = useState<any[]>([]);
-  const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
-  const [selectedform, setSelectedform] = useState<any[]>([]);
+
   const [_cabDetils, setCabDetails] = useState<any[]>([]);
   const [extra, setExtra] = useState<Form[]>([]);
 
-  const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
+  const [selectedDriver, _setSelectedDriver] = useState<any[]>([]);
 
   const [_editDriverId, setEditDriverId] = useState<number | null>(null);
 
@@ -165,62 +160,62 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 
   // upload galary
 
-  const customUploader = async (event: any) => {
-    console.table("event", event);
-    const file = event.files[0];
-    const formData = new FormData();
-    formData.append("Image", file);
-    console.log("formData", formData);
+  // const customUploader = async (event: any) => {
+  //   console.table("event", event);
+  //   const file = event.files[0];
+  //   const formData = new FormData();
+  //   formData.append("Image", file);
+  //   console.log("formData", formData);
 
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ":", pair[1]);
-    }
-    console.log("formData------------>", formData);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/uploadCars",
+  //   for (let pair of formData.entries()) {
+  //     console.log(pair[0] + ":", pair[1]);
+  //   }
+  //   console.log("formData------------>", formData);
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/uploadCars",
 
-        formData,
+  //       formData,
 
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-          },
-        }
-      );
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
 
-      localStorage.setItem("token", "Bearer " + data.token);
-      console.log("data==============", data);
+  //     localStorage.setItem("token", "Bearer " + data.token);
+  //     console.log("data==============", data);
 
-      if (data.success) {
-        console.log("data+", data);
-        handleUploadSuccess(data);
-      } else {
-        console.log("data-", data);
-        handleUploadFailure(data);
-      }
-    } catch (error) {
-      handleUploadFailure(error);
-    }
-  };
-  const handleUploadSuccess = (response: any) => {
-    console.log("Upload Successful:", response);
-    setFormData((prevFormData: any) => ({
-      ...prevFormData,
-      productImage: response.filePath,
-    }));
-  };
+  //     if (data.success) {
+  //       console.log("data+", data);
+  //       handleUploadSuccess(data);
+  //     } else {
+  //       console.log("data-", data);
+  //       handleUploadFailure(data);
+  //     }
+  //   } catch (error) {
+  //     handleUploadFailure(error);
+  //   }
+  // };
+  // const handleUploadSuccess = (response: any) => {
+  //   console.log("Upload Successful:", response);
+  //   setFormData((prevFormData: any) => ({
+  //     ...prevFormData,
+  //     productImage: response.filePath,
+  //   }));
+  // };
 
-  const handleUploadFailure = (error: any) => {
-    console.error("Upload Failed:", error);
-    // Add your failure handling logic here
-  };
+  // const handleUploadFailure = (error: any) => {
+  //   console.error("Upload Failed:", error);
+  //   // Add your failure handling logic here
+  // };
 
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -253,10 +248,10 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           // refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
           // refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
           // refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
-          refBenifits:formDataobject.Benifits,
-          refInclude:formDataobject.Include,
-          refExclude:formDataobject.Exclude,
-          refFormDetails:formDataobject.refFormDetails,
+          refBenifits: formDataobject.Benifits,
+          refInclude: formDataobject.Include,
+          refExclude: formDataobject.Exclude,
+          refFormDetails: formDataobject.refFormDetails,
           carImagePath: formDataobject.productImage,
         },
         {
@@ -724,7 +719,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
                 }));
               }}
               options={benefit}
-               optionValue="refBenifitsId"
+              optionValue="refBenifitsId"
               optionLabel="refBenifitsName"
               display="chip"
               placeholder="Select Benefits"
@@ -740,7 +735,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
                 }));
               }}
               options={include}
-                optionValue="refIncludeId"
+              optionValue="refIncludeId"
               optionLabel="refIncludeName"
               display="chip"
               placeholder="Select include"
