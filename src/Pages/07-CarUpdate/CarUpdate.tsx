@@ -44,9 +44,16 @@ interface Includes {
 }
 interface Excludes {
   refExcludeName: string;
+  Exclude: string;
 }
 interface Form {
   refFormDetails: string;
+}
+interface Carname {
+  createdAt: string;
+  createdBy: string;
+  refVehicleTypeId: number;
+  refVehicleTypeName: string;
 }
 
 type DecryptResult = any;
@@ -57,14 +64,42 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 }) => {
   const [formData, setFormData] = useState<any>([]);
   const [_visible, setVisible] = useState(false);
-
+  const [car, setCar] = useState<Carname[]>([]);
+  const [vechiletype, setVechileType] = useState<any[]>([]);
   const [driver, setDriver] = useState<Driverdetails[]>([]);
-  const [benefit, _setBenefit] = useState<Benefits[]>([]);
-  const [include, _setInclude] = useState<Includes[]>([]);
-  const [exclude, _setExclude] = useState<Excludes[]>([]);
-  const [extra, _setExtra] = useState<Form[]>([]);
+  const [benefit, setBenefit] = useState<Benefits[]>([]);
+  const [include, setInclude] = useState<Includes[]>([]);
+  const [exclude, setExclude] = useState<Excludes[]>([]);
+
   const [_submitLoading, setSubmitLoading] = useState(false);
   const isFormSubmitting = false;
+  const [formDataobject, setFormDataobject] = useState({
+    refVehicleTypeId: 0,
+    refCarsId: 0,
+    refPersonCount: "",
+    refVehicleTypeName: "",
+    refBag: "",
+    refFuelType: "",
+    refcarManufactureYear: "",
+    refMileage: "",
+    refTrasmissionType: "",
+    refFuleLimit: "",
+    refDriverDetailsId: 0,
+    refOtherRequirements: "",
+    refRentalAgreement: "",
+    refFuelPolicy: "",
+    refDriverRequirements: "",
+    refPaymentTerms: "",
+    // refBenifits: [],
+    // refInclude: [],
+    // refExclude: [],
+    Benifits:[],
+    Include:[],
+    Exclude: [],
+    refFormDetails: [],
+    carImagePath: null,
+  });
+  const [selectedVehicle, setSelectedVehicle] = useState("");
 
   const [selectesvechile, _setSelectedvechile] = useState<any[]>([]);
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
@@ -72,6 +107,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [_cabDetils, setCabDetails] = useState<any[]>([]);
+  const [extra, setExtra] = useState<Form[]>([]);
 
   const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
 
@@ -196,27 +232,32 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 
     try {
       const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/addCars",
+        import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
         {
-          refVehicleTypeId: selectesvechile,
-          refPersonCount: +formDataobject.refPersonCount,
-          refBag: +formDataobject.refBag,
+          refCarsId: +CarupdateID,
+          refVehicleTypeId: +selectesvechile,
+          refPersonCount: formDataobject.refPersonCount,
+          refBag: formDataobject.refBag,
           refFuelType: formDataobject.refFuelType,
-          refcarManufactureYear: +formDataobject.refcarManufactureYear,
-          refMileage: +formDataobject.refMileage,
+          refcarManufactureYear: formDataobject.refcarManufactureYear,
+          refMileage: formDataobject.refMileage,
           refTrasmissionType: formDataobject.refTrasmissionType,
           refFuleLimit: formDataobject.refFuleLimit,
-          refDriverDetailsId: selectedDriver,
+          refDriverDetailsId: +selectedDriver,
           refOtherRequirements: formDataobject.refOtherRequirements,
-          refrefRentalAgreement: formDataobject.refrefRentalAgreement,
+          refRentalAgreement: formDataobject.refRentalAgreement,
           refFuelPolicy: formDataobject.refFuelPolicy,
           refDriverRequirements: formDataobject.refDriverRequirements,
           refPaymentTerms: formDataobject.refPaymentTerms,
-          refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
-          refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
-          refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
-          refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
-          carImagePath: formData.productImage,
+          // refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
+          // refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
+          // refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
+          // refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
+          refBenifits:formDataobject.Benifits,
+          refInclude:formDataobject.Include,
+          refExclude:formDataobject.Exclude,
+          refFormDetails:formDataobject.refFormDetails,
+          carImagePath: formDataobject.productImage,
         },
         {
           headers: {
@@ -252,32 +293,24 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     // await addNewcarpackage(payload);
     // setIsFormSubmitting(false);
   };
-  const handleInput = (
-    event: React.ChangeEvent<HTMLInputElement> | { value: number | null },
-    name?: string
-  ) => {
-    if ("target" in event) {
-      // Handling for InputText
-      const { name, value } = event.target;
-      setFormData((prev: any) => ({ ...prev, [name]: value }));
-    } else if (name) {
-      // Handling for InputNumber
-      setFormData((prev: any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
-    }
-  };
- useEffect(() => {
-  fetchCardataForm();
-  }, [CarupdateID]);
+  // const handleInput = (
+  //   event: React.ChangeEvent<HTMLInputElement> | { value: number | null },
+  //   name?: string
+  // ) => {
+  //   if ("target" in event) {
+  //     // Handling for InputText
+  //     const { name, value } = event.target;
+  //     setFormData((prev: any) => ({ ...prev, [name]: value }));
+  //   } else if (name) {
+  //     // Handling for InputNumber
+  //     setFormData((prev: any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
+  //   }
+  // };
 
-
-  const fetchCardataForm = async () => {
-    
+  const fetchCarname = async () => {
     try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/getCars",
-        {
-          refCarsId:CarupdateID
-          },
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/listVehicle",
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -285,30 +318,242 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           },
         }
       );
-          console.log("response", response)
+
       const data = decrypt(
         response.data[1],
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->Updatecardata", data);
+      console.log("data car details", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("Car Name----------->", data);
+        setCar(data.result);
+        setVechileType(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching destinations:", e);
+    }
+  };
+  useEffect(() => {
+    fetchSingleIDCardataForm();
+    fetchDriver();
+    fetchCarname();
+    fetchExtra();
+    fetchBenefits();
+    fetchInclude();
+    fetchExclude();
+  }, [CarupdateID]);
+
+  const fetchExtra = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/listFormDetails",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->extra", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
-      
+        setExtra(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching extras:", e);
+    }
+  };
+  const fetchBenefits = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/listBenifits",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->benefits", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setBenefit(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching destinations:", e);
+    }
+  };
+  const fetchInclude = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/listInclude",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->include$$$$$$$$$$$$$$$$", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        setInclude(data.result);
       }
     } catch (e: any) {
       console.log("Error fetching Includes:", e);
     }
   };
+  const fetchExclude = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/listExclude",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data-------------->exclude", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("data line 44444444444444==================", data);
+
+        console.log("data.result line 445================", data.result);
+        setExclude(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching exclude:", e);
+    }
+  };
+
+  const fetchSingleIDCardataForm = async () => {
+    console.log("Fetching data for car update ID:", CarupdateID);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/getCars",
+        {
+          refCarsId: CarupdateID,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      if (data.success) {
+        console.log("fetchSingleIDCardataForm----------->", data);
+        const carDetails = data.result[0];
+
+        // Set form data object with fetched data
+        setFormDataobject({
+          refCarsId: +carDetails.refCarsId,
+          refVehicleTypeId: +carDetails.refVehicleTypeId,
+          refPersonCount: carDetails.refPersonCount || "",
+          refBag: carDetails.refBagCount || "",
+          refVehicleTypeName: carDetails.refVehicleTypeName || "",
+          refFuelType: carDetails.refFuelType || "",
+          refcarManufactureYear: carDetails.refcarManufactureYear || "",
+          refMileage: carDetails.refMileage || "",
+          refTrasmissionType: carDetails.refTrasmissionType || "",
+          refFuleLimit: carDetails.refFuleLimit || "",
+          refDriverDetailsId: +carDetails.refDriverDetailsId,
+          refOtherRequirements: carDetails.refOtherRequirements || "",
+          refRentalAgreement: carDetails.refRentalAgreement || "",
+          refFuelPolicy: carDetails.refFuelPolicy || "",
+          refDriverRequirements: carDetails.refDriverRequirements || "",
+          refPaymentTerms: carDetails.refPaymentTerms || "",
+          Benifits: carDetails.Benifits || [],
+          Include: carDetails.Include || [],
+          Exclude: carDetails.Exclude || [],
+          refFormDetails: carDetails.refFormDetails || [],
+          // refFormDetails:// carDetails.refFormDetails||[],
+
+          // carDetails.refFormDetails.slice(1,  carDetails.refFormDetails.length - 1).split(",").map(v => parseInt(v))
+          carImagePath: carDetails.refCarPath || null,
+        });
+      }
+    } catch (e) {
+      console.error("Error fetching car data:", e);
+    }
+  };
+
+  useEffect(() => {
+    console.log("Formdatacheck------>", formDataobject);
+  }, [formDataobject]);
+
+  const handleInput = (
+    event: React.ChangeEvent<HTMLInputElement> | { value: number | null },
+    name?: string
+  ) => {
+    if ("target" in event) {
+      const { name, value } = event.target;
+      setFormDataobject((prev) => ({ ...prev, [name]: value }));
+    } else if (name) {
+      setFormDataobject((prev) => ({ ...prev, [name]: event.value || 0 }));
+    }
+  };
+
+  // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   await fetchSingleIDCardataForm();
+
+  //   await handleUpdateSubmit(e);
+  // };
+
   return (
     <div>
       <div>
-        <h2 className="text-xl font-bold">Update New Car Package ID :{CarupdateID}</h2>
-        <form onSubmit={handleUpdateSubmit} method="post">
+        <h2 className="text-xl font-bold">
+          Update New Car Package ID :{CarupdateID}
+        </h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleUpdateSubmit(e);
+          }}
+          className="mt-4"
+        >
           {/* Vechiletype  and Personcount */}
           <div className="flex flex-row gap-3 mt-3">
-            <Dropdown
+            {/* <Dropdown
               // value={selectesvechile}
               // onChange={(e: DropdownChangeEvent) => {
               //   setSelectedvechile(e.value);
@@ -325,18 +570,42 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               placeholder="Enter Person Count"
               className="w-full"
               onChange={handleInput}
+            /> */}
+
+            <Dropdown
+              value={formDataobject.refVehicleTypeId}
+              onChange={(e: DropdownChangeEvent) => {
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  refVehicleTypeId: e.value,
+                }));
+              }}
+              optionValue="refVehicleTypeId"
+              optionLabel="refVehicleTypeName"
+              placeholder="Choose a Vehicle Type"
+              className="w-full"
+              options={car}
+            />
+            <InputText
+              name="refPersonCount"
+              value={formDataobject.refPersonCount}
+              placeholder="Enter Person Count"
+              className="w-full"
+              onChange={handleInput}
             />
           </div>
           {/* Noof bage  and FuelType */}
           <div className="flex flex-row gap-3 mt-3">
-            <InputNumber
+            <InputText
               name="refBag"
+              value={formDataobject.refBag}
               placeholder="Enter No of Bags"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refFuelType"
+              value={formDataobject.refFuelType}
               placeholder="Enter Fuel Type"
               className="w-full"
               onChange={handleInput}
@@ -344,15 +613,16 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           </div>
           {/* ManufactureYear  and Mileage */}
           <div className="flex flex-row gap-3 mt-3">
-            <InputNumber
+            <InputText
               name="refcarManufactureYear"
+              value={formDataobject.refcarManufactureYear}
               placeholder="Enter Manufacture Year"
               className="w-full"
-              useGrouping={false}
               onChange={handleInput}
             />
-            <InputNumber
+            <InputText
               name="refMileage"
+              value={formDataobject.refMileage}
               placeholder="Enter Mileage"
               className="w-full"
               onChange={handleInput}
@@ -362,12 +632,14 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refTrasmissionType"
+              value={formDataobject.refTrasmissionType}
               placeholder="Enter Transmission Type"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refFuleLimit"
+              value={formDataobject.refFuleLimit}
               placeholder="Enter Fuel Limit"
               className="w-full"
               onChange={handleInput}
@@ -376,20 +648,22 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* DriverDetailsId  and OtherRequirements */}
           <div className="flex flex-row gap-3 mt-3">
             <Dropdown
-              value={selectedDriver}
+              value={formDataobject.refDriverDetailsId}
               onChange={(e: DropdownChangeEvent) => {
-                console.log("-------", e.value);
-                setSelectedDriver(e.value);
-                fetchDriver();
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  refDriverDetailsId: e.value,
+                }));
               }}
               options={driver}
               optionValue="refDriverDetailsId"
               optionLabel="refDriverName"
-              placeholder="Choose a DriverDetails"
+              placeholder="Choose a Driver Name"
               className="w-full"
             />
             <InputText
               name="refOtherRequirements"
+              value={formDataobject.refOtherRequirements}
               placeholder="Enter Other Requirements"
               className="w-full"
               onChange={handleInput}
@@ -398,13 +672,15 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* RentalAgreement  and Fuel Policy */}
           <div className="flex flex-row gap-3 mt-3">
             <InputText
-              name="refrefRentalAgreement"
+              name="refRentalAgreement"
+              value={formDataobject.refRentalAgreement}
               placeholder="Enter RentalAgreement"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refFuelPolicy"
+              value={formDataobject.refFuelPolicy}
               placeholder="Enter Fuel Policy"
               className="w-full"
               onChange={handleInput}
@@ -414,12 +690,14 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refDriverRequirements"
+              value={formDataobject.refDriverRequirements}
               placeholder="Enter DriverRequirements"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refPaymentTerms"
+              value={formDataobject.refPaymentTerms}
               placeholder="Enter PaymentTerms"
               className="w-full"
               onChange={handleInput}
@@ -438,28 +716,35 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* Benifits  and  Include*/}
           <div className="flex flex-row w-[100%] gap-3 mt-3">
             <MultiSelect
-              value={selectedbenefits}
+              value={formDataobject.Benifits}
               onChange={(e) => {
-                console.log(e.value);
-                setSelectedbenefits(e.value);
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  Benifits: e.value,
+                }));
               }}
               options={benefit}
+               optionValue="refBenifitsId"
               optionLabel="refBenifitsName"
               display="chip"
               placeholder="Select Benefits"
-              maxSelectedLabels={3}
+              maxSelectedLabels={1}
               className="w-full md:w-25rem"
             />
             <MultiSelect
-              value={selectedinclude}
+              value={formDataobject.Include}
               onChange={(e) => {
-                setSelectedinclude(e.value);
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  Include: e.value,
+                }));
               }}
               options={include}
+                optionValue="refIncludeId"
               optionLabel="refIncludeName"
               display="chip"
               placeholder="Select include"
-              maxSelectedLabels={3}
+              maxSelectedLabels={1}
               className="w-full md:w-25rem"
             />
           </div>
@@ -467,32 +752,39 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* Exclude  and  FormDetails*/}
           <div className="flex flex-row w-[100%] gap-3 mt-3">
             <MultiSelect
-              value={selectedexclude}
+              value={formDataobject.Exclude}
               onChange={(e) => {
-                console.log(e.value);
-                setSelectedexclude(e.value);
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  Exclude: e.value,
+                }));
               }}
               options={exclude}
+              optionValue="refExcludeId"
               optionLabel="refExcludeName"
               display="chip"
               placeholder="Select Exculde"
-              maxSelectedLabels={3}
+              maxSelectedLabels={1}
               className="w-full md:w-25rem"
             />
             <MultiSelect
-              value={selectedform}
+              value={formDataobject.refFormDetails}
               onChange={(e) => {
-                setSelectedform(e.value);
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  refFormDetails: e.value,
+                }));
               }}
               options={extra}
+              optionValue="refFormDetailsId"
               optionLabel="refFormDetails"
               display="chip"
               placeholder="Select FormDetails"
-              maxSelectedLabels={3}
+              maxSelectedLabels={1}
               className="w-full md:w-25rem"
             />
           </div>
-          <div className="flex flex-col justify-center w-[100%] align-middle mt-4">
+          {/* <div className="flex flex-col justify-center w-[100%] align-middle mt-4">
             <FileUpload
               name="logo"
               customUpload
@@ -505,7 +797,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               }
             />
             {" "}
-          </div>
+          </div> */}
 
           <div className="mt-4 flex justify-end">
             <Button

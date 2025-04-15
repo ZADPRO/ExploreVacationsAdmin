@@ -14,7 +14,7 @@ import { addItemBaseOnKey } from "../../services/carservice";
 // import { addNewcarpackage } from "../../services/NewCarService";
 import { Dropdown } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
-import { Form } from "react-router-dom";
+
 import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
 
@@ -110,7 +110,7 @@ const CarServices: React.FC = () => {
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [cabDetils, setCabDetails] = useState<any[]>([]);
   const [carupdatesidebar, setCarupdatesidebar] = useState(false);
-  const [carupdateID, _setCarupdateID] = useState("");
+  const [carupdateID, setCarupdateID] = useState("");
 
   const closeCarupdatesidebar = () => {
     setCarupdatesidebar(false);
@@ -1512,15 +1512,15 @@ const CarServices: React.FC = () => {
           ></Column>
 
           <Column
-            // className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Car Name"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
               <div
-              // onClick={() => {
-              //   setCarupdateID(rowData.refVehicleTypeId);
-              //   setCarupdatesidebar(true);
-              // }}
+              onClick={() => {
+                setCarupdateID(rowData.refCarsId);
+                setCarupdatesidebar(true);
+              }}
               >
                 {rowData.refVehicleTypeName}
               </div>
@@ -1670,6 +1670,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     placeholder="Enter Driver Name"
                     className="p-inputtext-sm w-full"
+                    required
                   />
                   <InputText
                     name="refDriverAge"
@@ -1677,6 +1678,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     placeholder="Enter Age"
                     className="p-inputtext-sm w-full"
+                    required
                   />
                 </div>
 
@@ -1688,6 +1690,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     placeholder="Enter Mail ID"
                     className="p-inputtext-sm w-full"
+                    required
                   />
                   <InputText
                     name="refDriverMobile"
@@ -1695,6 +1698,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     placeholder="Enter Mobile number"
                     className="p-inputtext-sm w-full"
+                    required
                   />
                 </div>
 
@@ -1705,6 +1709,7 @@ const CarServices: React.FC = () => {
                     value={inputs.refDriverLocation}
                     onChange={handleInput}
                     placeholder="Enter Location"
+                    required
                     className="p-inputtext-sm w-full"
                   />
                 </div>
@@ -2073,14 +2078,16 @@ const CarServices: React.FC = () => {
                     options={car}
                     optionValue="refVehicleTypeId"
                     optionLabel="refVehicleTypeName"
-                    placeholder="Choose a VechileType"
+                    placeholder="Choose a vehicle Type"
                     className="w-full"
+                    required
                   />
                   <InputText
                     name="refPersonCount"
                     placeholder="Enter Person Count"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* Noof bage  and FuelType */}
@@ -2090,12 +2097,14 @@ const CarServices: React.FC = () => {
                     placeholder="Enter No of Bags"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                   <InputText
                     name="refFuelType"
                     placeholder="Enter Fuel Type"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* ManufactureYear  and Mileage */}
@@ -2106,12 +2115,14 @@ const CarServices: React.FC = () => {
                     className="w-full"
                     // useGrouping={false}
                     onChange={handleInput}
+                    required
                   />
                   <InputText
                     name="refMileage"
                     placeholder="Enter Mileage"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* Transmissiontype  and FuelType */}
@@ -2121,12 +2132,14 @@ const CarServices: React.FC = () => {
                     placeholder="Enter Transmission Type"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                   <InputText
                     name="refFuleLimit"
                     placeholder="Enter Fuel Limit"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* DriverDetailsId  and Carprice */}
@@ -2143,12 +2156,14 @@ const CarServices: React.FC = () => {
                     optionLabel="refDriverName"
                     placeholder="Choose a DriverDetails"
                     className="w-full"
+                    required
                   />
                   <InputText
                     name="refCarPrice"
                     placeholder="Enter Car Price"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/*OtherRequirements */}
@@ -2158,6 +2173,7 @@ const CarServices: React.FC = () => {
                     placeholder="Enter Other Requirements"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* RentalAgreement  and Fuel Policy */}
@@ -2167,12 +2183,14 @@ const CarServices: React.FC = () => {
                     placeholder="Enter RentalAgreement"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                   <InputText
                     name="refFuelPolicy"
                     placeholder="Enter Fuel Policy"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
                 {/* DriverRequirements  and PaymentTerms */}
@@ -2182,12 +2200,14 @@ const CarServices: React.FC = () => {
                     placeholder="Enter DriverRequirements"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                   <InputText
                     name="refPaymentTerms"
                     placeholder="Enter PaymentTerms"
                     className="w-full"
                     onChange={handleInput}
+                    required
                   />
                 </div>
 
@@ -2214,6 +2234,7 @@ const CarServices: React.FC = () => {
                     placeholder="Select Benefits"
                     maxSelectedLabels={3}
                     className="w-full md:w-25rem"
+                    required
                   />
                   <MultiSelect
                     value={selectedinclude}
@@ -2226,6 +2247,7 @@ const CarServices: React.FC = () => {
                     placeholder="Select include"
                     maxSelectedLabels={3}
                     className="w-full md:w-25rem"
+                    required
                   />
                 </div>
 
@@ -2243,6 +2265,7 @@ const CarServices: React.FC = () => {
                     placeholder="Select Exculde"
                     maxSelectedLabels={3}
                     className="w-full md:w-25rem"
+                    required
                   />
                   <MultiSelect
                     value={selectedform}
@@ -2255,6 +2278,7 @@ const CarServices: React.FC = () => {
                     placeholder="Select FormDetails"
                     maxSelectedLabels={3}
                     className="w-full md:w-25rem"
+                    required
                   />
                 </div>
                 <div className="flex flex-col justify-center w-[100%] align-middle mt-4">

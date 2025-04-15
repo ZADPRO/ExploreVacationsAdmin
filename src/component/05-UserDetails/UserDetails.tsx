@@ -7,7 +7,9 @@ import { TabPanel, TabView } from "primereact/tabview";
 
 type DecryptResult = any;
 
-interface UserDetail {}
+interface UserDetail {
+
+}
 
 const UserDetails: React.FC = () => {
   const decrypt = (
@@ -31,7 +33,7 @@ const UserDetails: React.FC = () => {
 
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
-  const [_UserDetail, setTourDetail] = useState<UserDetail[]>([]);
+  const [UserDetail, setTourDetail] = useState<any[]>([]);
   const [TourBooking, setTourBooking] = useState<any[]>([]);
   const [CarBookingqs, setCarBookings] = useState<any[]>([]);
   // const packageDetails = [
@@ -216,7 +218,7 @@ const UserDetails: React.FC = () => {
     <div className="p-10 mt-0">
       <h2 className="text-2xl font-semibold">User Details</h2>
       <TabView>
-        {/* <TabPanel header="Tour Form Details">
+        <TabPanel header="Tour Form Details">
           <div className="mt-4 p-2 ">
             <h3 className="text-lg font-bold mb-4">Customize TourBookings</h3>
             <DataTable value={UserDetail} tableStyle={{ minWidth: "50rem" }}>
@@ -227,8 +229,8 @@ const UserDetails: React.FC = () => {
               ></Column>
 
               <Column
-                field="refPackageId"
-                header="Package ID"
+                field="refPackageName"
+                header="Package Name"
                 style={{ minWidth: "150px" }}
               />
               <Column
@@ -281,11 +283,11 @@ const UserDetails: React.FC = () => {
                 header="Vaccination Type"
                 style={{ minWidth: "200px" }}
               />
-              <Column
+              {/* <Column
                 field="refVaccinationCertificate"
                 header="Vaccination Certificate"
                 style={{ minWidth: "250px" }}
-              />
+              /> */}
               <Column
                 field="refOtherRequirements"
                 header="Other Requirements"
@@ -293,7 +295,7 @@ const UserDetails: React.FC = () => {
               />
             </DataTable>
           </div>
-        </TabPanel> */}
+        </TabPanel>
         <TabPanel header="TourBookings">
           <div className=" ">
             <h3 className="text-lg font-bold">Added TourBookings</h3>

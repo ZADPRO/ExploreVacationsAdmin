@@ -59,6 +59,7 @@ const Location: React.FC = () => {
   };
 
   const fetchLocations = async (destinationList: Destination[]) => {
+    console.log("destinationList", destinationList);
     try {
       const response = await axios.get(
         import.meta.env.VITE_API_URL + "/settingRoutes/listLocation",
@@ -117,6 +118,7 @@ const Location: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         setDestinations(data.destinationList);
+        console.log("data line 121 ============ ", data);
         fetchLocations(data.destinationList);
       }
     } catch (e: any) {
@@ -274,13 +276,14 @@ const Location: React.FC = () => {
   //   // Add logic to open an edit modal or update state
   // };
 
-  const deleteLocation = async (refLocationId: number) => {
+  const deleteLocation = async (refDestinationId: any) => {
     setSubmitLoading(true);
+    console.log("refDestinationId", refDestinationId);
 
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/settingRoutes/deleteLocation",
-        { refLocationId },
+        { refDestinationId: refDestinationId },
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -299,13 +302,17 @@ const Location: React.FC = () => {
       setSubmitLoading(false);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-
-        // ✅ Update state safely
-        setAllLocations((prevLocations) =>
-          prevLocations.filter(
-            (location) => location.refLocationId !== refLocationId
+        setAllLocations(
+          allLocations.filter(
+            (locations) => locations.refDestinationId !== refDestinationId
           )
         );
+
+        // setAllLocations((prevLocations) =>
+        //   prevLocations.filter(
+        //     (location) => location.refLocationId !== refLocationId
+        //   )
+        // );
       }
     } catch (e) {
       console.error("Error deleting location:", e);
@@ -313,7 +320,7 @@ const Location: React.FC = () => {
     }
   };
 
-  const actionTemplate = (rowData:any) => (
+  const actionTemplate = (rowData: any) => (
     <div className="flex gap-2">
       {editLocationId === rowData.refLocationId ? (
         <Button
@@ -323,20 +330,20 @@ const Location: React.FC = () => {
           // onClick={updateLocation}
         />
       ) : (
-        <Button
-          icon="pi pi-pencil"
-          className="p-button-warning p-button-sm"
-          // onClick={() => handleEditLocationClick(rowData)}
-        />
+        // <Button
+        //   icon="pi pi-pencil"
+        //   className="p-button-warning p-button-sm"
+        //   onClick={() => handleEditLocationClick(rowData)}
+        // />
+        <></>
       )}
       <Button
         icon="pi pi-trash"
         className="p-button-danger p-button-sm"
-        onClick={() => deleteLocation(rowData.refLocationId)}
+        onClick={() => deleteLocation(rowData.refDestinationId)}
       />
     </div>
   );
-  
 
   // Delete Location
 
@@ -502,7 +509,11 @@ const Location: React.FC = () => {
         />
 
         {/* Action Buttons */}
-        <Column header="Actions" body={actionTemplate} style={{ minWidth: "150px", textAlign: "center" }} />
+        <Column
+          header="Actions"
+          body={actionTemplate}
+          style={{ minWidth: "150px", textAlign: "center" }}
+        />
       </DataTable>
     </div>
   );

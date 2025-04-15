@@ -13,10 +13,8 @@ import { fetchDestinations } from "../../services/DestinationService";
 type DecryptResult = any;
 
 interface Destination {
- 
   refDestinationId: number;
   refDestinationName: string;
-
 }
 
 const Destination: React.FC = () => {
@@ -45,14 +43,15 @@ const Destination: React.FC = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [inputs, setInputs] = useState({ refDestination: "" });
   const [destinations, setDestinations] = useState<Destination[]>([]);
-  const [editDestinationId, setEditdestinationId] = useState<number | null>(null);
+  const [editDestinationId, setEditdestinationId] = useState<number | null>(
+    null
+  );
   const [editDestinationValue, setEditDestinationValue] = useState("");
 
-
   useEffect(() => {
-    fetchDestinations().then(result => {
+    fetchDestinations().then((result) => {
       setDestinations(result);
-    })
+    });
   }, []);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,7 +63,9 @@ const Destination: React.FC = () => {
 
   const addDestination = async () => {
     setSubmitLoading(true);
-    if (!inputs.refDestination.trim()) return;
+    if (!inputs.refDestination.trim()) {
+      return; // Optionally show a toast or alert here
+    }
 
     try {
       const response = await axios.post(
@@ -88,7 +89,7 @@ const Destination: React.FC = () => {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-       
+
         toast.success("Successfully Added", {
           position: "top-right",
           autoClose: 2999,
@@ -100,14 +101,13 @@ const Destination: React.FC = () => {
           theme: "light",
           transition: Slide,
         });
-        fetchDestinations().then(result => {
+        fetchDestinations().then((result) => {
           setDestinations(result);
-        })
+        });
         setInputs((prevInputs) => ({
           ...prevInputs,
-          refDestination: "", 
+          refDestination: "",
         }));
-               
       }
     } catch (e: any) {
       console.log("Error adding destination:", e);
@@ -115,8 +115,7 @@ const Destination: React.FC = () => {
     }
   };
 
-
-//Update Destination
+  //Update Destination
 
   // Handle Edit Button Click
   const handleEditIncludeClick = (rowData: Destination) => {
@@ -126,17 +125,16 @@ const Destination: React.FC = () => {
 
   // Handle Input Change
 
-    const handleDestinationInputChange = (
-      e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-      setEditDestinationValue(e.target.value);
-    };
-  
+  const handleDestinationInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setEditDestinationValue(e.target.value);
+  };
 
   // Update API Call
   const UpdateDestination = async () => {
     if (!editDestinationId || !editDestinationValue.trim()) return;
-    
+
     setSubmitLoading(true);
 
     try {
@@ -144,7 +142,7 @@ const Destination: React.FC = () => {
         import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
         {
           refDestinationId: editDestinationId,
-          refDestinationName: editDestinationValue,  // Send updated name
+          refDestinationName: editDestinationValue, // Send updated name
         },
         {
           headers: {
@@ -165,7 +163,7 @@ const Destination: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditdestinationId(null);
         setEditDestinationValue("");
-        
+
         // Fetch updated destinations
         fetchDestinations().then(setDestinations);
       }
@@ -174,74 +172,77 @@ const Destination: React.FC = () => {
       setSubmitLoading(false);
       setEditdestinationId(null);
     }
-};
-
-
-
+  };
 
   //Delete Destination
 
-const deleteDestination = async (refDestinationId: number) => {
- 
+  const deleteDestination = async (refDestinationId: any) => {
+    console.log("refDestinationId", refDestinationId);
+    setSubmitLoading(true);
 
-  setSubmitLoading(true);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/settingRoutes/DeleteDestination",
+        { refDestinationId: refDestinationId.refDestinationId }, // Send only the required payload
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  try {
-    const response = await axios.post(
-      import.meta.env.VITE_API_URL + "/settingRoutes/DeleteDestination",
-      { refDestinationId }, // Send only the required payload
-      {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("deleted-->", data);
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchDestinations().then((result) => {
+          setDestinations(result);
+        });
+        setDestinations(
+          destinations.filter(
+            (activity) => activity.refDestinationId !== refDestinationId
+          )
+        );
       }
-    );
-
-    const data = decrypt(response.data[1], response.data[0], import.meta.env.VITE_ENCRYPTION_KEY);
-    console.log('deleted-->', data)
-    setSubmitLoading(false);
-    if (data.success) {
-     
-      localStorage.setItem("token", "Bearer " + data.token);
-      fetchDestinations().then(result => {
-        setDestinations(result);
-      })
+    } catch (e) {
+      console.error("Error deleting include:", e);
+      setSubmitLoading(false);
     }
-  } catch (e) {
-    console.error("Error deleting include:", e);
-    setSubmitLoading(false);
-  }
-};
+  };
 
-// Action Buttons (Edit / Delete)
-const DeleteActionTemplateDelete = (rowData: any) => {
-  return (
-    <div className="flex gap-2">
-      {editDestinationId === rowData.refDestinationId ? (
+  // Action Buttons (Edit / Delete)
+  const DeleteActionTemplateDelete = (rowData: any) => {
+    return (
+      <div className="flex gap-2">
+        {editDestinationId === rowData.refDestinationId ? (
+          <Button
+            label="Update"
+            icon="pi pi-check"
+            className="p-button-success p-button-sm"
+            onClick={UpdateDestination}
+          />
+        ) : (
+          <Button
+            icon="pi pi-pencil"
+            className="p-button-warning p-button-sm"
+            onClick={() => handleEditIncludeClick(rowData)}
+          />
+        )}
+
         <Button
-          label="Update"
-          icon="pi pi-check"
-          className="p-button-success p-button-sm"
-          onClick={UpdateDestination}
+          icon="pi pi-trash"
+          className="p-button-danger p-button-sm"
+          onClick={() => deleteDestination(rowData)}
         />
-      ) : (
-        <Button
-          icon="pi pi-pencil"
-          className="p-button-warning p-button-sm"
-          onClick={() => handleEditIncludeClick(rowData)}
-        />
-      )}
-
-      <Button
-        icon="pi pi-trash"
-        className="p-button-danger p-button-sm"
-        onClick={() => deleteDestination(rowData.refDestinationId)}
-      />
-    </div>
-  );
-};
-
+      </div>
+    );
+  };
 
   const snoTemplate = (
     _rowData: Destination,
@@ -270,7 +271,7 @@ const DeleteActionTemplateDelete = (rowData: any) => {
               icon="pi pi-check"
               className="p-button-primary"
               onClick={addDestination}
-              disabled={submitLoading}
+              disabled={submitLoading || !inputs.refDestination.trim()}
             />
           </div>
         </div>

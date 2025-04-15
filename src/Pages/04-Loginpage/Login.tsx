@@ -66,7 +66,7 @@ export default function Login() {
             import.meta.env.VITE_ENCRYPTION_KEY
           );
 
-          console.log("Data", data);
+          console.log("Data line ------ 69", data);
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);

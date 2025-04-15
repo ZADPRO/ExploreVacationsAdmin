@@ -82,15 +82,14 @@ function ToursNew() {
   const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
-  const [tourupdateID, _setTourupdateID] = useState("");
-  const [packageDetails, _setPackageDetails] = useState(null);
-  const [_loading,_setLoading] = useState(false);
+  const [tourupdateID, setTourupdateID] = useState("");
+
   const closeTourupdatesidebar = () => {
     setTourupdatesidebar(false);
   };
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
-  const [_error, _setError] = useState<string | null>(null);
+ 
   // const [imagePaths, setImagePaths] = useState<string[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
   const [selectedInclude, setSelectedInclude] = useState<any[]>([]);
@@ -98,11 +97,10 @@ function ToursNew() {
   const [selectexclude, setSelectedExclude] = useState<any[]>([]);
   const [editIncludeId, setEditIncludeId] = useState<number | null>(null);
   const [editIncludeValue, setEditIncludeValue] = useState({
-    refTravalIncludeId: "",
-
+    refTravalIncludeId: 0,
     refTravalInclude: "",
   });
-  const[overview, setOverview]: any = useState("");
+  const [overview, setOverview]: any = useState("");
   const [specialNotes, setSpecialNotes]: any = useState("");
   const [editExcludeId, setEditExcludeId] = useState<number | null>(null);
   const [editExcludeValue, setEditExcludeValue] = useState({
@@ -115,7 +113,7 @@ function ToursNew() {
   const [text, setText]: any = useState("");
 
   const [_editTourId, setEditTourId] = useState<number | null>(null);
-  const [_editTourData,_setEditTourData] = useState<any>({});
+  const [_editTourData, _setEditTourData] = useState<any>({});
 
   const [coverImage, setCoverImage] = useState("");
 
@@ -290,7 +288,7 @@ function ToursNew() {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data--------added", data);
+      console.log("data--------Tour Data", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
@@ -852,7 +850,7 @@ function ToursNew() {
   //   }
   // };
 
- // Action Buttons (Edit / Update)
+  // Action Buttons (Edit / Update)
   // const _actionTemplate = (rowData: any) => {
   //   return editTourId === rowData.refPackageId ? (
   //     <Button
@@ -934,7 +932,7 @@ function ToursNew() {
           value={tourDetails}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={4}
+          rows={1}
         >
           <Column
             header="S.No"
@@ -943,25 +941,25 @@ function ToursNew() {
           />
 
           <Column
-            // className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="underline   text-[#0a5c9c]  cursor-pointer "
             header="Package Name"
             field="refPackageName"
             style={{ minWidth: "200px" }}
-            // body={(rowData) => (
-            //   <div
-            //     onClick={() => {
-            //       setTourupdateID(rowData.refPackageId);
-            //       setTourupdatesidebar(true);
-            //       fetchPackageDetails(rowData.refPackageId);
-            //     }}
-            //   >
-         
-            //   </div>
-               //     {rowData.refPackageName}
-            // )}
+            body={(rowData) => (
+              <div
+                onClick={() => {
+                  setTourupdateID(rowData.refPackageId);
+                  setTourupdatesidebar(true);
+                 
+                }}
+              >
+                {" "}
+                {rowData.refPackageName}
+              </div>
+            )}
           />
           <Column
-            field="refDesignationId"
+            field="refDestinationName"
             header="Destination"
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
@@ -1165,6 +1163,7 @@ function ToursNew() {
                     setSelectedDestination(e.value);
                     fetchLocations(e.value.refDestinationId);
                   }}
+                  required
                   options={destinations}
                   optionLabel="refDestinationName"
                   placeholder="Choose a Destination"
@@ -1178,6 +1177,7 @@ function ToursNew() {
                   options={locations}
                   optionLabel="refLocationName"
                   display="chip"
+                  required
                   placeholder="Select Locations"
                   maxSelectedLabels={3}
                   className="w-full md:w-20rem"
@@ -1190,6 +1190,7 @@ function ToursNew() {
                   onChange={(e) => {
                     setSelectedCategory(e.value);
                   }}
+                  required
                   options={allcategories}
                   optionLabel="refCategoryName"
                   placeholder="Choose a Category"
@@ -1203,6 +1204,7 @@ function ToursNew() {
                   options={activities}
                   optionLabel="refActivitiesName"
                   display="chip"
+                  required
                   placeholder="Select Activities"
                   maxSelectedLabels={3}
                   className="w-full md:w-20rem"
@@ -1213,12 +1215,14 @@ function ToursNew() {
                 <InputNumber
                   placeholder="Number of Days"
                   name="noOfDays"
+                  required
                   className="w-full"
                 />
                 <InputNumber
                   name="noOfNights"
                   placeholder="Number of Nights"
                   className="w-full"
+                  required
                 />
               </div>
               {/* Price */}
@@ -1227,11 +1231,13 @@ function ToursNew() {
                   name="price"
                   placeholder="Enter Price P/P"
                   className="w-full"
+                  required
                 />
                 <InputText
                   name="tourCode"
                   placeholder="Enter Code"
                   className="w-full"
+                  required
                 />
               </div>
               {/* Notes */}
@@ -1240,6 +1246,7 @@ function ToursNew() {
                   name="seasonalPrice"
                   placeholder="Enter Seasonal Price Notes"
                   className="w-full"
+                  required
                 />
               </div>
 
@@ -1252,6 +1259,7 @@ function ToursNew() {
                   } // Handle input changes
                   style={{ height: "320px", width: "100%" }} // Custom styles
                   placeholder="Enter Itinerary"
+                  required
                 />
 
                 <InputText
@@ -1259,15 +1267,19 @@ function ToursNew() {
                   placeholder="Enter Special Notes"
                   className="w-full"
                   onChange={(e) => setSpecialNotes(e.target.value)}
+                  required
                 />
-               <Editor
-  value={overview} // Bind state variable
-  onTextChange={(e: EditorTextChangeEvent) => setOverview(e.htmlValue)} // Handle input changes
-  style={{ height: "320px", width: "100%" }} // Custom styles
-  placeholder="Enter Overview Notes"
-/>
+                <Editor
+                  value={overview} // Bind state variable
+                  onTextChange={(e: EditorTextChangeEvent) =>
+                    setOverview(e.htmlValue)
+                  } // Handle input changes
+                  style={{ height: "320px", width: "100%" }} // Custom styles
+                  placeholder="Enter Overview Notes"
+                  required
+                />
 
-                   {/* <InputText
+                {/* <InputText
                   name="refTravalOverView"
                   placeholder="Enter Overview Notes"
                   className="w-full"
@@ -1289,6 +1301,7 @@ function ToursNew() {
                   placeholder="Select Includes"
                   maxSelectedLabels={3}
                   className="w-full md:w-20rem"
+                  required
                 />
                 <MultiSelect
                   value={selectexclude}
@@ -1301,6 +1314,7 @@ function ToursNew() {
                   placeholder="Select Excludes"
                   maxSelectedLabels={3}
                   className="w-full md:w-20rem"
+                  required
                 />
               </div>
               {/* Map upload */}
@@ -1482,7 +1496,7 @@ function ToursNew() {
         <TourUpdate
           closeTourupdatesidebar={closeTourupdatesidebar}
           tourupdateID={tourupdateID}
-          packageDetail={packageDetails} // Passing the fetched package details as props
+          // packageDetail={packageDetails} // Passing the fetched package details as props
         />
       </Sidebar>
     </>

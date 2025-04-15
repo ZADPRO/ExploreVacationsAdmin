@@ -8,9 +8,20 @@ import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaUserGear } from "react-icons/fa6";
 import { FaSignOutAlt } from "react-icons/fa";
+import { HiUserAdd } from "react-icons/hi";
 import "./Header.css";
 
 const routes: any = [
+  {
+    path: "/userdetails",
+    label: "User Details",
+    icon: <FaUserGear />,
+  },
+  {
+    path: "/staff",
+    label: "Staff",
+    icon: <HiUserAdd />,
+  },
   {
     path: "/tour",
     label: "Tours",
@@ -32,11 +43,8 @@ const routes: any = [
     label: "Settings",
     icon: <IoSettingsSharp />,
   },
-  {
-    path: "/userdetails",
-    label: "User Details",
-    icon: <FaUserGear />,
-  },
+
+  
   {
     path: "/logout",
     label: "Logout",
