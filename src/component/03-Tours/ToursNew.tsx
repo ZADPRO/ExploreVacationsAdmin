@@ -82,7 +82,7 @@ function ToursNew() {
   const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
-  const [tourupdateID, setTourupdateID] = useState("");
+  const [tourupdateID, _setTourupdateID] = useState("");
 
   const closeTourupdatesidebar = () => {
     setTourupdatesidebar(false);

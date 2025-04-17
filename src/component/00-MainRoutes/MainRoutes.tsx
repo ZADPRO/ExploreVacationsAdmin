@@ -12,8 +12,8 @@ import Settings from "../06-Settings/Settings";
 import Login from "../../Pages/04-Loginpage/Login";
 import ToursNew from "../03-Tours/ToursNew";
 import UserDetails from "../05-UserDetails/UserDetails";
-import Staff from "../../Pages/08-Satff/Staff";
-import Parking from "../../Pages/10-Parking/Parking";
+// import Staff from "../../Pages/08-Satff/Staff";
+// import Parking from "../../Pages/10-Parking/Parking";
 // import Staff from "../../Pages/08-Satff/Staff";
 
 const MainRoutes: React.FC = () => {

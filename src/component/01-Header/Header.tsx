@@ -4,12 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdOutlineTravelExplore } from "react-icons/md";
 // import { FaCarOn } from "react-icons/fa6";
-import { RiParkingFill } from "react-icons/ri";
+// import { RiParkingFill } from "react-icons/ri";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaUserGear } from "react-icons/fa6";
 import { FaSignOutAlt } from "react-icons/fa";
-import { HiUserAdd } from "react-icons/hi";
+// import { HiUserAdd } from "react-icons/hi";
 import "./Header.css";
 
 const routes: any = [

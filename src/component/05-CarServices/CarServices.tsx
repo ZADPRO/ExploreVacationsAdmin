@@ -8,7 +8,7 @@ import CryptoJS from "crypto-js";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { DropdownChangeEvent } from "primereact/dropdown";
-import { RadioButton } from "primereact/radiobutton";
+// import { RadioButton } from "primereact/radiobutton";
 import AddForm from "../05-CarServices/AddForm";
 import { addItemBaseOnKey } from "../../services/carservice";
 // import { addNewcarpackage } from "../../services/NewCarService";
@@ -102,7 +102,7 @@ const CarServices: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
   const [carType, setCarType] = useState<CarType[]>([]);
-  const [driver, setDriver] = useState<Driverdetails[]>([]);
+  const [_driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
   const [exclude, setExclude] = useState<Excludes[]>([]);
@@ -119,26 +119,26 @@ const CarServices: React.FC = () => {
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [cabDetils, setCabDetails] = useState<any[]>([]);
   const [carupdatesidebar, setCarupdatesidebar] = useState(false);
-  const [carupdateID, setCarupdateID] = useState("");
+  const [carupdateID, _setCarupdateID] = useState("");
 
   const closeCarupdatesidebar = () => {
     setCarupdatesidebar(false);
   };
 
-  const [selectedDriver, setSelectedDriver] = useState<any[]>([]);
+  
   const showupdatemodel = false;
   const [editingRowCars, setEditingRowCars] = useState(null);
   const [editedValueCars, setEditedValue] = useState("");
-  const [editDriverId, setEditDriverId] = useState<number | null>(null);
-  const [editDriverData, setEditDriverData] = useState({
-    refDriverDetailsId: "",
-    refDriverName: "",
-    refDriverAge: "",
-    refDriverMail: "",
-    refDriverMobile: "",
-    refDriverLocation: "",
-    isVerified: false,
-  });
+  const [_editDriverId, setEditDriverId] = useState<number | null>(null);
+  // const [editDriverData, _setEditDriverData] = useState({
+  //   refDriverDetailsId: "",
+  //   refDriverName: "",
+  //   refDriverAge: "",
+  //   refDriverMail: "",
+  //   refDriverMobile: "",
+  //   refDriverLocation: "",
+  //   isVerified: false,
+  // });
   const [editBenefitId, setEditBenefitId] = useState<number | null>(null);
   const [editBenefitValue, setEditBenefitValue] = useState({
     refBenifitsId: "",
@@ -293,55 +293,7 @@ const CarServices: React.FC = () => {
     }
   };
 
-  const AddDriver = async () => {
-    setSubmitLoading(true);
-
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/addDriverDetails",
-        {
-          refDriverName: inputs.refDriverName,
-          refDriverAge: inputs.refDriverAge,
-          refDriverMail: inputs.refDriverMail,
-          refDriverMobile: inputs.refDriverMobile,
-          refDriverLocation: inputs.refDriverLocation,
-          isVerified: inputs.isVerified,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("hloooooooooooooooooooooooooooo");
-
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-
-      setSubmitLoading(false);
-      console.log("data------------->136", data);
-      if (data.success) {
-        // setInputs({
-        //   refVehicleTypeName: "",
-        //   refDriverName: "",
-        //   refDriverAge: "",
-        //   refDriverMail: "",
-        //   refDriverMobile: "",
-        //   refDriverLocation: "",
-        //   isVerified: true,
-        // });
-        localStorage.setItem("token", "Bearer " + data.token);
-        fetchDriver();
-      }
-    } catch (e) {
-      console.log("Error adding car:", e);
-      setSubmitLoading(false);
-    }
-  };
+  
   const fetchCarname = async () => {
     try {
       const response = await axios.get(
@@ -469,72 +421,72 @@ const CarServices: React.FC = () => {
   };
 
   // delete Driver
-  const deleteDriver = async (refDriverDetailsId: number) => {
-    if (!refDriverDetailsId) {
-      console.error("Invalid data: Missing ID");
-      return;
-    }
+  // const deleteDriver = async (refDriverDetailsId: number) => {
+  //   if (!refDriverDetailsId) {
+  //     console.error("Invalid data: Missing ID");
+  //     return;
+  //   }
 
-    setSubmitLoading(true);
+  //   setSubmitLoading(true);
 
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/deleteDriverDetails",
-        { refDriverDetailsId }, // Correct payload
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/deleteDriverDetails",
+  //       { refDriverDetailsId }, // Correct payload
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("Deleted -->", data);
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("Deleted -->", data);
 
-      setSubmitLoading(false);
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-        fetchDriver(); // Refresh the list after deletion
-      }
-    } catch (e) {
-      console.error("Error deleting car:", e);
-      setSubmitLoading(false);
-    }
-  };
-  const driverActionTemplate = (rowData: any) => {
-    return (
-      <div className="flex gap-2">
-        {editDriverId === rowData.refDriverDetailsId ? (
-          // Update Button (Visible when editing)
-          <Button
-            label="Update"
-            icon="pi pi-check"
-            className="p-button-success p-button-sm"
-            onClick={() => updateDriver()}
-          />
-        ) : (
-          // Edit Button (Visible when not editing)
-          <Button
-            icon="pi pi-pencil"
-            className="p-button-warning p-button-sm"
-            onClick={() => handleEditDriverClick(rowData)}
-          />
-        )}
+  //     setSubmitLoading(false);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       fetchDriver(); // Refresh the list after deletion
+  //     }
+  //   } catch (e) {
+  //     console.error("Error deleting car:", e);
+  //     setSubmitLoading(false);
+  //   }
+  // };
+  // const driverActionTemplate = (rowData: any) => {
+  //   return (
+  //     <div className="flex gap-2">
+  //       {editDriverId === rowData.refDriverDetailsId ? (
+  //         // Update Button (Visible when editing)
+  //         <Button
+  //           label="Update"
+  //           icon="pi pi-check"
+  //           className="p-button-success p-button-sm"
+  //           onClick={() => updateDriver()}
+  //         />
+  //       ) : (
+  //         // Edit Button (Visible when not editing)
+  //         <Button
+  //           icon="pi pi-pencil"
+  //           className="p-button-warning p-button-sm"
+  //           onClick={() => handleEditDriverClick(rowData)}
+  //         />
+  //       )}
 
-        {/* Delete Button (Always visible) */}
-        <Button
-          icon="pi pi-trash"
-          className="p-button-danger p-button-sm"
-          onClick={() => deleteDriver(rowData.refDriverDetailsId)}
-        />
-      </div>
-    );
-  };
+  //       {/* Delete Button (Always visible) */}
+  //       <Button
+  //         icon="pi pi-trash"
+  //         className="p-button-danger p-button-sm"
+  //         onClick={() => deleteDriver(rowData.refDriverDetailsId)}
+  //       />
+  //     </div>
+  //   );
+  // };
 
   // const driverActionTemplate = (rowData: any) => {
   //   return (
@@ -713,53 +665,53 @@ const CarServices: React.FC = () => {
     }
   };
 
-  const handleEditDriverClick = (rowData: any) => {
-    setEditDriverId(rowData.refDriverDetailsId);
-    setEditDriverData({ ...rowData });
-  };
+  // const handleEditDriverClick = (rowData: any) => {
+  //   setEditDriverId(rowData.refDriverDetailsId);
+  //   setEditDriverData({ ...rowData });
+  // };
 
   // Handle input change
-  const handleDriverInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string
-  ) => {
-    setEditDriverData((prevData) => ({ ...prevData, [field]: e.target.value }));
-  };
+  // const handleDriverInputChange = (
+  //   e: React.ChangeEvent<HTMLInputElement>,
+  //   field: string
+  // ) => {
+  //   setEditDriverData((prevData) => ({ ...prevData, [field]: e.target.value }));
+  // };
 
   // Update driver details
-  const updateDriver = async () => {
-    setSubmitLoading(true);
+  // const updateDriver = async () => {
+  //   setSubmitLoading(true);
 
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/updateDriverDetails",
-        editDriverData,
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/updateDriverDetails",
+  //       editDriverData,
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
 
-      setSubmitLoading(false);
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-        setEditDriverId(null);
-        fetchDriver();
-      }
-    } catch (e) {
-      console.error("Error updating driver:", e);
-      setSubmitLoading(false);
-      setEditDriverId(null);
-    }
-  };
+  //     setSubmitLoading(false);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       setEditDriverId(null);
+  //       fetchDriver();
+  //     }
+  //   } catch (e) {
+  //     console.error("Error updating driver:", e);
+  //     setSubmitLoading(false);
+  //     setEditDriverId(null);
+  //   }
+  // };
 
   // Action column template
 
