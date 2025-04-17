@@ -216,14 +216,13 @@ const UserDetails: React.FC = () => {
     <div className="p-10 mt-0">
       <h2 className="text-2xl font-semibold">User Details</h2>
       <TabView>
-        <TabPanel header="Tour Form Details">
+        <TabPanel header="Customize Tour Details">
           <div className="mt-4 p-2 ">
             <h3 className="text-lg font-bold mb-4">Customize TourBookings</h3>
             <DataTable value={UserDetail}   paginator
               rows={3} tableStyle={{ minWidth: "50rem" }}>
               <Column
                 header="S.No"
-              
                 headerStyle={{ width: "3rem" }}
                 body={(_, options) => options.rowIndex + 1}
               ></Column>

@@ -31,8 +31,6 @@ interface Location {
   refLocationId: number;
 }
 
-
-
 interface TourUpdateProps {
   closeTourupdatesidebar: () => void;
   tourupdateID: string;
@@ -44,25 +42,22 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   tourupdateID,
 }) => {
   const isFormSubmitting = false;
-  
+
   const [_isAddTourOpen, setIsAddTourOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [allcategories, setAllcategories] = useState<any[]>([]);
 
-
   const [activities, setActivities] = useState<any[]>([]);
-  
 
   const [include, setInclude] = useState<Includes[]>([]);
 
   const [exclude, setExclude] = useState<Excludes[]>([]);
   const [_mapformData, setMapformdata] = useState<any>([]);
   const [formDataImages, setFormdataImages] = useState<any>([]);
- 
+
   const [_coverImage, setCoverImage] = useState("");
   // const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
-
 
   const [formData, setFormData] = useState<Record<string, any>>({
     refPackageId: 0,
@@ -398,7 +393,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         {
           refPackageId: formData.refPackageId, //int
           refPackageName: formData.refPackageName, //string
-          refDesignationId:formData.refDesignationId, //int
+          refDesignationId: formData.refDesignationId, //int
           refDurationIday: formData.refDurationIday, //string
           refDurationINight: formData.refDurationINight, //string
           refCategoryId: formData.refCategoryId, //int
@@ -416,14 +411,14 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
           refTravalExclude: formData.travalExclude.map(
             (exclude: { id: string }) => exclude.id
           ), //Array
-          refSpecialNotes:formData.refSpecialNotes, //string
-          refCoverImage:formData.refCoverImage|| "", //string
+          refSpecialNotes: formData.refSpecialNotes, //string
+          refCoverImage: formData.refCoverImage || "", //string
           refLocation: formData.refLocationList.map(
             (location: { id: string }) => location.id
           ), //Array
-          refActivity:formData.Activity.map(
+          refActivity: formData.Activity.map(
             (activity: { id: number }) => activity.id
-          ) , //Array
+          ), //Array
         },
         {
           headers: {
@@ -479,8 +474,8 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         const result = data.tourDetails[0];
-        console.log("->->->->", result)
-        
+        console.log("->->->->", result);
+
         setFormData(result);
         // NOTE store copy of API response in original data
         setOriginalData(result);
@@ -547,7 +542,9 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             value={
               !formData.refLocationList?.length
                 ? []
-                : formData.refLocationList.map((location: { id: string }) => location.id)
+                : formData.refLocationList.map(
+                    (location: { id: string }) => location.id
+                  )
             }
             onChange={(e: any) =>
               setFormData((prev) => ({

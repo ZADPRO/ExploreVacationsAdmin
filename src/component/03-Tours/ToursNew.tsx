@@ -1,4 +1,4 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Button } from "primereact/button";
 import { Sidebar } from "primereact/sidebar";
 import { MultiSelect } from "primereact/multiselect";
@@ -22,6 +22,8 @@ import { FileUpload } from "primereact/fileupload";
 import { EditorTextChangeEvent } from "primereact/editor";
 import { fetchNewcarservices } from "../../services/NewServices";
 import TourUpdate from "../../Pages/06-TourUpdate/TourUpdate";
+
+import { Toast } from "primereact/toast";
 
 interface Destination {
   refDestinationId: string;
@@ -253,6 +255,12 @@ function ToursNew() {
       );
       console.log("data----240", data);
       if (data.success) {
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Added successfully!",
+          life: 3000,
+        });
         // await addTour(payload);
         // setIsFormSubmitting(false);
         localStorage.setItem("token", "Bearer " + data.token);
@@ -587,6 +595,7 @@ function ToursNew() {
       </div>
     );
   };
+  const toast = useRef<Toast>(null);
 
   //Map image upload
 
@@ -625,6 +634,12 @@ function ToursNew() {
       console.log("data==============", data);
 
       if (data.success) {
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Map uploaded successfully!",
+          life: 3000,
+        });
         console.log("data+", data);
         handleUploadSuccessMap(data);
       } else {
@@ -674,6 +689,12 @@ function ToursNew() {
         console.log("data==============", data);
 
         if (data.success) {
+          toast.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Gallery uploaded successfully!",
+            life: 3000,
+          });
           handleUploadSuccess(data);
         } else {
           handleUploadFailure(data);
@@ -718,6 +739,12 @@ function ToursNew() {
         console.log("data==============", data);
 
         if (data.success) {
+          toast.current?.show({
+            severity: "success",
+            summary: "Success",
+            detail: "Image uploaded successfully!",
+            life: 3000,
+          });
           handleUploadSuccessCover(data);
         } else {
           handleUploadFailure(data);
@@ -931,6 +958,7 @@ function ToursNew() {
 
   return (
     <>
+      <Toast ref={toast} />
       <div className="flex justify-between p-4">
         <h2 className="text-2xl font-semibold">Tours</h2>
         <Button
@@ -1160,6 +1188,7 @@ function ToursNew() {
         onHide={() => setIsAddTourOpen(false)}
         position="right"
       >
+        <Toast ref={toast} />
         <h2 className="text-xl font-bold">Add New Tour</h2>
         <TabView>
           <TabPanel header="Tour Form Details">
@@ -1193,7 +1222,7 @@ function ToursNew() {
                   display="chip"
                   required
                   placeholder="Select Locations"
-                  maxSelectedLabels={3}
+                  maxSelectedLabels={1}
                   className="w-full md:w-20rem"
                 />
               </div>
@@ -1220,7 +1249,7 @@ function ToursNew() {
                   display="chip"
                   required
                   placeholder="Select Activities"
-                  maxSelectedLabels={3}
+                  maxSelectedLabels={1}
                   className="w-full md:w-20rem"
                 />
               </div>
@@ -1313,7 +1342,7 @@ function ToursNew() {
                   optionLabel="refTravalInclude"
                   display="chip"
                   placeholder="Select Includes"
-                  maxSelectedLabels={3}
+                  maxSelectedLabels={1}
                   className="w-full md:w-20rem"
                   required
                 />
