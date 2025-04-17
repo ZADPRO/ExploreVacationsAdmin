@@ -23,6 +23,8 @@ const Location: React.FC = () => {
     refDestinationId: "",
     refDestination: "",
   });
+
+
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [selectedDestination, setSelectedDestination] =
     useState<Destination | null>(null);
@@ -190,6 +192,9 @@ const Location: React.FC = () => {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
+        setSelectedDestination(null);
+        setLocations([""]); 
+        setShowForm(false); 
         toast.success("Successfully Added", {
           position: "top-right",
           autoClose: 2999,
@@ -426,7 +431,7 @@ const Location: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="flex flex-col gap-4 mt-4 w-[50%]">
+        <div className="flex flex-col gap-4 mt-4 w-[50%] mb-5">
           {/* Destination Dropdown */}
           <label className="font-medium text-gray-700">
             Select Destination

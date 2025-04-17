@@ -89,7 +89,7 @@ function ToursNew() {
   };
   const [locations, setLocations] = useState<Location[]>([]);
   const isFormSubmitting = false;
- 
+
   // const [imagePaths, setImagePaths] = useState<string[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
   const [selectedInclude, setSelectedInclude] = useState<any[]>([]);
@@ -226,7 +226,7 @@ function ToursNew() {
           refItinary: text,
           refItinaryMapPath: mapformData,
           refSpecialNotes: specialNotes,
-          refTravalOverView: text,
+          refTravalOverView: overview,
           refActivity: selectedactivities.map(
             (act) => act.refActivitiesId + ""
           ),
@@ -645,6 +645,8 @@ function ToursNew() {
 
     // Loop through the selected files and append each one to the FormData
     for (let i = 0; i < event.files.length; i++) {
+      // console.log("Line -649 ("+i+")"+event.files)
+
       const formData = new FormData();
       const file = event.files[i];
       formData.append("images", file);
@@ -736,11 +738,23 @@ function ToursNew() {
     setCoverImage(response.filePath);
   };
 
+  // const handleUploadSuccess = (response: any) => {
+  //   // let temp = [...formDataImages]; // Create a new array to avoid mutation
+  //   // temp.push(response.filePath); // Add the new file path
+  //   // console.log("Upload Successful:", response);
+  //   setFormdataImages({
+  //     ...formDataImages,
+  //     response.filePath
+  //   }); // Update the state with the new array
+  // };
+
   const handleUploadSuccess = (response: any) => {
-    let temp = [...formDataImages]; // Create a new array to avoid mutation
-    temp.push(response.filePath); // Add the new file path
-    console.log("Upload Successful:", response);
-    setFormdataImages(temp); // Update the state with the new array
+    console.log("Line -753", response.filePath);
+
+    setFormdataImages((prevImages: string) => [
+      ...prevImages,
+      response.filePath,
+    ]);
   };
 
   const handleUploadFailure = (error: any) => {
@@ -941,22 +955,22 @@ function ToursNew() {
           />
 
           <Column
-            className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="   text-[#0a5c9c]   "
             header="Package Name"
             field="refPackageName"
             style={{ minWidth: "200px" }}
-            body={(rowData) => (
-              <div
-                onClick={() => {
-                  setTourupdateID(rowData.refPackageId);
-                  setTourupdatesidebar(true);
-                 
-                }}
-              >
-                {" "}
-                {rowData.refPackageName}
-              </div>
-            )}
+            // body={(rowData) => (
+            //   <div
+            //     onClick={() => {
+            //       setTourupdateID(rowData.refPackageId);
+            //       setTourupdatesidebar(true);
+
+            //     }}
+            //   >
+            //     {" "}
+            //     {rowData.refPackageName}
+            //   </div>
+            // )}
           />
           <Column
             field="refDestinationName"

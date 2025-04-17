@@ -1,9 +1,10 @@
-import { FaBars} from "react-icons/fa";
-import  {  ReactNode, useState } from "react";
+import { FaBars } from "react-icons/fa";
+import { ReactNode, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdOutlineTravelExplore } from "react-icons/md";
 // import { FaCarOn } from "react-icons/fa6";
+import { RiParkingFill } from "react-icons/ri";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaUserGear } from "react-icons/fa6";
@@ -17,11 +18,11 @@ const routes: any = [
     label: "User Details",
     icon: <FaUserGear />,
   },
-  {
-    path: "/staff",
-    label: "Staff",
-    icon: <HiUserAdd />,
-  },
+  // {
+  //   path: "/staff",
+  //   label: "Staff",
+  //   icon: <HiUserAdd />,
+  // },
   {
     path: "/tour",
     label: "Tours",
@@ -30,13 +31,14 @@ const routes: any = [
   {
     path: "/carservices",
     label: "CarRental",
-    
+
     icon: <FaCar />,
   },
-  // {  path: "/carrental",
-  //   label: "CarServices",
-   
-  //   icon: <FaCarOn />,
+  // {
+  //   path: "/parking",
+  //   label: "Car Parking",
+
+  //   icon: <RiParkingFill />,
   // },
   {
     path: "/settings",
@@ -44,7 +46,6 @@ const routes: any = [
     icon: <IoSettingsSharp />,
   },
 
-  
   {
     path: "/logout",
     label: "Logout",

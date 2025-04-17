@@ -33,6 +33,11 @@ interface Carname {
   updatedBy: null;
 }
 
+interface CarType {
+  refCarTypeId: number;
+  refCarTypeName: string;
+}
+
 interface Driverdetails {
   refDriverName: "";
   refDriverAge: "";
@@ -67,6 +72,7 @@ function transformArrayToObject(array: string[], key: string) {
 const CarServices: React.FC = () => {
   const [inputs, setInputs] = useState({
     refVehicleTypeName: "",
+    refCarTypeId: "",
     refDriverName: "",
     refDriverAge: "",
     refDriverMail: "",
@@ -95,6 +101,7 @@ const CarServices: React.FC = () => {
   });
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
+  const [carType, setCarType] = useState<CarType[]>([]);
   const [driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
@@ -104,6 +111,8 @@ const CarServices: React.FC = () => {
   const isFormSubmitting = false;
   const [vechiletype, setVechileType] = useState<any[]>([]);
   const [selectesvechile, setSelectedvechile] = useState<any[]>([]);
+  const [selectedCarType, setSelectedCarType] = useState<CarType | null>(null);
+
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
   const [selectedinclude, setSelectedinclude] = useState<any[]>([]);
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
@@ -213,6 +222,36 @@ const CarServices: React.FC = () => {
     );
 
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
+  };
+
+  // Car Type
+  const fetchCarType = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/getCarType",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data car details", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("fetchCarType--------->", data);
+        setCarType(data.Data);
+        // setVechileType(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching destinations:", e);
+    }
   };
 
   const AddCarname = async () => {
@@ -740,6 +779,7 @@ const CarServices: React.FC = () => {
     fetchInclude();
     fetchExclude();
     fetchExtra();
+    fetchCarType();
 
     fetchNewcarservices().then((result) => {
       setCabDetails(result);
@@ -768,6 +808,7 @@ const CarServices: React.FC = () => {
         import.meta.env.VITE_API_URL + "/carsRoutes/addCars",
         {
           refVehicleTypeId: +selectesvechile,
+          refCarTypeId: selectedCarType,
           refPersonCount: formDataobject.refPersonCount,
           refBag: formDataobject.refBag,
           refFuelType: formDataobject.refFuelType,
@@ -775,17 +816,17 @@ const CarServices: React.FC = () => {
           refMileage: formDataobject.refMileage,
           refTrasmissionType: formDataobject.refTrasmissionType,
           refFuleLimit: formDataobject.refFuleLimit,
-          refDriverDetailsId: +selectedDriver,
+          // refDriverDetailsId: +selectedDriver,
           refOtherRequirements: formDataobject.refOtherRequirements,
           refrefRentalAgreement: formDataobject.refrefRentalAgreement,
           refFuelPolicy: formDataobject.refFuelPolicy,
-          refDriverRequirements: formDataobject.refDriverRequirements,
+          // refDriverRequirements: formDataobject.refDriverRequirements,
           refPaymentTerms: formDataobject.refPaymentTerms,
           refCarPrice: formDataobject.refCarPrice,
-          refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
-          refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
-          refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
-          refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
+          refBenifits: selectedbenefits.map((act) => act.refBenifitsId ),
+          refInclude: selectedinclude.map((act) => act.refIncludeId ),
+          refExclude: selectedexclude.map((act) => act.refExcludeId ),
+          refFormDetails: selectedform.map((act) => act.refFormDetailsId),
           carImagePath: formData.productImage,
         },
         {
@@ -1512,19 +1553,20 @@ const CarServices: React.FC = () => {
           ></Column>
 
           <Column
-            className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="  text-[#0a5c9c]   "
             header="Car Name"
+              field="refVehicleTypeName"
             style={{ minWidth: "200px" }}
-            body={(rowData) => (
-              <div
-              onClick={() => {
-                setCarupdateID(rowData.refCarsId);
-                setCarupdatesidebar(true);
-              }}
-              >
-                {rowData.refVehicleTypeName}
-              </div>
-            )}
+            // body={(rowData) => (
+            //   <div
+            //     onClick={() => {
+            //       setCarupdateID(rowData.refCarsId);
+            //       setCarupdatesidebar(true);
+            //     }}
+            //   >
+            //     {rowData.refVehicleTypeName}
+            //   </div>
+            // )}
           ></Column>
           <Column
             field="refTrasmissionType"
@@ -1657,12 +1699,12 @@ const CarServices: React.FC = () => {
               </div>
             </div>
           </TabPanel>
-          <TabPanel header="Driver Details">
+          {/* <TabPanel header="Driver Details">
             <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center justify-center gap-4 w-[60%] sm:w-full p-4 ">
                 <h3 className="font-bold text-lg">Add Driver Details:</h3>
 
-                {/* Input Fields (Row 1) */}
+               
                 <div className="flex flex-row w-[70%] gap-4 sm:w-full">
                   <InputText
                     name="refDriverName"
@@ -1682,7 +1724,7 @@ const CarServices: React.FC = () => {
                   />
                 </div>
 
-                {/* Input Fields (Row 2) */}
+            
                 <div className="flex flex-row w-[70%] gap-4 sm:w-full">
                   <InputText
                     name="refDriverMail"
@@ -1702,7 +1744,7 @@ const CarServices: React.FC = () => {
                   />
                 </div>
 
-                {/* Input Fields (Row 3) */}
+             
                 <div className="w-[70%] sm:w-full">
                   <InputText
                     name="refDriverLocation"
@@ -1714,7 +1756,7 @@ const CarServices: React.FC = () => {
                   />
                 </div>
 
-                {/* Verification Section */}
+                
                 <div className="flex flex-row items-center gap-4 w-[70%] sm:w-full mt-3">
                   <h3 className="font-semibold">Verification:</h3>
                   <div className="flex items-center">
@@ -1747,7 +1789,7 @@ const CarServices: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Submit Button */}
+            
                 <div className="mt-4">
                   <Button
                     label={submitLoading ? "Adding..." : "Add Details"}
@@ -1856,7 +1898,7 @@ const CarServices: React.FC = () => {
                 </DataTable>
               </div>
             </div>
-          </TabPanel>
+          </TabPanel> */}
           <TabPanel header="Other Details">
             <div className="flex flex-col gap-4">
               <h3>Additional Details:</h3>
@@ -2078,10 +2120,37 @@ const CarServices: React.FC = () => {
                     options={car}
                     optionValue="refVehicleTypeId"
                     optionLabel="refVehicleTypeName"
-                    placeholder="Choose a vehicle Type"
+                    placeholder="Choose a Car Name"
                     className="w-full"
                     required
                   />
+                  <Dropdown
+                    value={selectedCarType}
+                    onChange={(e: DropdownChangeEvent) => {
+                      setSelectedCarType(e.value);
+                      fetchCarType();
+                    }}
+                    options={carType}
+                    optionValue="refCarTypeId"
+                    optionLabel="refCarTypeName"
+                    placeholder="Choose Car Type"
+                    className="w-full"
+                    required
+                  />
+                  {/* <Dropdown
+                    value={selectedCarType}
+                    onChange={(e: DropdownChangeEvent) =>
+                      setSelectedCarType(e.value)
+                    }
+                    options={carType}
+                    optionLabel="refCarTypeName"
+                     optionValue="refCarTypeId"
+                    placeholder="Choose Car Type"
+                    className="w-full"
+                  /> */}
+                </div>
+                {/* Noof bage  and FuelType */}
+                <div className="flex flex-row gap-3 mt-3">
                   <InputText
                     name="refPersonCount"
                     placeholder="Enter Person Count"
@@ -2089,16 +2158,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     required
                   />
-                </div>
-                {/* Noof bage  and FuelType */}
-                <div className="flex flex-row gap-3 mt-3">
-                  <InputText
-                    name="refBag"
-                    placeholder="Enter No of Bags"
-                    className="w-full"
-                    onChange={handleInput}
-                    required
-                  />
+
                   <InputText
                     name="refFuelType"
                     placeholder="Enter Fuel Type"
@@ -2144,7 +2204,7 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* DriverDetailsId  and Carprice */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <Dropdown
+                  {/* <Dropdown
                     value={selectedDriver}
                     onChange={(e: DropdownChangeEvent) => {
                       console.log("-------", e.value);
@@ -2157,7 +2217,15 @@ const CarServices: React.FC = () => {
                     placeholder="Choose a DriverDetails"
                     className="w-full"
                     required
+                  /> */}
+                  <InputText
+                    name="refBag"
+                    placeholder="Enter No of Bags"
+                    className="w-full"
+                    onChange={handleInput}
+                    required
                   />
+
                   <InputText
                     name="refCarPrice"
                     placeholder="Enter Car Price"
@@ -2167,15 +2235,9 @@ const CarServices: React.FC = () => {
                   />
                 </div>
                 {/*OtherRequirements */}
-                <div className="flex flex-row gap-3 mt-3">
-                  <InputText
-                    name="refOtherRequirements"
-                    placeholder="Enter Other Requirements"
-                    className="w-full"
-                    onChange={handleInput}
-                    required
-                  />
-                </div>
+                {/* <div className="flex flex-row gap-3 mt-3">
+                
+                </div> */}
                 {/* RentalAgreement  and Fuel Policy */}
                 <div className="flex flex-row gap-3 mt-3">
                   <InputText
@@ -2195,9 +2257,16 @@ const CarServices: React.FC = () => {
                 </div>
                 {/* DriverRequirements  and PaymentTerms */}
                 <div className="flex flex-row gap-3 mt-3">
-                  <InputText
+                  {/* <InputText
                     name="refDriverRequirements"
                     placeholder="Enter DriverRequirements"
+                    className="w-full"
+                    onChange={handleInput}
+                    required
+                  /> */}
+                    <InputText
+                    name="refOtherRequirements"
+                    placeholder="Enter Other Requirements"
                     className="w-full"
                     onChange={handleInput}
                     required

@@ -275,18 +275,19 @@ const Activities: React.FC = () => {
 
   return (
     <>
-      <h2>Add New Activities</h2>
-      <InputText
+      <h2 className="font-bold mb-3">Add New Activities</h2>
+    
+      <div className="flex flex-row gap-5">   <InputText
         name="refActivity"
         value={inputs.refActivity}
         onChange={handleInput}
         placeholder="Enter Activity"
       />
-      <Button
+    <Button
         label={submitLoading ? "Adding..." : "Add Activity"}
         onClick={addActivity}
         disabled={submitLoading}
-      />
+      /></div>
 
       <DataTable value={activities} className="p-datatable-sm mt-2">
         <Column header="S.No" body={snoTemplate} style={{ width: "10%" }} />
