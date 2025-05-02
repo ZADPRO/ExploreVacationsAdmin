@@ -23,12 +23,12 @@ const routes: any = [
     icon: <MdSpaceDashboard />,
     roles: [1, 2, 3, 4, 5], // All roles
   },
-  // {
-  //   path: "/userdetails",
-  //   label: "User Details",
-  //   icon: <FaUserGear />,
-  //   roles: [1], // Admin only
-  // },
+  {
+    path: "/userdetails",
+    label: "User Details",
+    icon: <FaUserGear />,
+    roles: [1], // Admin only
+  },
   // {
   //   path: "/banner",
   //   label: "Banner",
