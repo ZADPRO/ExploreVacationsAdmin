@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
 import { InputText } from "primereact/inputtext";
@@ -9,7 +8,7 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { fetchDestinations } from "../../services/DestinationService";
-
+import { Toast } from "primereact/toast";
 type DecryptResult = any;
 
 interface Destination {
@@ -47,7 +46,7 @@ const Destination: React.FC = () => {
     null
   );
   const [editDestinationValue, setEditDestinationValue] = useState("");
-
+  const toast = useRef<Toast>(null);
   useEffect(() => {
     fetchDestinations().then((result) => {
       setDestinations(result);
@@ -90,17 +89,13 @@ const Destination: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
-        toast.success("Successfully Added", {
-          position: "top-right",
-          autoClose: 2999,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Slide,
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
         });
+
         fetchDestinations().then((result) => {
           setDestinations(result);
         });
@@ -108,10 +103,39 @@ const Destination: React.FC = () => {
           ...prevInputs,
           refDestination: "",
         }));
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding Destination",
+          life: 3000,
+        });
       }
     } catch (e: any) {
       console.log("Error adding destination:", e);
       setSubmitLoading(false);
+
+      const errorMessage = e?.response?.data?.error;
+
+      if (e?.response?.data?.token) {
+        localStorage.setItem("token", "Bearer " + e.response.data.token);
+      }
+
+      if (errorMessage?.toLowerCase().includes("duplicate")) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Duplicate Entry",
+          detail: "This destination already exists. Please enter a new one.",
+          life: 3000,
+        });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: "Error",
+          detail: "Something went wrong. Please try again.",
+          life: 3000,
+        });
+      }
     }
   };
 
@@ -166,6 +190,19 @@ const Destination: React.FC = () => {
 
         // Fetch updated destinations
         fetchDestinations().then(setDestinations);
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating Destination",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating destination:", e);
@@ -253,6 +290,8 @@ const Destination: React.FC = () => {
 
   return (
     <>
+      <Toast ref={toast} />
+
       <div>
         <h2 className="text-xl font-bold text-[#0a5c9c] mb-3">
           Add New Destination

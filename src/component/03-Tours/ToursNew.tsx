@@ -200,6 +200,23 @@ function ToursNew() {
       console.error("Error fetching locations:", e);
     }
   };
+ 
+  const resetForm = (form: HTMLFormElement) => {
+    setSelectedDestination(null);
+    setSelectedLocations([]);
+    setSelectedCategory(null);
+    setSelectedactivities([]);
+    setText("");
+    setSpecialNotes("");
+    setOverview("");
+    setSelectedInclude([]);
+    setSelectedExclude([]);
+    setCoverImage("");
+    setFormdataImages([]);
+    setMapformdata("");
+    form.reset();
+  };
+  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -255,6 +272,7 @@ function ToursNew() {
       );
       console.log("data----240", data);
       if (data.success) {
+        resetForm(e.target as HTMLFormElement);
         toast.current?.show({
           severity: "success",
           summary: "Success",
@@ -404,6 +422,20 @@ function ToursNew() {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditIncludeId(null);
         fetchInclude(); // Refresh list
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating Include",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating include:", e);
@@ -455,6 +487,20 @@ function ToursNew() {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditExcludeId(null); // Exit edit mode
         fetchExclude(); // Refresh the list
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating exclude",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating exclude:", e);
@@ -974,7 +1020,7 @@ function ToursNew() {
           value={tourDetails}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={1}
+          rows={2}
         >
           <Column
             header="S.No"

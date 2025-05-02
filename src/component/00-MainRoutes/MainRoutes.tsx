@@ -12,8 +12,12 @@ import Settings from "../06-Settings/Settings";
 import Login from "../../Pages/04-Loginpage/Login";
 import ToursNew from "../03-Tours/ToursNew";
 import UserDetails from "../05-UserDetails/UserDetails";
-// import Staff from "../../Pages/08-Satff/Staff";
-// import Parking from "../../Pages/10-Parking/Parking";
+import Staff from "../../Pages/08-Satff/Staff";
+import Parking from "../../Pages/10-Parking/Parking";
+import Dashboard from "../02-Dashboard/Dashboard";
+import StaffNotification from "../../Pages/12-StaffNotification/StaffNotification";
+import Userlist from "../../Pages/13-UserList/Userlist";
+import Banner from "../14-ImageModule/Banner";
 // import Staff from "../../Pages/08-Satff/Staff";
 
 const MainRoutes: React.FC = () => {
@@ -24,13 +28,17 @@ const MainRoutes: React.FC = () => {
         <Header>
           <Routes>
             <Route index path="/" element={<Login />} />
-             <Route path="/tour" element={<ToursNew />} />
+            <Route path="/tour" element={<ToursNew />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/carservices" element={<CarServices />} />
             <Route path="/carrental" element={<CarRentals />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/userlist" element={<Userlist />} />
+            <Route path="/banner" element={<Banner/>}/>
             <Route path="/userdetails" element={<UserDetails />} />
-            {/* <Route path="/parking" element={<Parking />} /> */}
-            {/* <Route  path="/staff" element={<Staff/>} /> */}
+            <Route path="/staffnotification" element={<StaffNotification />} />
+            <Route path="/parking" element={<Parking />} />
+            <Route path="/staff" element={<Staff />} />
           </Routes>
         </Header>
       </Router>

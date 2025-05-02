@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { Toast } from "primereact/toast";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
 import { InputText } from "primereact/inputtext";
@@ -37,6 +37,8 @@ const Location: React.FC = () => {
     refLocationName: "",
     refDestinationId: "",
   });
+    const toast = useRef<Toast>(null);
+  
 
   const decrypt = (
     encryptedData: string,
@@ -152,10 +154,11 @@ const Location: React.FC = () => {
       !inputs.refDestinationId ||
       locations.some((loc) => loc.trim() === "")
     ) {
-      toast.error("Please select a destination and enter valid locations", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: "light",
+      toast.current?.show({
+        severity: "error",
+        summary: "Destination erroe",
+        detail: "Please select a destination and enter valid locations",
+        life: 3000,
       });
       return;
     }
@@ -195,17 +198,26 @@ const Location: React.FC = () => {
         setSelectedDestination(null);
         setLocations([""]); 
         setShowForm(false); 
-        toast.success("Successfully Added", {
-          position: "top-right",
-          autoClose: 2999,
-          theme: "light",
-          transition: Slide,
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
         });
         fetchData();
         console.log("fetchData------------->", fetchData);
+        
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding Location",
+          life: 3000,
+        });
       }
     } catch (e: any) {
-      console.log("Error adding destination:", e);
+      console.log("Error adding Location:", e);
       setSubmitLoading(false);
     }
   };
@@ -414,6 +426,7 @@ const Location: React.FC = () => {
 
   return (
     <div>
+       <Toast ref={toast} />
       <h2 className="text-xl font-bold text-[#0a5c9c]">Add New Location</h2>
       <div
         style={{
@@ -495,7 +508,7 @@ const Location: React.FC = () => {
         <Column
           field="refDestinationName"
           header="Destination"
-          style={{ minWidth: "200px" }}
+          style={{ minWidth: "5rem" }}
         ></Column>
 
         <Column
@@ -510,7 +523,7 @@ const Location: React.FC = () => {
                 )}
             </ul>
           )}
-          style={{ minWidth: "300px" }}
+          style={{ minWidth: "5rem" }}
         />
 
         {/* Action Buttons */}

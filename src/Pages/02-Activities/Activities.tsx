@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { Toast } from "primereact/toast";
 import "react-toastify/dist/ReactToastify.css";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
@@ -36,6 +36,8 @@ const Activities: React.FC = () => {
 
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
+
+  const toast = useRef<Toast>(null);
 
   const [submitLoading, setSubmitLoading] = useState(false);
   const [inputs, setInputs] = useState({ refActivity: "" });
@@ -76,14 +78,6 @@ const Activities: React.FC = () => {
   };
 
   const addActivity = async () => {
-    if (!inputs.refActivity.trim()) {
-      toast.error("Activity name cannot be empty!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      return;
-    }
-
     setSubmitLoading(true);
 
     try {
@@ -118,12 +112,21 @@ const Activities: React.FC = () => {
           },
         ]);
 
-        toast.success("Successfully Added!", {
-          position: "top-right",
-          autoClose: 3000,
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
         });
 
         setInputs({ refActivity: "" });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding Activities",
+          life: 3000,
+        });
       }
     } catch (e: any) {
       console.error("Error adding activity:", e);
@@ -144,9 +147,10 @@ const Activities: React.FC = () => {
 
   const updateActivity = async () => {
     if (!editActivityValue.trim()) {
-      toast.error("Activity name cannot be empty!", {
-        position: "top-right",
-        autoClose: 3000,
+      toast.current?.show({
+        severity: "error",
+        detail: "Activity name cannot be empty!",
+        life: 3000,
       });
       return;
     }
@@ -192,10 +196,20 @@ const Activities: React.FC = () => {
         // Reset edit state
         setEditActivityId(null);
         setEditActivityValue("");
-  fetchActivities();
-        toast.success("Activity Updated!", {
-          position: "top-right",
-          autoClose: 3000,
+        fetchActivities();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating activity",
+          life: 3000,
         });
       }
     } catch (e) {
@@ -242,7 +256,7 @@ const Activities: React.FC = () => {
     }
   };
 
- const actionTemplate = (rowData: Activities) => (
+  const actionTemplate = (rowData: Activities) => (
     <div className="flex gap-2">
       {editActivityId === rowData.refActivitiesId ? (
         <Button
@@ -275,24 +289,28 @@ const Activities: React.FC = () => {
 
   return (
     <>
+       <Toast ref={toast} />
       <h2 className="font-bold mb-3">Add New Activities</h2>
-    
-      <div className="flex flex-row gap-5">   <InputText
-        name="refActivity"
-        value={inputs.refActivity}
-        onChange={handleInput}
-        placeholder="Enter Activity"
-      />
-    <Button
-        label={submitLoading ? "Adding..." : "Add Activity"}
-        onClick={addActivity}
-        disabled={submitLoading}
-      /></div>
+
+      <div className="flex flex-row gap-5">
+        {" "}
+        <InputText
+          name="refActivity"
+          value={inputs.refActivity}
+          onChange={handleInput}
+          placeholder="Enter Activity"
+        />
+        <Button
+          label={submitLoading ? "Adding..." : "Add Activity"}
+          onClick={addActivity}
+          disabled={submitLoading}
+        />
+      </div>
 
       <DataTable value={activities} className="p-datatable-sm mt-2">
         <Column header="S.No" body={snoTemplate} style={{ width: "10%" }} />
         <Column
-           field="refActivitiesName"
+          field="refActivitiesName"
           header="Activity Name"
           body={(rowData) =>
             editActivityId === rowData.refActivitiesId ? (

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useRef } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { Toast } from "primereact/toast";
 import "react-toastify/dist/ReactToastify.css";
 import { Slide } from "react-toastify";
 import { InputText } from "primereact/inputtext";
@@ -44,6 +44,7 @@ const Categories: React.FC = () => {
   const [categories, setCategories] = useState<categories[]>([]);
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editCategoryValue, setEditCategoryValue] = useState("");
+  const toast = useRef<Toast>(null);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs((prevState: any) => ({
@@ -79,20 +80,21 @@ const Categories: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("data----------->", data);
-        toast.success("Successfully Added", {
-          position: "top-right",
-          autoClose: 2999,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "light",
-          transition: Slide,
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
         });
-
         setInputs({ refCategory: "" });
         fetchCategories();
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding Category",
+          life: 3000,
+        });
       }
     } catch (e: any) {
       console.log(e);
@@ -148,9 +150,10 @@ const Categories: React.FC = () => {
 
   const updateCategory = async () => {
     if (!editCategoryValue.trim()) {
-      toast.error("category name cannot be empty!", {
-        position: "top-right",
-        autoClose: 3000,
+      toast.current?.show({
+        severity: "error",
+        detail: "category name cannot be empty!",
+        life: 3000,
       });
       return;
     }
@@ -196,9 +199,20 @@ const Categories: React.FC = () => {
         setEditCategoryId(null);
         setEditCategoryValue("");
         fetchCategories();
-        toast.success("Activity Updated!", {
-          position: "top-right",
-          autoClose: 3000,
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Updating Category",
+          life: 3000,
         });
       }
     } catch (e) {
@@ -271,6 +285,7 @@ const Categories: React.FC = () => {
   return (
     <>
       <div>
+      <Toast ref={toast} />
         <h2 className="text-xl font-bold text-[#0a5c9c] mb-3">
           Add New Categories
         </h2>

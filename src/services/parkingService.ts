@@ -1,19 +1,15 @@
 import axios from "axios"
 import { decryptAPIResponse } from "../utils";
-type KeyType = "includes" | "excludes"
+type KeyType = "specialfeature"
 
-export async function addTourBaseOnKey(payload: Record<string, any>, key: KeyType = "includes"): Promise<any> {
+export async function addSpecialFeature(payload: Record<string, any>, key: KeyType = "specialfeature"): Promise<any> {
   let endpoint = import.meta.env.VITE_API_URL
 
   switch (key) {
    
-    case "includes":
-      endpoint = import.meta.env.VITE_API_URL + "/packageRoutes/addTravalInclude"
-      break;
-    case "excludes":
-      endpoint = import.meta.env.VITE_API_URL + "/packageRoutes/addTravalExclude"
-      break;
-   
+    case "specialfeature":
+      endpoint = import.meta.env.VITE_API_URL + "/carParkingRoutes/addServiceFeatures"
+     
   }
   
 
@@ -34,10 +30,13 @@ export async function addTourBaseOnKey(payload: Record<string, any>, key: KeyTyp
     response.data[0],
     import.meta.env.VITE_ENCRYPTION_KEY
   );
-  console.log("data line----------->i/e", data);
+  console.log("Add Special Feature------->", data);
 
   if (data.success) {
     localStorage.setItem("token", "Bearer " + data.token);
   }
   return (data)
 }
+
+
+

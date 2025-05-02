@@ -3,9 +3,13 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect, type FormEvent } from "react";
 import { Calendar } from "primereact/calendar";
+import { Toast } from 'primereact/toast';
+import { useRef } from 'react';
 
 import { Button } from "primereact/button";
 import { decryptAPIResponse } from "../../utils";
+import { FileUpload } from "primereact/fileupload";
+import { MultiSelect } from "primereact/multiselect";
 
 interface StaffUpdateProps {
   closeStaffupdatesidebar: () => void;
@@ -20,43 +24,24 @@ interface StaffDetails {
   refQualification: string;
   refProfileImage: string;
   refMoblile: string;
-  refUserTypeId: number;
+  userTypeId: number;
   refUserEmail: string;
 }
 
-
+interface Employee {
+  userTypeId: number;
+  refUserType: string;
+}
 
 const UpdateStaff: React.FC<StaffUpdateProps> = ({
   closeStaffupdatesidebar,
   StaffupdateID,
 }) => {
-  //   const decrypt = (
-  //     encryptedData: string,
-  //     iv: string,
-  //     key: string
-  //   ): DecryptResult => {
-  //     const cipherParams = CryptoJS.lib.CipherParams.create({
-  //       ciphertext: CryptoJS.enc.Hex.parse(encryptedData),
-  //     });
-
-  //     const decrypted = CryptoJS.AES.decrypt(
-  //       cipherParams,
-  //       CryptoJS.enc.Hex.parse(key),
-  //       {
-  //         iv: CryptoJS.enc.Hex.parse(iv),
-  //         mode: CryptoJS.mode.CBC,
-  //         padding: CryptoJS.pad.Pkcs7,
-  //       }
-  //     );
-
-  //     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
-  //   };
-
   const isFormSubmitting = false;
- 
-  const [_isAddStaffOpen, setIsAddStaffOpen] = useState(false);
- 
 
+  const [_isAddStaffOpen, setIsAddStaffOpen] = useState(false);
+  const [selectedEmployeeType, setSelectedEmployeeType] = useState<any[]>([]);
+  const [employeeType, setEmployeeType] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     refuserId: 0,
     refFName: "",
@@ -66,10 +51,13 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
     refQualification: "",
     refProfileImage: "",
     refMoblile: "",
-    refUserTypeId: 0,
+    userTypeId: [],
     refUserEmail: "",
   });
+  const [profileImage, setProfileImage] = useState("");
   const [_staff, setStaff] = useState<StaffDetails[]>([]);
+  const [uploadedProfile, setUploadedProfile] = useState<File | null>(null);
+  const toast = useRef<Toast>(null);
 
   const fetchStaff = async () => {
     try {
@@ -101,23 +89,25 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
 
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formDataobject = Object.fromEntries(
-      new FormData(e.target as HTMLFormElement)
-    );
-    console.log("formDataobject------->", formData);
+    // const formDataobject = Object.fromEntries(
+    //   new FormData(e.target as HTMLFormElement)
+    // );
+    console.log("update APi");
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/adminRoutes/updateEmployee",
         {
           refuserId: formData.refuserId,
           refFName: formData.refFName,
-          refLName: formDataobject.refLName,
+          refLName: formData.refLName,
           refDOB: new Date(formData.refDOB).toISOString(),
           refDesignation: formData.refDesignation,
           refQualification: formData.refQualification,
-          refProfileImage: formData.refProfileImage,
+          refProfileImage: profileImage === "" ? formData.refProfileImage: profileImage,
           refMoblile: formData.refMoblile,
-          refUserEmail: formData.refUserEmail,
+          userTypeId: selectedEmployeeType.map(
+            (item:number) => item.toString() ),
+          // refUserEmail: formData.refUserEmail,
         },
         {
           headers: {
@@ -172,37 +162,118 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         setFormData(data.result[0]);
+        setSelectedEmployeeType(data.result[0].userTypeId);
+        console.log("data.result[0]--->", data.result[0].userTypeId);
+          
       }
     } catch (e) {
       console.error("Error fetching tour data:", e);
     }
   };
+  const fetchEmployeeType = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/adminRoutes/listUserType",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data employee details------------>", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("fetchEmployeeType  --------->", data);
+
+        setEmployeeType(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching employees:", e);
+    }
+  };
 
   useEffect(() => {
     fetchSingleIDStaffdataForm();
-
+    fetchEmployeeType();
     fetchStaff();
   }, []);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
-    await fetchSingleIDStaffdataForm();
 
-    await handleUpdateSubmit(e);
+  const profile = async (event: any) => {
+    console.table("event", event);
+    const file = event.files[0]; // Assuming single file upload
+    const formData = new FormData();
+    formData.append("Image", file);
+    console.log("formData", formData);
+    if (file) {
+      setUploadedProfile(file);
+    }
+
+    for (let pair of formData.entries()) {
+      console.log("-------->______________", pair[0] + ":", pair[1]);
+    }
+
+    console.log("formData------------>", formData);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/adminRoutes/uploadEmployeeImage",
+
+        formData,
+
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      localStorage.setItem("token", "Bearer " + data.token);
+      console.log("data==============", data);
+
+      if (data.success) {
+        console.log("data+", data);
+        handleUploadSuccessMap(data);
+      } else {
+        console.log("data-", data);
+        handleUploadFailure(data);
+      }
+    } catch (error) {
+      handleUploadFailure(error);
+    }
+  };
+  const handleUploadSuccessMap = (response: any) => {
+    console.log("Upload Successful:", response);
+    setProfileImage(response.filePath);
+  };
+
+  const handleUploadFailure = (error: any) => {
+    console.error("Upload Failed:", error);
+    // Add your failure handling logic here
   };
 
   return (
     <div>
       <div>
-        <h2 className="text-xl font-bold">
-          Update New Tour Package ID: {StaffupdateID}
-        </h2>
+      <Toast ref={toast} />
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(e);
+            handleUpdateSubmit(e);
           }}
           className="mt-4"
         >
@@ -217,6 +288,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                   setFormData({ ...formData, refFName: e.target.value })
                 }
               />
+
               <InputText
                 name="refLName"
                 value={formData.refLName}
@@ -252,8 +324,10 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                 name="refQualification"
                 value={formData.refQualification}
                 onChange={(e: any) => {
-
-                  setFormData({ ...formData, refQualification: e.target.value });
+                  setFormData({
+                    ...formData,
+                    refQualification: e.target.value,
+                  });
                 }}
                 placeholder="Enter qualification"
                 className="p-inputtext-sm w-full"
@@ -269,7 +343,23 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
               />
             </div>
             <div className="flex flex-row w-[70%] gap-4 sm:w-full">
-              <InputText
+              <MultiSelect
+                value={selectedEmployeeType}
+                onChange={(e) => {
+                  setSelectedEmployeeType(e.value);
+                  console.log("setSelectedEmployeeType-->", e.value);
+                }}
+                options={employeeType}
+                optionLabel="refUserType"
+                optionValue="refUserTypeId"
+                display="chip"
+                required
+                placeholder="Select Employee Type"
+                maxSelectedLabels={1}
+                className="w-full md:w-20rem"
+              />
+
+              {/* <InputText
                 name="refUserEmail"
                 value={formData.refUserEmail}
                 onChange={(e: any) =>
@@ -277,25 +367,23 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                 }
                 placeholder="Enter Email"
                 className="p-inputtext-sm w-full"
-              />
+              /> */}
             </div>
 
-            {/* <div>
-                        <h2 className="mt-3">Upload Profile </h2>
-                        <FileUpload
-                          name="logo"
-                          customUpload
-                          className="mt-3"
-                          uploadHandler={profile}
-                          accept="image/*"
-                          maxFileSize={10000000}
-                          emptyTemplate={
-                            <p className="m-0">
-                              Drag and drop your Map here to upload.
-                            </p>
-                          }
-                        />
-                      </div> */}
+            <div>
+              <h2 className="mt-3">Upload Profile * </h2>
+              <FileUpload
+                name="logo"
+                customUpload
+                className="mt-3"
+                uploadHandler={profile}
+                accept="image/*"
+                maxFileSize={10000000}
+                emptyTemplate={
+                  <p className="m-0">Drag and drop your Map here to upload.</p>
+                }
+              />
+            </div>
 
             <div>
               <Button

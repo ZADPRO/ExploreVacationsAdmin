@@ -72,14 +72,32 @@ export default function Login() {
             localStorage.setItem("token", "Bearer " + data.token);
             localStorage.setItem("roleId", data.roleId);
 
-            navigate("/tour");
+                    
+              const roleId = data.roleId;
+            
+              if (roleId === 1) {
+                navigate("/dashboard");
+              } else if (roleId === 2) {
+                navigate("/dashboard");
+              } else if (roleId === 3) {
+                navigate("/dashboard");
+              } else if (roleId === 4) {
+                navigate("/dashboard");
+              } else if (roleId === 5) {
+                navigate("/dashboard");
+              } else {
+                navigate("/dashboard"); 
+              }
+            
+              setLoading(false);
+            }
+            
 
-            setLoading(false);
-          } else {
+          else {
             setLoading(false);
             setError({
               status: true,
-              message: data.message,
+              message: "Invalid Username or Password",
             });
           }
 

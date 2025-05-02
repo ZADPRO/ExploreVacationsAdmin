@@ -1,9 +1,10 @@
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect,useRef, type FormEvent } from "react";
 import { Button } from "primereact/button";
 import { Sidebar } from "primereact/sidebar";
 import { InputText } from "primereact/inputtext";
 import { TabView, TabPanel } from "primereact/tabview";
 import axios from "axios";
+import { Toast } from "primereact/toast";
 import CryptoJS from "crypto-js";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -160,6 +161,7 @@ const CarServices: React.FC = () => {
     refFormDetails: "",
   });
   const [formData, setFormData] = useState<any>([]);
+  const toast = useRef<Toast>(null);
 
   // const [person, setPerson] = useState<any>([]);
   // const [bag, setBag] = useState<any>([]);
@@ -280,12 +282,25 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchCarname(); // Refresh list
-
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
+        });
         // **Clear only the input field**
         setInputs((prevState) => ({
           ...prevState,
           refVehicleTypeName: "", // Reset this field only
         }));
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.log("Error adding car:", e);
@@ -616,7 +631,7 @@ const CarServices: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->benefits", data);
+      console.log("data-------------->carsRoutes/listFormDetails", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
@@ -658,6 +673,20 @@ const CarServices: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditingRowCars(null);
         fetchCarname();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating Vechile",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.log("Error adding car:", e);
@@ -875,6 +904,20 @@ const CarServices: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditBenefitId(null);
         fetchBenefits();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating activity",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating benefit:", e);
@@ -926,6 +969,20 @@ const CarServices: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditIncludeId(null);
         fetchInclude(); // Refresh list
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating Include",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating include:", e);
@@ -977,6 +1034,20 @@ const CarServices: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         setEditExcludeId(null); // Exit edit mode
         fetchExclude(); // Refresh the list
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
+      }
+      else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating exclude",
+          life: 3000,
+        });
       }
     } catch (e) {
       console.error("Error updating exclude:", e);
@@ -1482,6 +1553,7 @@ const CarServices: React.FC = () => {
 
   return (
     <div className="p-4">
+      <Toast ref={toast} />
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-semibold">Cab Rental</h2>
         <Button
