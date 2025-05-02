@@ -37,7 +37,7 @@ const UserDetails: React.FC = () => {
   const [_submitLoading, setSubmitLoading] = useState(false);
   const [_editCustomizeId, setEditCustomizeId] = useState<number | null>(null);
   const [_editTourId, setEditTourId] = useState<number | null>(null);
-  const [approvedTourIds, setApprovedTourIds] = useState<number[]>([]);
+  // const [approvedTourIds, setApprovedTourIds] = useState<number[]>([]);
 
   const [_editCarId, setEditCarId] = useState<number | null>(null);
   const [_editParkingId, setEditParkingId] = useState<number | null>(null);
@@ -210,69 +210,69 @@ const UserDetails: React.FC = () => {
   };
   // aprove
 
-  const actionReadCustomize = (rowData: any) => {
-    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  // const actionReadCustomize = (rowData: any) => {
+  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-    return (
-      <div className="flex items-center gap-2">
-        <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
-          onClick={() => {
-            if (!isApproved) {
-              readCustomizr(rowData.refuserId); // Call readTour to approve it
-            }
-          }}
-          disabled={isApproved} // Disable the button if already approved
-        >
-          {isApproved ? "Approved" : "Approve"}{" "}
-          {/* Show "Approved" if already approved */}
-        </button>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="flex items-center gap-2">
+  //       <button
+  //         className={`${
+  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+  //         } text-white py-1 px-2 rounded`}
+  //         onClick={() => {
+  //           if (!isApproved) {
+  //             readCustomizr(rowData.refuserId); // Call readTour to approve it
+  //           }
+  //         }}
+  //         disabled={isApproved} // Disable the button if already approved
+  //       >
+  //         {isApproved ? "Approved" : "Approve"}{" "}
+  //         {/* Show "Approved" if already approved */}
+  //       </button>
+  //     </div>
+  //   );
+  // };
 
-  const readCustomizr = async (refuserId: any) => {
-    console.log("Approving booking with ID:", refuserId);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL +
-          "/bookingRoutes/approveCustomizeTourBooking",
-        {
-          userId: refuserId,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // const readCustomizr = async (refuserId: any) => {
+  //   console.log("Approving booking with ID:", refuserId);
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL +
+  //         "/bookingRoutes/approveCustomizeTourBooking",
+  //       {
+  //         userId: refuserId,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("API Response:", data);
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("API Response:", data);
 
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
 
-        const updatedTourCustomize = UserDetail.map((tour) =>
-          tour.refuserId === refuserId
-            ? { ...tour, refStatus: "Approved" }
-            : tour
-        );
-        setTourDetail(updatedTourCustomize);
-      } else {
-        console.error("API update failed:", data);
-      }
-    } catch (e) {
-      console.error("Error approving booking:", e);
-    }
-  };
+  //       const updatedTourCustomize = UserDetail.map((tour) =>
+  //         tour.refuserId === refuserId
+  //           ? { ...tour, refStatus: "Approved" }
+  //           : tour
+  //       );
+  //       setTourDetail(updatedTourCustomize);
+  //     } else {
+  //       console.error("API update failed:", data);
+  //     }
+  //   } catch (e) {
+  //     console.error("Error approving booking:", e);
+  //   }
+  // };
   //Car
 
   const actionDeleteCar = (rowData: any) => {
@@ -324,68 +324,68 @@ const UserDetails: React.FC = () => {
 
 
 //Car update
-const readCar = async (refuserId: any) => {
-  console.log("Approving booking with ID:", refuserId);
-  try {
-    const response = await axios.post(
-      import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
-      {
-        userId: refuserId,
-      },
-      {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
-      }
-    );
+// const readCar = async (refuserId: any) => {
+//   console.log("Approving booking with ID:", refuserId);
+//   try {
+//     const response = await axios.post(
+//       import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
+//       {
+//         userId: refuserId,
+//       },
+//       {
+//         headers: {
+//           Authorization: localStorage.getItem("token"),
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
 
-    const data = decrypt(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-    console.log("API Response:", data);
+//     const data = decrypt(
+//       response.data[1],
+//       response.data[0],
+//       import.meta.env.VITE_ENCRYPTION_KEY
+//     );
+//     console.log("API Response:", data);
 
-    if (data.success) {
-      localStorage.setItem("token", "Bearer " + data.token);
+//     if (data.success) {
+//       localStorage.setItem("token", "Bearer " + data.token);
 
-      const updatedCarBooking = CarBookings.map((tour) =>
-        tour.refuserId === refuserId
-          ? { ...tour, refStatus: "Approved" }
-          : tour
-      );
-      setCarBookings(updatedCarBooking);
-    } else {
-      console.error("API update failed:", data);
-    }
-  } catch (e) {
-    console.error("Error approving booking:", e);
-  }
-};
+//       const updatedCarBooking = CarBookings.map((tour) =>
+//         tour.refuserId === refuserId
+//           ? { ...tour, refStatus: "Approved" }
+//           : tour
+//       );
+//       setCarBookings(updatedCarBooking);
+//     } else {
+//       console.error("API update failed:", data);
+//     }
+//   } catch (e) {
+//     console.error("Error approving booking:", e);
+//   }
+// };
 
-const actionReadCar = (rowData: any) => {
-  const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+// const actionReadCar = (rowData: any) => {
+//   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-  return (
-    <div className="flex items-center gap-2">
-      <button
-        className={`${
-          isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-        } text-white py-1 px-2 rounded`}
-        onClick={() => {
-          if (!isApproved) {
-            readCar(rowData.refuserId); // Call readTour to approve it
-          }
-        }}
-        disabled={isApproved} // Disable the button if already approved
-      >
-        {isApproved ? "Approved" : "Approve"}{" "}
-        {/* Show "Approved" if already approved */}
-      </button>
-    </div>
-  );
-};
+//   return (
+//     <div className="flex items-center gap-2">
+//       <button
+//         className={`${
+//           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+//         } text-white py-1 px-2 rounded`}
+//         onClick={() => {
+//           if (!isApproved) {
+//             readCar(rowData.refuserId); // Call readTour to approve it
+//           }
+//         }}
+//         disabled={isApproved} // Disable the button if already approved
+//       >
+//         {isApproved ? "Approved" : "Approve"}{" "}
+//         {/* Show "Approved" if already approved */}
+//       </button>
+//     </div>
+//   );
+// };
 
 
 
@@ -442,68 +442,68 @@ const actionReadCar = (rowData: any) => {
       setEditTourId(null);
     }
   };
-  const readTour = async (refuserId: any) => {
-    console.log("Approving booking with ID:", refuserId);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/bookingRoutes/approveTourBooking",
-        {
-          userId: refuserId,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // const readTour = async (refuserId: any) => {
+  //   console.log("Approving booking with ID:", refuserId);
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/bookingRoutes/approveTourBooking",
+  //       {
+  //         userId: refuserId,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("API Response:", data);
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("API Response:", data);
 
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
 
-        const updatedTourBooking = TourBooking.map((tour) =>
-          tour.refuserId === refuserId
-            ? { ...tour, refStatus: "Approved" }
-            : tour
-        );
-        setTourBooking(updatedTourBooking);
-      } else {
-        console.error("API update failed:", data);
-      }
-    } catch (e) {
-      console.error("Error approving booking:", e);
-    }
-  };
+  //       const updatedTourBooking = TourBooking.map((tour) =>
+  //         tour.refuserId === refuserId
+  //           ? { ...tour, refStatus: "Approved" }
+  //           : tour
+  //       );
+  //       setTourBooking(updatedTourBooking);
+  //     } else {
+  //       console.error("API update failed:", data);
+  //     }
+  //   } catch (e) {
+  //     console.error("Error approving booking:", e);
+  //   }
+  // };
 
-  const actionReadTour = (rowData: any) => {
-    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  // const actionReadTour = (rowData: any) => {
+  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-    return (
-      <div className="flex items-center gap-2">
-        <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
-          onClick={() => {
-            if (!isApproved) {
-              readTour(rowData.refuserId); // Call readTour to approve it
-            }
-          }}
-          disabled={isApproved} // Disable the button if already approved
-        >
-          {isApproved ? "Approved" : "Approve"}{" "}
-          {/* Show "Approved" if already approved */}
-        </button>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="flex items-center gap-2">
+  //       <button
+  //         className={`${
+  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+  //         } text-white py-1 px-2 rounded`}
+  //         onClick={() => {
+  //           if (!isApproved) {
+  //             readTour(rowData.refuserId); // Call readTour to approve it
+  //           }
+  //         }}
+  //         disabled={isApproved} // Disable the button if already approved
+  //       >
+  //         {isApproved ? "Approved" : "Approve"}{" "}
+  //         {/* Show "Approved" if already approved */}
+  //       </button>
+  //     </div>
+  //   );
+  // };
 
   //Parking
 
@@ -555,68 +555,68 @@ const actionReadCar = (rowData: any) => {
   };
   //update
 
-  const readParking = async (refuserId: any) => {
-    console.log("Approving booking with ID:", refuserId);
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/bookingRoutes/approveParkingBooking",
-        {
-          userId: refuserId,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
+  // const readParking = async (refuserId: any) => {
+  //   console.log("Approving booking with ID:", refuserId);
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/bookingRoutes/approveParkingBooking",
+  //       {
+  //         userId: refuserId,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("API Response:", data);
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("API Response:", data);
 
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
 
-        const updatedParking = parking.map((tour) =>
-          tour.refuserId === refuserId
-            ? { ...tour, refStatus: "Approved" }
-            : tour
-        );
-        setParking(updatedParking);
-      } else {
-        console.error("API update failed:", data);
-      }
-    } catch (e) {
-      console.error("Error approving booking:", e);
-    }
-  };
+  //       const updatedParking = parking.map((tour) =>
+  //         tour.refuserId === refuserId
+  //           ? { ...tour, refStatus: "Approved" }
+  //           : tour
+  //       );
+  //       setParking(updatedParking);
+  //     } else {
+  //       console.error("API update failed:", data);
+  //     }
+  //   } catch (e) {
+  //     console.error("Error approving booking:", e);
+  //   }
+  // };
 
-  const actionReadParking = (rowData: any) => {
-    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  // const actionReadParking = (rowData: any) => {
+  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-    return (
-      <div className="flex items-center gap-2">
-        <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
-          onClick={() => {
-            if (!isApproved) {
-              readParking(rowData.refuserId); // Call readTour to approve it
-            }
-          }}
-          disabled={isApproved} // Disable the button if already approved
-        >
-          {isApproved ? "Approved" : "Approve"}{" "}
-          {/* Show "Approved" if already approved */}
-        </button>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="flex items-center gap-2">
+  //       <button
+  //         className={`${
+  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+  //         } text-white py-1 px-2 rounded`}
+  //         onClick={() => {
+  //           if (!isApproved) {
+  //             readParking(rowData.refuserId); // Call readTour to approve it
+  //           }
+  //         }}
+  //         disabled={isApproved} // Disable the button if already approved
+  //       >
+  //         {isApproved ? "Approved" : "Approve"}{" "}
+  //         {/* Show "Approved" if already approved */}
+  //       </button>
+  //     </div>
+  //   );
+  // };
 
   const formatDate = (rowData: any) => {
     if (!rowData.refPickupDate) return ""; // Handle empty values

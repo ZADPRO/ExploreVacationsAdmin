@@ -12,8 +12,8 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { HiUserAdd } from "react-icons/hi";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoMdNotifications } from "react-icons/io";
-import { FaUsers } from "react-icons/fa";
-import { FaImages } from "react-icons/fa";
+// import { FaUsers } from "react-icons/fa";
+// import { FaImages } from "react-icons/fa";
 import "./Header.css";
 
 const routes: any = [

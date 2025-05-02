@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import CryptoJS from "crypto-js";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import { Slide } from "react-toastify";
+// import { Slide } from "react-toastify";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";

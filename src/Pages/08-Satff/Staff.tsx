@@ -16,7 +16,7 @@ import { Column } from "primereact/column";
 import UpdateStaff from "../09-UpdateStaff/UpdateStaff";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Nullable } from "primereact/ts-helpers";
-import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+// import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 
 interface StaffDetails {
   refFName: string;
@@ -30,10 +30,10 @@ interface StaffDetails {
   refUserEmail: string;
 }
 
-interface Employee {
-  refUserTypeId: number;
-  refUserType: string;
-}
+// interface Employee {
+//   refUserTypeId: number;
+//   refUserType: string;
+// }
 
 type DecryptResult = any;
 const Staff: React.FC = () => {

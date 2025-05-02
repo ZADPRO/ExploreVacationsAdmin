@@ -56,7 +56,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
   });
   const [profileImage, setProfileImage] = useState("");
   const [_staff, setStaff] = useState<StaffDetails[]>([]);
-  const [uploadedProfile, setUploadedProfile] = useState<File | null>(null);
+  const [_uploadedProfile, setUploadedProfile] = useState<File | null>(null);
   const toast = useRef<Toast>(null);
 
   const fetchStaff = async () => {

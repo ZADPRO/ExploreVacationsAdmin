@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
 import { Card } from "primereact/card";
-import { FaArrowRight } from "react-icons/fa";
+// import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
-import CryptoJS from "crypto-js";
+// import CryptoJS from "crypto-js";
 import { BsBell } from "react-icons/bs";
-import { FiArrowRight } from "react-icons/fi";
+// import { FiArrowRight } from "react-icons/fi";
 import { decryptAPIResponse } from "../../utils";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
-  const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
+  // const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
   const [dashboard, setDashboard] = useState<any>({});
   const [staffnote, setStaffnote] = useState<any>({});
   const navigate = useNavigate();

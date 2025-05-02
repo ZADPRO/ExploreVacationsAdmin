@@ -23,10 +23,10 @@ interface Service {
   refServiceFeaturesId: number;
   refServiceFeatures: string;
 }
-interface CarType {
-  refCarTypeId: number;
-  refCarTypeName: string;
-}
+// interface CarType {
+//   refCarTypeId: number;
+//   refCarTypeName: string;
+// }
 
 type DecryptResult = any;
 const Parking: React.FC = () => {
@@ -39,7 +39,7 @@ const Parking: React.FC = () => {
     refServiceFeaturesId: 0,
     refServiceFeatures: "",
   });
-  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const [_sidebarVisible, setSidebarVisible] = useState(false);
 
   const [editServiceId, setEditServiceId] = useState<number | null>(null);
   // const [selectedCarType, setSelectedCarType] = useState<CarType | null>(null);
@@ -72,13 +72,13 @@ const Parking: React.FC = () => {
     parkingSlotImage: "",
     refStatus: null,
   });
-  const [parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
+  const [_parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
   const [parkingupdateID, setParkingupdateID] = useState("");
   const closeParkingupdatesidebar = () => {
     setParkingupdatesidebar(false);
   };
 
-  const [parkingDetails, setParkingDetails] = useState(null);
+  const [_parkingDetails, setParkingDetails] = useState(null);
   const [_loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
   const [selectService, setSelectService] = useState<any[]>([]);
