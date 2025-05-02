@@ -712,7 +712,7 @@ const actionReadCar = (rowData: any) => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-              <Column body={actionReadCustomize} header="Read" />
+              {/* <Column body={actionReadCustomize} header="Read" /> */}
               <Column body={actionDeleteCustomize} header="Delete" />
             </DataTable>
           </div>
@@ -825,7 +825,7 @@ const actionReadCar = (rowData: any) => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-              <Column body={actionReadTour} header="Read" />
+              {/* <Column body={actionReadTour} header="Read" /> */}
               <Column body={actionDeleteTour} header="Delete" />
             </DataTable>
           </div>
@@ -908,7 +908,7 @@ const actionReadCar = (rowData: any) => {
                 body={(rowData) => rowData.refFormDetails.join(", ")}
                 style={{ minWidth: "200px" }}
               /> */}
-                <Column body={actionReadCar} header="Read" />
+                {/* <Column body={actionReadCar} header="Read" /> */}
               <Column body={actionDeleteCar} header="Delete" />
             </DataTable>
           </div>
@@ -982,7 +982,7 @@ const actionReadCar = (rowData: any) => {
                 header="Handover PersonPhone"
                 style={{ minWidth: "100px" }}
               />
-              <Column body={actionReadParking} header="Read" />
+              {/* <Column body={actionReadParking} header="Read" /> */}
               <Column body={actionDeleteParking} header="Delete" />
             </DataTable>
           </div>
