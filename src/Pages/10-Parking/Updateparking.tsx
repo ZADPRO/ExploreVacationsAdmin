@@ -42,7 +42,7 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
   const [carType, setCarType] = useState<any[]>([]);
   const [selectedVechileType, setSelectedVechileType] = useState(null);
   const [vechileType, setVechileType] = useState<any[]>([]);
-  const [service, setService] = useState<any[]>([]);
+  const [_service, setService] = useState<any[]>([]);
   const [_parking, setParking] = useState<any[]>([]);
   const [selectedCarType, setSelectedCarType] = useState(null);
   const [parkingImg, setParkingImg] = useState("");
@@ -596,7 +596,7 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
           </div>
 
           <div className="mt-4 flex justify-end">
-            <Button type="submit" label="Submit" />
+            <Button type="submit" label="Submit" onClick={closeParkingupdatesidebar} />
           </div>
         </form>
 

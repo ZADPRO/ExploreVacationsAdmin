@@ -3,8 +3,8 @@ import React from "react";
 import axios from "axios";
 import { useState, useEffect, type FormEvent } from "react";
 import { Calendar } from "primereact/calendar";
-import { Toast } from 'primereact/toast';
-import { useRef } from 'react';
+import { Toast } from "primereact/toast";
+import { useRef } from "react";
 
 import { Button } from "primereact/button";
 import { decryptAPIResponse } from "../../utils";
@@ -26,11 +26,6 @@ interface StaffDetails {
   refMoblile: string;
   userTypeId: number;
   refUserEmail: string;
-}
-
-interface Employee {
-  userTypeId: number;
-  refUserType: string;
 }
 
 const UpdateStaff: React.FC<StaffUpdateProps> = ({
@@ -103,10 +98,12 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
           refDOB: new Date(formData.refDOB).toISOString(),
           refDesignation: formData.refDesignation,
           refQualification: formData.refQualification,
-          refProfileImage: profileImage === "" ? formData.refProfileImage: profileImage,
+          refProfileImage:
+            profileImage === "" ? formData.refProfileImage : profileImage,
           refMoblile: formData.refMoblile,
-          userTypeId: selectedEmployeeType.map(
-            (item:number) => item.toString() ),
+          userTypeId: selectedEmployeeType.map((item: number) =>
+            item.toString()
+          ),
           // refUserEmail: formData.refUserEmail,
         },
         {
@@ -164,7 +161,6 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
         setFormData(data.result[0]);
         setSelectedEmployeeType(data.result[0].userTypeId);
         console.log("data.result[0]--->", data.result[0].userTypeId);
-          
       }
     } catch (e) {
       console.error("Error fetching tour data:", e);
@@ -204,8 +200,6 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
     fetchEmployeeType();
     fetchStaff();
   }, []);
-
-
 
   const profile = async (event: any) => {
     console.table("event", event);
@@ -268,7 +262,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
   return (
     <div>
       <div>
-      <Toast ref={toast} />
+        <Toast ref={toast} />
 
         <form
           onSubmit={(e) => {
