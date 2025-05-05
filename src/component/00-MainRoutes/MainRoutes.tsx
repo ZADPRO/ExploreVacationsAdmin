@@ -15,9 +15,9 @@ import UserDetails from "../05-UserDetails/UserDetails";
 import Staff from "../../Pages/08-Satff/Staff";
 import Parking from "../../Pages/10-Parking/Parking";
 import Dashboard from "../02-Dashboard/Dashboard";
-import StaffNotification from "../../Pages/12-StaffNotification/StaffNotification";
-import Userlist from "../../Pages/13-UserList/Userlist";
-import Banner from "../14-ImageModule/Banner";
+// import StaffNotification from "../../Pages/12-StaffNotification/StaffNotification";
+// import Userlist from "../../Pages/13-UserList/Userlist";
+// import Banner from "../14-ImageModule/Banner";
 // import Staff from "../../Pages/08-Satff/Staff";
 
 const MainRoutes: React.FC = () => {
@@ -33,10 +33,10 @@ const MainRoutes: React.FC = () => {
             <Route path="/carservices" element={<CarServices />} />
             <Route path="/carrental" element={<CarRentals />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/userlist" element={<Userlist />} />
-            <Route path="/banner" element={<Banner/>}/>
+            {/* <Route path="/userlist" element={<Userlist />} /> */}
+            {/* <Route path="/banner" element={<Banner/>}/> */}
             <Route path="/userdetails" element={<UserDetails />} />
-            <Route path="/staffnotification" element={<StaffNotification />} />
+            {/* <Route path="/staffnotification" element={<StaffNotification />} /> */}
             <Route path="/parking" element={<Parking />} />
             <Route path="/staff" element={<Staff />} />
           </Routes>
