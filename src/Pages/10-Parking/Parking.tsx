@@ -113,6 +113,15 @@ const Parking: React.FC = () => {
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
+
+  const handleInput1 = (e:any) => {
+  const { name, value } = e.target || e.value ? e : { name: '', value: '' };
+  setInputs((prev) => ({
+    ...prev,
+    [name]: value
+  }));
+};
+
   const fetchService = async () => {
     try {
       const response = await axios.get(
@@ -714,7 +723,7 @@ const Parking: React.FC = () => {
               headerStyle={{ width: "9rem" }}
               field="MinimumBookingDuration"
               header="Minimum Booking Duration"
-                // body={() => new Date().toLocaleDateString()} // or use custom format
+              // body={() => new Date().toLocaleDateString()} // or use custom format
             />
             <Column
               headerStyle={{ width: "9rem" }}
@@ -958,12 +967,24 @@ const Parking: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-row gap-3 mt-3">
-                      <InputText
+                      {/* <InputText
                         name="pricePerHourORday"
                         value={inputs.pricePerHourORday}
                         onChange={handleInput}
                         placeholder="Price Per Hour/Day"
                         className="w-full"
+                        required
+                      /> */}
+                      <Dropdown
+                        name="pricePerHourORday"
+                        value={inputs.pricePerHourORday}
+                        options={[
+                          { label: "Hour", value: "Hour" },
+                          { label: "Day", value: "Day" },
+                        ]}
+                        onChange={handleInput2}
+                        placeholder="price Per HourORday"
+                       className="w-full"
                         required
                       />
                       <InputText
