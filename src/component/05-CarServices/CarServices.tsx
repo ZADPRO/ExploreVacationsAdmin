@@ -120,7 +120,7 @@ const CarServices: React.FC = () => {
   const [selectedform, setSelectedform] = useState<any[]>([]);
   const [cabDetils, setCabDetails] = useState<any[]>([]);
   const [carupdatesidebar, setCarupdatesidebar] = useState(false);
-  const [carupdateID, _setCarupdateID] = useState("");
+  const [carupdateID, setCarupdateID] = useState("");
 
   const closeCarupdatesidebar = () => {
     setCarupdatesidebar(false);
@@ -1577,20 +1577,20 @@ const CarServices: React.FC = () => {
           ></Column>
 
           <Column
-            className="  text-[#0a5c9c]   "
+            className="  text-[#0a5c9c] underline cursor-pointer  "
             header="Car Name"
               field="refVehicleTypeName"
             style={{ minWidth: "200px" }}
-            // body={(rowData) => (
-            //   <div
-            //     onClick={() => {
-            //       setCarupdateID(rowData.refCarsId);
-            //       setCarupdatesidebar(true);
-            //     }}
-            //   >
-            //     {rowData.refVehicleTypeName}
-            //   </div>
-            // )}
+            body={(rowData) => (
+              <div
+                onClick={() => {
+                  setCarupdateID(rowData.refCarsId);
+                  setCarupdatesidebar(true);
+                }}
+              >
+                {rowData.refVehicleTypeName}
+              </div>
+            )}
           ></Column>
           <Column
             field="refTrasmissionType"
@@ -2133,7 +2133,7 @@ const CarServices: React.FC = () => {
             <div>
               <h2 className="text-xl font-bold">Add New Car Package</h2>
               <form onSubmit={handleSubmit} method="post">
-                {/* Vechiletype  and Personcount */}
+              
                 <div className="flex flex-row gap-3 mt-3">
                   <Dropdown
                     value={selectesvechile}

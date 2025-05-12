@@ -84,7 +84,7 @@ function ToursNew() {
   const [_tours, setTours] = useState<any[]>([]);
   const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [tourupdatesidebar, setTourupdatesidebar] = useState(false);
-  const [tourupdateID, _setTourupdateID] = useState("");
+  const [tourupdateID, setTourupdateID] = useState("");
 
   const closeTourupdatesidebar = () => {
     setTourupdatesidebar(false);
@@ -652,6 +652,7 @@ function ToursNew() {
     formData.append("Image", file);
     console.log("formData", formData);
 
+
     for (let pair of formData.entries()) {
       console.log("-------->______________", pair[0] + ":", pair[1]);
     }
@@ -702,12 +703,9 @@ function ToursNew() {
   const customUploader = async (event: any) => {
     console.table("event", event);
 
-    // Create a FormData object
-
-    // Loop through the selected files and append each one to the FormData
+   
     for (let i = 0; i < event.files.length; i++) {
-      // console.log("Line -649 ("+i+")"+event.files)
-
+      
       const formData = new FormData();
       const file = event.files[i];
       formData.append("images", file);
@@ -1029,22 +1027,22 @@ function ToursNew() {
           />
 
           <Column
-            className="   text-[#0a5c9c]   "
+            className="   text-[#0a5c9c] underline cursor-pointer   "
             header="Package Name"
             field="refPackageName"
             style={{ minWidth: "200px" }}
-            // body={(rowData) => (
-            //   <div
-            //     onClick={() => {
-            //       setTourupdateID(rowData.refPackageId);
-            //       setTourupdatesidebar(true);
+            body={(rowData) => (
+              <div
+                onClick={() => {
+                  setTourupdateID(rowData.refPackageId);
+                  setTourupdatesidebar(true);
 
-            //     }}
-            //   >
-            //     {" "}
-            //     {rowData.refPackageName}
-            //   </div>
-            // )}
+                }}
+              >
+                {" "}
+                {rowData.refPackageName}
+              </div>
+            )}
           />
           <Column
             field="refDestinationName"

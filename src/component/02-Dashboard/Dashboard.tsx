@@ -5,7 +5,7 @@ import { Card } from "primereact/card";
 import axios from "axios";
 // import CryptoJS from "crypto-js";
 import { BsBell } from "react-icons/bs";
-// import { FiArrowRight } from "react-icons/fi";
+import { FiArrowRight } from "react-icons/fi";
 import { decryptAPIResponse } from "../../utils";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +14,20 @@ const Dashboard: React.FC = () => {
   const [dashboard, setDashboard] = useState<any>({});
   const [staffnote, setStaffnote] = useState<any>({});
   const navigate = useNavigate();
+
+  // Assuming 'roleId' is stored in localStorage
+  const roleId = parseInt(localStorage.getItem("roleId") || "0", 10);
+  console.log('parseInt(localStorage.getItem("roleId") || "0", 10)', parseInt(localStorage.getItem("roleId") || "0", 10))
+
+  // Map roleId to label
+  const roleLabels: Record<number, string> = {
+    1: "Admin",
+    2: "Employee - Tours",
+    4: "Employee - Cars",
+    5: "Employee - Parking",
+  };
+
+  const userRole = roleLabels[roleId] || "Guest";
 
   const fetchDashboard = async () => {
     try {
@@ -78,6 +92,62 @@ const Dashboard: React.FC = () => {
     fetchstaffnotification();
   }, []);
 
+  const cardConfigs = [
+    {
+      key: "tourBookingCount",
+      title: "Tour Booked",
+      path: "/userdetails",
+      roles: ["Admin", "Employee - Tours"],
+    },
+    {
+      key: "customizeTourBookingCount",
+      title: "Customize Booked",
+      path: "/userdetails",
+      roles: ["Admin", "Employee - Tours"],
+    },
+    {
+      key: "carBookingCount",
+      title: "Car Booked",
+      path: "/userdetails",
+      roles: ["Admin", "Employee - Cars"],
+    },
+    {
+      key: "carParkingBookingCount",
+      title: "Parking Booked",
+      path: "/userdetails",
+      roles: ["Admin", "Employee - Parking"],
+    },
+    {
+      key: "tourCount",
+      title: "Tour Package",
+      path: "/tour",
+      roles: ["Admin", "Employee - Tours"],
+    },
+    {
+      key: "carCount",
+      title: "Car Package",
+      path: "/carservices",
+      roles: ["Admin", "Employee - Cars"],
+    },
+    {
+      key: "CarParkingCount",
+      title: "Parking Package",
+      path: "/parking",
+      roles: ["Admin", "Employee - Parking"],
+    },
+    {
+      key: "logInClientCount",
+      title: "Customer Login",
+      path: "/userlist",
+      roles: ["Admin", "Employee - Tours", "Employee - Cars", "Employee - Parking"],
+    },
+  ];
+
+  // Filter the cards to be shown for current user
+  const visibleCards = cardConfigs.filter((card) =>
+    card.roles.includes(userRole)
+  );
+
   const NotificationIconWithBadge = ({ count }: { count: number }) => {
     return (
       <div className="relative w-12 h-12 flex items-center justify-center">
@@ -96,99 +166,151 @@ const Dashboard: React.FC = () => {
       <div>
         <div className="text-2xl font-semibold p-3">Dashboard</div>
         <div className="flex flex-row justify-end">
-          <div className="flex items-center w-[10%] justify-end cursor-pointer"
-           onClick={() => navigate("/staffnotification")}
-           title="View Notifications">
+          <div
+            className="flex items-center w-[10%] justify-end cursor-pointer"
+            onClick={() => navigate("/staffnotification")}
+            title="View Notifications"
+          >
             <NotificationIconWithBadge
-              count={staffnote?.unReadNotifications?.length || 0}
+              count={staffnote?.unReadNotifications || 0}
             />
           </div>
         </div>
-        <div className="flex flex-col gap-20">
+        {/* <div className="flex flex-col gap-20">
           <div className="flex flex-row gap-10 px-5  justify-evenly">
-            {/* Tour Booked  */}
-            <div className="text-[#0a5c9c] flex-1 h-10">
+         
+            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] flex-1 h-10 cursor-pointer">
               <Card style={{ color: "#0a5c9c" }} title="Tour Booked">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
+                <div  className="flex  flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold">Count:</p>{" "}
                   {dashboard?.tourBookingCount}
                 </div>
-                {/* <FiArrowRight />                             */}
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* Customize Booked  */}
-            <div className="text-[#0a5c9c] flex-1 h-10">
+        
+            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1 h-10">
               <Card style={{ color: "#0a5c9c" }} title="Customize Booked">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard?.customizeTourBookingCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* Car Booked  */}
-            <div className="text-[#0a5c9c] flex-1">
+       
+            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1">
               <Card style={{ color: "#0a5c9c" }} title="Car Booked">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard.carBookingCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* Parking Booked  */}
-            <div className="text-[#0a5c9c] flex-1">
+          
+            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1">
               <Card style={{ color: "#0a5c9c" }} title="Parking Booked">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   <p className="font-bold"> Count:</p>
                   {dashboard.carParkingBookingCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
+                </div>
               </Card>
             </div>
           </div>
           <div className="flex flex-row gap-10 px-5  justify-evenly">
-            {/* Tour Package  */}
-            <div className="text-[#0a5c9c] flex-1">
+         
+            <div onClick={() => navigate("/tour")} className="text-[#0a5c9c] cursor-pointer flex-1">
               <Card style={{ color: "#0a5c9c" }} title="Tour Package">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard.tourCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/tour")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* Car Package  */}
-            <div className="text-[#0a5c9c] flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Car Parking">
+          
+            <div onClick={() => navigate("/carservices")} className="text-[#0a5c9c] cursor-pointer flex-1">
+              <Card style={{ color: "#0a5c9c" }} title="Car Package">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard.carCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/carservices")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* Parking Package  */}
-            <div className="text-[#0a5c9c] flex-1">
+        
+            <div onClick={() => navigate("/parking")} className="text-[#0a5c9c] cursor-pointer flex-1">
               <Card style={{ color: "#0a5c9c" }} title="Parking Package">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard.CarParkingCount}{" "}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/parking")} />{" "}
+                </div>
               </Card>
             </div>
-            {/* logInClientCount  */}
-            <div className="text-[#0a5c9c] flex-1">
+        
+            <div  onClick={() => navigate("/userlist")} className="text-[#0a5c9c] cursor-pointer flex-1">
               <Card style={{ color: "#0a5c9c" }} title="Customer Login">
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
                   {" "}
                   <p className="font-bold"> Count:</p>
                   {dashboard.logInClientCount}
                 </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  {" "}
+                  <FiArrowRight onClick={() => navigate("/userlist")} />{" "}
+                </div>
               </Card>
             </div>
           </div>
+        </div> */}
+        <div className="flex flex-row gap-10 px-5 justify-evenly flex-wrap">
+          {visibleCards.map((card) => (
+            <div
+              key={card.key}
+              onClick={() => navigate(card.path)}
+              className="text-[#0a5c9c] cursor-pointer flex-1 min-w-[250px] max-w-[300px]"
+            >
+              <Card style={{ color: "#0a5c9c" }} title={card.title}>
+                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
+                  <p className="font-bold">Count:</p>
+                  {dashboard[card.key]}
+                </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  <FiArrowRight onClick={() => navigate(card.path)} />
+                </div>
+              </Card>
+            </div>
+          ))}
         </div>
       </div>
     </div>

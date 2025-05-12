@@ -32,7 +32,7 @@ type DecryptResult = any;
 const Parking: React.FC = () => {
   const [visible, setVisible] = useState(false);
   const [parkingImg, setParkingImg] = useState<any>([]);
-  const [staffupdatesidebar, setStaffupdatesidebar] = useState(false);
+  // const [parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
   const [_submitLoading, setSubmitLoading] = useState(false);
   const [service, setService] = useState<Service[]>([]);
   const [editServiceValue, setEditServiceValue] = useState({
@@ -72,7 +72,7 @@ const Parking: React.FC = () => {
     parkingSlotImage: "",
     refStatus: null,
   });
-  const [_parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
+  const [parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
   const [parkingupdateID, setParkingupdateID] = useState("");
   const closeParkingupdatesidebar = () => {
     setParkingupdatesidebar(false);
@@ -533,6 +533,15 @@ const Parking: React.FC = () => {
       [e.target.name]: e.target.value,
     }));
   };
+  const handleInput2 = (e: any) => {
+    const { name, value } = e.target
+      ? e.target
+      : { name: e.originalEvent.target.name, value: e.value };
+    setInputs((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleValue = (e: any) => {
     const { name, value } = e.target;
@@ -652,7 +661,7 @@ const Parking: React.FC = () => {
             value={parking}
             tableStyle={{ minWidth: "50rem" }}
             paginator
-            rows={4}
+            rows={3}
           >
             <Column
               header="S.No"
@@ -669,7 +678,7 @@ const Parking: React.FC = () => {
                 <div
                   onClick={() => {
                     setParkingupdateID(rowData.refCarParkingId);
-                    setStaffupdatesidebar(true);
+                    setParkingupdatesidebar(true);
                     fetchParkingId(rowData.refCarParkingId);
                   }}
                 >
@@ -697,13 +706,15 @@ const Parking: React.FC = () => {
             />
             <Column
               headerStyle={{ width: "15rem" }}
-              field="MaximumBookingDuration"
               header="Maximum Booking Duration"
+              body={() => new Date().toLocaleDateString()} // or use custom format
             />
+
             <Column
               headerStyle={{ width: "9rem" }}
               field="MinimumBookingDuration"
               header="Minimum Booking Duration"
+                // body={() => new Date().toLocaleDateString()} // or use custom format
             />
             <Column
               headerStyle={{ width: "9rem" }}
@@ -925,11 +936,23 @@ const Parking: React.FC = () => {
                         className="w-full"
                         required
                       />
-                      <InputText
+                      {/* <InputText
                         name="refBookingType"
                         value={inputs.refBookingType}
                         onChange={handleInput}
                         placeholder="Enter Booking Type (Online/Offline)"
+                        className="w-full"
+                        required
+                      /> */}
+                      <Dropdown
+                        name="refBookingType"
+                        value={inputs.refBookingType}
+                        options={[
+                          { label: "Online", value: "Online" },
+                          { label: "Offline", value: "Offline" },
+                        ]}
+                        onChange={handleInput2}
+                        placeholder="Select Booking Type"
                         className="w-full"
                         required
                       />
@@ -1091,7 +1114,7 @@ const Parking: React.FC = () => {
                         maxFileSize={10000000}
                         emptyTemplate={
                           <p className="m-0">
-                            Drag and drop your Map here to upload.
+                            Drag and drop your image here to upload.
                           </p>
                         }
                       />
@@ -1107,9 +1130,9 @@ const Parking: React.FC = () => {
           </TabView>
         </Sidebar>
         <Sidebar
-          visible={staffupdatesidebar}
+          visible={parkingupdatesidebar}
           style={{ width: "50%" }}
-          onHide={() => setStaffupdatesidebar(false)}
+          onHide={() => setParkingupdatesidebar(false)}
           position="right"
         >
           <Updateparking

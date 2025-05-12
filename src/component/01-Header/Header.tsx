@@ -12,8 +12,8 @@ import { FaSignOutAlt } from "react-icons/fa";
 import { HiUserAdd } from "react-icons/hi";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoMdNotifications } from "react-icons/io";
-// import { FaUsers } from "react-icons/fa";
-// import { FaImages } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa";
+import { FaImages } from "react-icons/fa";
 import "./Header.css";
 
 const routes: any = [
@@ -29,18 +29,18 @@ const routes: any = [
     icon: <FaUserGear />,
     roles: [1], // Admin only
   },
-  // {
-  //   path: "/banner",
-  //   label: "Banner",
-  //   icon: <FaImages />,
-  //   roles: [1], // Admin only
-  // },
-  // {
-  //   path: "/userlist",
-  //   label: "User List",
-  //   icon: <FaUsers />,
-  //   roles: [1], // Admin only
-  // },
+  {
+    path: "/banner",
+    label: "Banner",
+    icon: <FaImages />,
+    roles: [1], // Admin only
+  },
+  {
+    path: "/userlist",
+    label: "User List",
+    icon: <FaUsers />,
+    roles: [1], // Admin only
+  },
   {
     path: "/staff",
     label: "Staff",
@@ -70,7 +70,7 @@ const routes: any = [
     path: "/staffnotification",
     label: "Staff Notification",
     icon: <IoMdNotifications />,
-    roles: [2,4,5], // Admin + Employee for Parking
+    roles: [1,2,4,5], // Admin + Employee for Parking
   },
   {
     path: "/settings",

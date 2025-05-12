@@ -1,6 +1,6 @@
 import CryptoJS from "crypto-js";
 
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Button } from "primereact/button";
 
 import { MultiSelect } from "primereact/multiselect";
@@ -15,6 +15,9 @@ import { fetchDestinations } from "../../services/DestinationService";
 import { fetchCategories } from "../../services/CategoriesService";
 import { FileUpload } from "primereact/fileupload";
 import Location from "../01-Location/Location";
+import { fetchTours } from "../../services/TourServices";
+import { Toast } from "primereact/toast";
+
 interface Destination {
   refDestinationId: string;
   refDestinationName: string;
@@ -52,12 +55,16 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   const [include, setInclude] = useState<Includes[]>([]);
 
   const [exclude, setExclude] = useState<Excludes[]>([]);
-  const [_mapformData, setMapformdata] = useState<any>([]);
-  const [formDataImages, setFormdataImages] = useState<any>([]);
+  const [mapformData, setMapformdata] = useState<any>([]);
 
-  const [_coverImage, setCoverImage] = useState("");
+  const [coverImage, setCoverImage] = useState("");
   // const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
+
+  const [_deleteCoverId, setDeleteCoverId] = useState<number | null>(null);
+
+  const [_deleteMapId, setdeleteMapId] = useState<number | null>(null);
+  const [_deleteGalleryId, setDeleteGalleryId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState<Record<string, any>>({
     refPackageId: 0,
@@ -74,15 +81,15 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
     refActivity: "",
     refLocation: "",
     refSeasonalPrice: "",
-    refCoverImage: "",
+    refCoverImage: { filename: "", contentType: "", content: "" },
     refTravalDataId: "",
     refItinary: "",
-    refItinaryMapPath: "",
+    refItinaryMapPath: { filename: "", contentType: "", content: "" },
     refTravalInclude: "",
     refTravalExclude: "",
     refSpecialNotes: "",
     refTravalOverView: "",
-    refGallery: [],
+    refGallery: [{ filename: "", contentType: "", content: "" }],
     refCategoryName: "",
     refLocationList: [],
     Activity: [],
@@ -90,7 +97,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
     travalExclude: [],
   });
   const [originalData, setOriginalData] = useState<Record<string, any>>({});
-
+  const toast = useRef<Toast>(null);
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -232,6 +239,9 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
     const formData = new FormData();
     formData.append("Image", file);
     console.log("formData", formData);
+    if (file) {
+      setMapformdata(file);
+    }
 
     for (let pair of formData.entries()) {
       console.log("-------->______________", pair[0] + ":", pair[1]);
@@ -274,49 +284,98 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
 
   //galary image upload
 
+  // const customUploader = async (event: any) => {
+  //   console.table("event", event);
+
+  //   // Create a FormData object
+
+  //   // Loop through the selected files and append each one to the FormData
+  //   for (let i = 0; i < event.files.length; i++) {
+  //     const formData = new FormData();
+  //     const file = event.files[i];
+  //     formData.append("images", file);
+
+  //     try {
+  //       const response = await axios.post(
+  //         import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+
+  //         formData,
+
+  //         {
+  //           headers: {
+  //             Authorization: localStorage.getItem("token"),
+  //           },
+  //         }
+  //       );
+
+  //       const data = decrypt(
+  //         response.data[1],
+  //         response.data[0],
+  //         import.meta.env.VITE_ENCRYPTION_KEY
+  //       );
+
+  //       localStorage.setItem("JWTtoken", "Bearer " + data.token);
+  //       console.log("data==============", data);
+
+  //       if (data.success) {
+  //         handleUploadSuccess(data);
+  //         setFormData((prev) => ({ ...prev, refGallery: [...prev.refGallery, data.files[0]] }));
+  //       } else {
+  //         handleUploadFailure(data);
+  //       }
+  //     } catch (error) {
+  //       handleUploadFailure(error);
+  //     }
+  //   }
+  // };
   const customUploader = async (event: any) => {
-    console.table("event", event);
+  console.table("event", event);
 
-    // Create a FormData object
+  // Loop through the selected files and append each one to the FormData
+  for (let i = 0; i < event.files.length; i++) {
+    const formData = new FormData();
+    const file = event.files[i];
+    formData.append("images", file);
 
-    // Loop through the selected files and append each one to the FormData
-    for (let i = 0; i < event.files.length; i++) {
-      const formData = new FormData();
-      const file = event.files[i];
-      formData.append("images", file);
-
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
-
-          formData,
-
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-            },
-          }
-        );
-
-        const data = decrypt(
-          response.data[1],
-          response.data[0],
-          import.meta.env.VITE_ENCRYPTION_KEY
-        );
-
-        localStorage.setItem("JWTtoken", "Bearer " + data.token);
-        console.log("data==============", data);
-
-        if (data.success) {
-          handleUploadSuccess(data);
-        } else {
-          handleUploadFailure(data);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/galleryUpload",
+        formData,
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
         }
-      } catch (error) {
-        handleUploadFailure(error);
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      localStorage.setItem("JWTtoken", "Bearer " + data.token);
+      console.log("Gallery upload response:", data);
+
+      if (data.success) {
+        handleUploadSuccess(data);
+        
+        // Update the refGallery array with the file path returned from the server
+        if (data.files && data.files.length > 0) {
+          const newImage = data.files[0];
+          setFormData((prev) => ({
+            ...prev,
+            refGallery: [...prev.refGallery, newImage]
+          }));
+        }
+      } else {
+        handleUploadFailure(data);
       }
+    } catch (error) {
+      handleUploadFailure(error);
     }
-  };
+  }
+};
 
   const customCoverUploader = async (event: any) => {
     console.table("event", event);
@@ -328,6 +387,9 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
       const formData = new FormData();
       const file = event.files[i];
       formData.append("Image", file);
+      // if(file){
+      //   setCoverImage(file);
+      // }
 
       try {
         const response = await axios.post(
@@ -373,10 +435,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   };
 
   const handleUploadSuccess = (response: any) => {
-    let temp = [...formDataImages]; // Create a new array to avoid mutation
-    temp.push(response.filePath); // Add the new file path
     console.log("Upload Successful:", response);
-    setFormdataImages(temp); // Update the state with the new array
   };
 
   const handleUploadFailure = (error: any) => {
@@ -384,42 +443,141 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
     // Add your failure handling logic here
   };
 
+  // const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/packageRoutes/UpdatePackage",
+  //       {
+  //         refPackageId: formData.refPackageId, //int
+  //         refPackageName: formData.refPackageName, //string
+  //         refDesignationId: formData.refDesignationId, //int
+  //         refDurationIday: formData.refDurationIday, //string
+  //         refDurationINight: formData.refDurationINight, //string
+  //         refCategoryId: formData.refCategoryId, //int
+  //         refGroupSize: "0", //string
+  //         refTourCode: formData.refTourCode, //string
+  //         refTourPrice: formData.refTourPrice, //string
+  //         refSeasonalPrice: formData.refSeasonalPrice, //string
+  //         refTravalDataId: formData.refTravalDataId, //int
+  //         refTravalOverView: formData.refTravalOverView, //string
+  //         refItinary: formData.refItinary,
+  //         refItinaryMapPath:  mapformData === ""
+  //             ? formData.refItinaryMapPath?.filename ?? ""
+  //             : mapformData, //string
+  //         refTravalInclude: formData.travalInclude.map(
+  //           (include: { id: string }) => include.id
+  //         ), //Array
+  //         refTravalExclude: formData.travalExclude.map(
+  //           (exclude: { id: string }) => exclude.id
+  //         ), //Array
+  //         refSpecialNotes: formData.refSpecialNotes, //string
+  //         refCoverImage:
+  //           coverImage === ""
+  //             ? formData.refCoverImage?.filename ?? ""
+  //             : coverImage, //string
+  //         refLocation: formData.refLocationList.map(
+  //           (location: { id: string }) => location.id
+  //         ), //Array
+  //         refActivity: formData.Activity.map(
+  //           (activity: { id: number }) => activity.id
+  //         ), //Array
+  //     refGallery: formDataImages.length > 0
+  //         ? formDataImages  // New uploaded images
+  //         : formData.refGallery?.map((img: any) => img.filename || "") || [], // Existing images
+  //     },
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("data--> Tourupdate---working", data);
+  //     if (data.success) {
+  //       // await addTour(payload);
+  //       // setIsFormSubmitting(false);
+  //       localStorage.setItem("token", "Bearer " + data.token);
+
+  //       setIsAddTourOpen(false);
+  //       fetchSingleIDTourdataForm();
+  //     }
+  //   } catch (e) {
+  //     console.error("Error fetching Tour update:", e);
+  //   }
+  // };
+
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
+      // const galleryImages = formData.refGallery?.map(
+      //   (img: any) => img.filename || ""
+      // );
+     const galleryImages = formData.refGallery
+      .map((img: any) => {
+        if (typeof img === 'string') {
+          return img; // Already a path
+        } else if (img && typeof img === 'object') {
+          // Return the first available path property
+          return img.filePath || img.path || img.fullPath || img.filename || '';
+        }
+        return '';
+      })
+      .filter(Boolean); // Remove empty paths
+    console.log("Gallery images to send:", galleryImages);
+
+      const payload = {
+        refPackageId: formData.refPackageId, // int
+        refPackageName: formData.refPackageName, // string
+        refDesignationId: formData.refDesignationId, // int
+        refDurationIday: formData.refDurationIday, // string
+        refDurationINight: formData.refDurationINight, // string
+        refCategoryId: formData.refCategoryId, // int
+        refGroupSize: "0", // string
+        refTourCode: formData.refTourCode, // string
+        refTourPrice: formData.refTourPrice, // string
+        refSeasonalPrice: formData.refSeasonalPrice, // string
+        refTravalDataId: formData.refTravalDataId, // int
+        refTravalOverView: formData.refTravalOverView, // string
+        refItinary: formData.refItinary, // string
+        refItinaryMapPath:
+          mapformData === ""
+            ? formData.refItinaryMapPath?.filename ?? ""
+            : mapformData, // string
+        refTravalInclude: formData.travalInclude.map(
+          (include: { id: string }) => include.id
+        ), // Array
+        refTravalExclude: formData.travalExclude.map(
+          (exclude: { id: string }) => exclude.id
+        ), // Array
+        refSpecialNotes: formData.refSpecialNotes, // string
+        refCoverImage:
+          coverImage === ""
+            ? formData.refCoverImage?.filename ?? ""
+            : coverImage, // string
+        refLocation: formData.refLocationList.map(
+          (location: { id: string }) => location.id
+        ), // Array
+        refActivity: formData.Activity.map(
+          (activity: { id: number }) => activity.id
+        ), // Array
+        refGallery: galleryImages,
+      };
+
+      console.log("Update payload:", payload);
+
+      // Send API request
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/packageRoutes/UpdatePackage",
-        {
-          refPackageId: formData.refPackageId, //int
-          refPackageName: formData.refPackageName, //string
-          refDesignationId: formData.refDesignationId, //int
-          refDurationIday: formData.refDurationIday, //string
-          refDurationINight: formData.refDurationINight, //string
-          refCategoryId: formData.refCategoryId, //int
-          refGroupSize: "0", //string
-          refTourCode: formData.refTourCode, //string
-          refTourPrice: formData.refTourPrice, //string
-          refSeasonalPrice: formData.refSeasonalPrice, //string
-          refTravalDataId: formData.refTravalDataId, //int
-          refTravalOverView: formData.refTravalOverView, //string
-          refItinary: formData.refItinary,
-          refItinaryMapPath: formData.refItinaryMapPath, //string
-          refTravalInclude: formData.travalInclude.map(
-            (include: { id: string }) => include.id
-          ), //Array
-          refTravalExclude: formData.travalExclude.map(
-            (exclude: { id: string }) => exclude.id
-          ), //Array
-          refSpecialNotes: formData.refSpecialNotes, //string
-          refCoverImage: formData.refCoverImage || "", //string
-          refLocation: formData.refLocationList.map(
-            (location: { id: string }) => location.id
-          ), //Array
-          refActivity: formData.Activity.map(
-            (activity: { id: number }) => activity.id
-          ), //Array
-        },
+        payload,
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -428,25 +586,53 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         }
       );
 
+      // Decrypt and process response
       const data = decrypt(
         response.data[1],
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data--> Tourupdate---working", data);
+
+      console.log("Tour update response:", data);
+
       if (data.success) {
-        // await addTour(payload);
-        // setIsFormSubmitting(false);
+        // Update token and refresh data
         localStorage.setItem("token", "Bearer " + data.token);
 
+        // Reset state after successful update
         setIsAddTourOpen(false);
+
+        // Refresh tour data to get updated information
         fetchSingleIDTourdataForm();
+
+        // Show success message
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Tour package updated successfully",
+          life: 3000,
+        });
+      } else {
+        // Handle API error response
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error || "Error",
+          detail: "Failed to update tour package",
+          life: 3000,
+        });
       }
     } catch (e) {
-      console.error("Error fetching Tour update:", e);
+      // Handle exception
+      console.error("Error updating tour package:", e);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "An unexpected error occurred while updating the tour package",
+        life: 3000,
+      });
     }
   };
-
   const fetchSingleIDTourdataForm = async () => {
     console.log("Fetching data for tourupdateID:", tourupdateID);
     try {
@@ -497,6 +683,159 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
 
   //   await handleUpdateSubmit(e);
   // };
+
+  //delete Coverimage image
+  const deleteCoverimage = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/deleteCoverImage",
+        {
+          refPackageId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchTours();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting ",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+
+      setDeleteCoverId(null);
+    }
+  };
+
+  //delete Coverimage image
+  const deleteMapimage = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/userRoutes/deleteMap",
+        {
+          refTravalDataId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchTours();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting ",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+
+      setdeleteMapId(null);
+    }
+  };
+
+  const deleteGalleryImage = async (galleryId: number) => {
+    console.log('galleryId inside function', galleryId)
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/packageRoutes/deleteImage",
+        {
+          refGalleryId: galleryId,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response for gallery delete:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        // Update formData to remove the deleted gallery image
+        setFormData((prevData) => ({
+          ...prevData,
+          refGallery: prevData.refGallery.filter(
+            (img: any) => img.id !== galleryId
+          ),
+        }));
+
+        fetchTours(); // Refresh tour data
+
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Gallery Image Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API gallery delete failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting Gallery Image",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error deleting gallery image:", e);
+      setDeleteGalleryId(null);
+    }
+  };
 
   return (
     <div>
@@ -666,6 +1005,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             style={{ height: "320px", width: "100%" }}
             placeholder="Enter Itinerary"
           />
+
           <InputText
             placeholder="Enter Special Notes"
             className="w-full"
@@ -675,6 +1015,16 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
             }
             // value={specialNotes}
             // onChange={(e) => setSpecialNotes(e.target.value)}
+          />
+          <Editor
+            // value={text}
+            // onTextChange={(e) => setText(e.htmlValue)}
+            value={formData.refTravalOverView}
+            onChange={(e: any) =>
+              setFormData({ ...formData, refTravalOverView: e.target.value })
+            }
+            style={{ height: "320px", width: "100%" }}
+            placeholder="Enter TravalOverView"
           />
         </div>
 
@@ -723,6 +1073,33 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         </div>
         {/* Map upload */}
 
+        <div className="w-[30%] h-[30%] relative">
+          {formData?.refItinaryMapPath && (
+            <>
+              <img
+                src={`data:${formData.refItinaryMapPath.contentType};base64,${formData.refItinaryMapPath.content}`}
+                alt="Staff Profile Image"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  console.log(
+                    "Deleting image for ID:",
+                    formData.refTravalDataId
+                  );
+                  deleteMapimage(formData.refTravalDataId);
+                  setFormData({ ...formData, refItinaryMapPath: null });
+                }}
+                className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
+                title="Remove Image"
+              >
+                &times;
+              </button>
+            </>
+          )}
+        </div>
+
         <div>
           <h2 className="mt-3">Upload Map </h2>
           <FileUpload
@@ -739,6 +1116,30 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         </div>
 
         {/* Image Cover */}
+
+        <div className="w-[30%] h-[30%] relative">
+          {formData?.refCoverImage && (
+            <>
+              <img
+                src={`data:${formData.refCoverImage.contentType};base64,${formData.refCoverImage.content}`}
+                alt="Staff Profile Image"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("Deleting image for ID:", formData.refPackageId);
+                  deleteCoverimage(formData.refPackageId);
+                  setFormData({ ...formData, refCoverImage: null });
+                }}
+                className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
+                title="Remove Image"
+              >
+                &times;
+              </button>
+            </>
+          )}
+        </div>
 
         <div>
           <h2 className="mt-3">Upload Cover Image</h2>
@@ -759,6 +1160,36 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         </div>
 
         {/* Image Upload */}
+
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold">Gallery Images</h2>
+          <div className="flex flex-wrap gap-4 mt-2">
+            {formData.refGallery && formData.refGallery.length > 0 ? (
+              formData.refGallery.map((image: any, index: number) => (
+                <div key={index} className="w-[150px] h-[150px] relative">
+                  <img
+                    src={`data:${image.contentType};base64,${image.content}`}
+                    alt={`Gallery image ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log("Deleting gallery image ID:", image.id);
+                      deleteGalleryImage(image.id);
+                    }}
+                    className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                    title="Remove Image"
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No gallery images uploaded yet</p>
+            )}
+          </div>
+        </div>
 
         <div>
           <h2 className="mt-3">Upload Image</h2>

@@ -2,7 +2,7 @@ import axios from "axios";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { Sidebar } from "primereact/sidebar";
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar } from "primereact/calendar";
 import CryptoJS from "crypto-js";
 import { Toast } from "primereact/toast";
@@ -162,11 +162,10 @@ const Staff: React.FC = () => {
           refUserTypeId: [],
           refUserEmail: "",
         });
-      
+
         setSelectedEmployeeType([]);
         setDate(null);
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -381,19 +380,14 @@ const Staff: React.FC = () => {
     }
   };
   const handleUploadSuccessMap = (response: any) => {
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: "Successfully Added",
-      life: 3000,
-    });
+   
     console.log("Upload Successful:", response);
     setProfileImage(response.filePath);
   };
 
   const handleUploadFailure = (error: any) => {
     console.error("Upload Failed:", error);
-    
+
     // Add your failure handling logic here
   };
 
@@ -512,7 +506,6 @@ const Staff: React.FC = () => {
 
   return (
     <div>
-      
       <div className="p-4">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-semibold">Staff Module</h2>
@@ -602,7 +595,7 @@ const Staff: React.FC = () => {
           onHide={() => setVisible(false)}
           position="right"
         >
-             <Toast ref={toast} />
+          <Toast ref={toast} />
           <h2 className="text-xl font-bold mb-4">Add New Staff</h2>
 
           <TabView>
@@ -706,7 +699,7 @@ const Staff: React.FC = () => {
                         className="p-inputtext-sm w-full"
                       />
                     </div>
-
+                  
                     <div>
                       <h2 className="mt-3">Upload Profile </h2>
                       <FileUpload
@@ -718,7 +711,7 @@ const Staff: React.FC = () => {
                         maxFileSize={10000000}
                         emptyTemplate={
                           <p className="m-0">
-                            Drag and drop your Map here to upload.
+                            Drag and drop your image here to upload.
                           </p>
                         }
                       />

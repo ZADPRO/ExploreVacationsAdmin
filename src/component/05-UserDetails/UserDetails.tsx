@@ -5,8 +5,41 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Button } from "primereact/button";
-
+import { Document, Page, pdf, Text, View } from "@react-pdf/renderer";
+import { StyleSheet } from "@react-pdf/renderer";
+// import { FaEye } from "react-icons/fa";
+// import ViewPDFAction from "../Pdf/viewPDFAction ";
+import moment from "moment-timezone";
 type DecryptResult = any;
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontSize: 12,
+    fontFamily: "Helvetica",
+    lineHeight: 1.5,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+  subHeader: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 5,
+  },
+  paragraph: {
+    marginBottom: 10,
+  },
+  infoGroup: {
+    marginBottom: 8,
+  },
+  label: {
+    fontWeight: "bold",
+  },
+});
 
 const UserDetails: React.FC = () => {
   const decrypt = (
@@ -37,7 +70,7 @@ const UserDetails: React.FC = () => {
   const [_submitLoading, setSubmitLoading] = useState(false);
   const [_editCustomizeId, setEditCustomizeId] = useState<number | null>(null);
   const [_editTourId, setEditTourId] = useState<number | null>(null);
-  // const [approvedTourIds, setApprovedTourIds] = useState<number[]>([]);
+
 
   const [_editCarId, setEditCarId] = useState<number | null>(null);
   const [_editParkingId, setEditParkingId] = useState<number | null>(null);
@@ -59,7 +92,7 @@ const UserDetails: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->Customise", data);
+      console.log("data-------------->Customiseeeeeeeeee", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
 
@@ -125,6 +158,34 @@ const UserDetails: React.FC = () => {
     }
   };
 
+  // const fetchParkingBookings = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       import.meta.env.VITE_API_URL + "/adminRoutes/listParkingBookings",
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("data-------------->beforeParkingBookings", data);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+
+  //       setParking(data.result);
+  //     }
+  //   } catch (e: any) {
+  //     console.log("Error fetching customise:", e);
+  //   }
+  // };
+
   const fetchParkingBookings = async () => {
     try {
       const response = await axios.get(
@@ -142,14 +203,13 @@ const UserDetails: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data-------------->ParkingBookings", data);
       if (data.success) {
+        console.log("data-------------->afterParkingBookings", data);
         localStorage.setItem("token", "Bearer " + data.token);
-
         setParking(data.result);
       }
     } catch (e: any) {
-      console.log("Error fetching customise:", e);
+      console.log("Error fetching bookings:", e);
     }
   };
 
@@ -210,69 +270,69 @@ const UserDetails: React.FC = () => {
   };
   // aprove
 
-  // const actionReadCustomize = (rowData: any) => {
-  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  const actionReadCustomize = (rowData: any) => {
+    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-  //   return (
-  //     <div className="flex items-center gap-2">
-  //       <button
-  //         className={`${
-  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-  //         } text-white py-1 px-2 rounded`}
-  //         onClick={() => {
-  //           if (!isApproved) {
-  //             readCustomizr(rowData.refuserId); // Call readTour to approve it
-  //           }
-  //         }}
-  //         disabled={isApproved} // Disable the button if already approved
-  //       >
-  //         {isApproved ? "Approved" : "Approve"}{" "}
-  //         {/* Show "Approved" if already approved */}
-  //       </button>
-  //     </div>
-  //   );
-  // };
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          className={`${
+            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+          } text-white py-1 px-2 rounded`}
+          onClick={() => {
+            if (!isApproved) {
+              readCustomizr(rowData.refuserId); // Call readTour to approve it
+            }
+          }}
+          disabled={isApproved} // Disable the button if already approved
+        >
+          {isApproved ? "Approved" : "Approve"}{" "}
+          {/* Show "Approved" if already approved */}
+        </button>
+      </div>
+    );
+  };
 
-  // const readCustomizr = async (refuserId: any) => {
-  //   console.log("Approving booking with ID:", refuserId);
-  //   try {
-  //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL +
-  //         "/bookingRoutes/approveCustomizeTourBooking",
-  //       {
-  //         userId: refuserId,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: localStorage.getItem("token"),
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
+  const readCustomizr = async (refuserId: any) => {
+    console.log("Approving booking with ID:", refuserId);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL +
+          "/bookingRoutes/approveCustomizeTourBooking",
+        {
+          userId: refuserId,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  //     const data = decrypt(
-  //       response.data[1],
-  //       response.data[0],
-  //       import.meta.env.VITE_ENCRYPTION_KEY
-  //     );
-  //     console.log("API Response:", data);
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
 
-  //     if (data.success) {
-  //       localStorage.setItem("token", "Bearer " + data.token);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
 
-  //       const updatedTourCustomize = UserDetail.map((tour) =>
-  //         tour.refuserId === refuserId
-  //           ? { ...tour, refStatus: "Approved" }
-  //           : tour
-  //       );
-  //       setTourDetail(updatedTourCustomize);
-  //     } else {
-  //       console.error("API update failed:", data);
-  //     }
-  //   } catch (e) {
-  //     console.error("Error approving booking:", e);
-  //   }
-  // };
+        const updatedTourCustomize = UserDetail.map((tour) =>
+          tour.refuserId === refuserId
+            ? { ...tour, refStatus: "Approved" }
+            : tour
+        );
+        setTourDetail(updatedTourCustomize);
+      } else {
+        console.error("API update failed:", data);
+      }
+    } catch (e) {
+      console.error("Error approving booking:", e);
+    }
+  };
   //Car
 
   const actionDeleteCar = (rowData: any) => {
@@ -322,77 +382,89 @@ const UserDetails: React.FC = () => {
     }
   };
 
+  //Car update
+  const readCar = async (refuserId: any) => {
+    console.log("Approving booking with ID:", refuserId);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
+        {
+          userId: refuserId,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-//Car update
-// const readCar = async (refuserId: any) => {
-//   console.log("Approving booking with ID:", refuserId);
-//   try {
-//     const response = await axios.post(
-//       import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
-//       {
-//         userId: refuserId,
-//       },
-//       {
-//         headers: {
-//           Authorization: localStorage.getItem("token"),
-//           "Content-Type": "application/json",
-//         },
-//       }
-//     );
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
 
-//     const data = decrypt(
-//       response.data[1],
-//       response.data[0],
-//       import.meta.env.VITE_ENCRYPTION_KEY
-//     );
-//     console.log("API Response:", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
 
-//     if (data.success) {
-//       localStorage.setItem("token", "Bearer " + data.token);
+        const updatedCarBooking = CarBookings.map((tour) =>
+          tour.refuserId === refuserId
+            ? { ...tour, refStatus: "Approved" }
+            : tour
+        );
+        setCarBookings(updatedCarBooking);
+      } else {
+        console.error("API update failed:", data);
+      }
+    } catch (e) {
+      console.error("Error approving booking:", e);
+    }
+  };
 
-//       const updatedCarBooking = CarBookings.map((tour) =>
-//         tour.refuserId === refuserId
-//           ? { ...tour, refStatus: "Approved" }
-//           : tour
-//       );
-//       setCarBookings(updatedCarBooking);
-//     } else {
-//       console.error("API update failed:", data);
-//     }
-//   } catch (e) {
-//     console.error("Error approving booking:", e);
-//   }
-// };
+  const actionReadCar = (rowData: any) => {
+    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-// const actionReadCar = (rowData: any) => {
-//   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+    // const handleViewPDF = () => {
+    //   const base64 = rowData?.refVaccinationCertificate; // Adjust as needed
 
-//   return (
-//     <div className="flex items-center gap-2">
-//       <button
-//         className={`${
-//           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-//         } text-white py-1 px-2 rounded`}
-//         onClick={() => {
-//           if (!isApproved) {
-//             readCar(rowData.refuserId); // Call readTour to approve it
-//           }
-//         }}
-//         disabled={isApproved} // Disable the button if already approved
-//       >
-//         {isApproved ? "Approved" : "Approve"}{" "}
-//         {/* Show "Approved" if already approved */}
-//       </button>
-//     </div>
-//   );
-// };
+    //   if (!base64) {
+    //     alert("No PDF available");
+    //     return;
+    //   }
 
+    //   const pdfWindow = window.open("");
+    //   if (pdfWindow) {
+    //     pdfWindow.document.write(
+    //       `<iframe width='100%' height='100%' src='data:application/pdf;base64,${base64}'></iframe>`
+    //     );
+    //   } else {
+    //     alert("Popup blocked! Please allow popups for this site.");
+    //   }
+    // };
 
+  
 
-
-
-
-
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          className={`${
+            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+          } text-white py-1 px-2 rounded`}
+          onClick={() => {
+            if (!isApproved) {
+              readCar(rowData.refuserId); // Call readTour to approve it
+            }
+          }}
+          disabled={isApproved} // Disable the button if already approved
+        >
+          {isApproved ? "Approved" : "Approve"}{" "}
+          {/* Show "Approved" if already approved */}
+        </button>
+      </div>
+    );
+  };
 
   //Tour
 
@@ -442,68 +514,68 @@ const UserDetails: React.FC = () => {
       setEditTourId(null);
     }
   };
-  // const readTour = async (refuserId: any) => {
-  //   console.log("Approving booking with ID:", refuserId);
-  //   try {
-  //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL + "/bookingRoutes/approveTourBooking",
-  //       {
-  //         userId: refuserId,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: localStorage.getItem("token"),
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
+  const readTour = async (refuserId: any) => {
+    console.log("Approving booking with ID:", refuserId);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/bookingRoutes/approveTourBooking",
+        {
+          userId: refuserId,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  //     const data = decrypt(
-  //       response.data[1],
-  //       response.data[0],
-  //       import.meta.env.VITE_ENCRYPTION_KEY
-  //     );
-  //     console.log("API Response:", data);
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
 
-  //     if (data.success) {
-  //       localStorage.setItem("token", "Bearer " + data.token);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
 
-  //       const updatedTourBooking = TourBooking.map((tour) =>
-  //         tour.refuserId === refuserId
-  //           ? { ...tour, refStatus: "Approved" }
-  //           : tour
-  //       );
-  //       setTourBooking(updatedTourBooking);
-  //     } else {
-  //       console.error("API update failed:", data);
-  //     }
-  //   } catch (e) {
-  //     console.error("Error approving booking:", e);
-  //   }
-  // };
+        const updatedTourBooking = TourBooking.map((tour) =>
+          tour.refuserId === refuserId
+            ? { ...tour, refStatus: "Approved" }
+            : tour
+        );
+        setTourBooking(updatedTourBooking);
+      } else {
+        console.error("API update failed:", data);
+      }
+    } catch (e) {
+      console.error("Error approving booking:", e);
+    }
+  };
 
-  // const actionReadTour = (rowData: any) => {
-  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  const actionReadTour = (rowData: any) => {
+    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
-  //   return (
-  //     <div className="flex items-center gap-2">
-  //       <button
-  //         className={`${
-  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-  //         } text-white py-1 px-2 rounded`}
-  //         onClick={() => {
-  //           if (!isApproved) {
-  //             readTour(rowData.refuserId); // Call readTour to approve it
-  //           }
-  //         }}
-  //         disabled={isApproved} // Disable the button if already approved
-  //       >
-  //         {isApproved ? "Approved" : "Approve"}{" "}
-  //         {/* Show "Approved" if already approved */}
-  //       </button>
-  //     </div>
-  //   );
-  // };
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          className={`${
+            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+          } text-white py-1 px-2 rounded`}
+          onClick={() => {
+            if (!isApproved) {
+              readTour(rowData.refuserId); // Call readTour to approve it
+            }
+          }}
+          disabled={isApproved} // Disable the button if already approved
+        >
+          {isApproved ? "Approved" : "Approve"}{" "}
+          {/* Show "Approved" if already approved */}
+        </button>
+      </div>
+    );
+  };
 
   //Parking
 
@@ -557,6 +629,101 @@ const UserDetails: React.FC = () => {
 
   // const readParking = async (refuserId: any) => {
   //   console.log("Approving booking with ID:", refuserId);
+
+  //   const doc = (
+  //     <Document>
+  //     <Page size="A4" style={styles.page}>
+  //       <View>
+  //         <Text style={styles.header}>Explore Vacations AG</Text>
+  //         <Text style={styles.paragraph}>
+  //           Oberfeldstrasse 10, 8302 Kloten, Switzerland{"\n"}
+  //           +41 44 442 30 35 | ✉️ info@explorevacations.ch{"\n"}
+  //           www.explorevacations.ch
+  //         </Text>
+
+  //         <Text style={styles.subHeader}>
+  //           Booking Confirmation – Parking
+  //         </Text>
+
+  //         <Text style={styles.paragraph}>
+  //           Dear Mr./Ms. [{refFName}],{"\n"}
+  //           Thank you for your online booking with Explore Vacations AG. We
+  //           hereby confirm your parking reservation at {nearbylocation} Airport.
+  //         </Text>
+
+  //         <View style={styles.infoGroup}>
+  //           <Text>
+  //             <Text style={styles.label}>Booking Number:</Text> {bookingNumber}
+  //           </Text>
+  //           <Text>
+  //             <Text style={styles.label}>Customer:</Text> [{firstName}{" "}
+  //             {lastName}]
+  //           </Text>
+  //           <Text>
+  //             <Text style={styles.label}>Parking Period:</Text>
+  //           </Text>
+  //           <Text>
+  //             Check-in: [{checkInDate}, {checkInTime}]
+  //           </Text>
+  //           <Text>
+  //             Check-out: [{checkOutDate}, {checkOutTime}]
+  //           </Text>
+  //           <Text>
+  //             <Text style={styles.label}>Vehicle:</Text> [{vehicleMake},{" "}
+  //             {vehicleModel}, {vehicleLicensePlate}]
+  //           </Text>
+  //           <Text>
+  //             <Text style={styles.label}>Location:</Text> {location}
+  //           </Text>
+  //           <Text>
+  //             <Text style={styles.label}>Payment Status:</Text>{" "}
+  //             {paymentStatus === "paid" ? "Paid" : "Pay on Arrival"}
+  //           </Text>
+  //         </View>
+
+  //         <Text style={styles.subHeader}>Important Information:</Text>
+  //         <View style={{ marginTop: 10, marginLeft: 10 }}>
+  //           <Text style={{ marginBottom: 5 }}>
+  //             • Please bring this confirmation with you on the day of arrival
+  //             (printed or digital).
+  //           </Text>
+  //           <Text style={{ marginBottom: 5 }}>
+  //             • Our free shuttle service to the terminal will be arranged for
+  //             you after your booking.
+  //           </Text>
+  //           <Text>
+  //             • Return transport will be provided after you call us upon your
+  //             return.
+  //           </Text>
+  //         </View>
+  //         <Text style={styles.paragraph}>
+  //           If you have any questions or need to make changes, please contact us
+  //           at +41 44 442 30 35 or info@explorevacations.ch.
+  //         </Text>
+
+  //         <Text style={styles.paragraph}>
+  //           Thank you for choosing us. We wish you a pleasant journey!
+  //         </Text>
+
+  //         <Text style={{ marginTop: 20 }}>
+  //           Best regards,{"\n"}Your Explore Vacations AG Team
+  //         </Text>
+  //       </View>
+  //     </Page>
+  //   </Document>
+  //   )
+
+  //   const pdfBlob = await pdf(doc).toBlob();
+  //   const reader = new FileReader();
+  //     reader.readAsDataURL(pdfBlob);
+
+  //     reader.onloadend = async () => {
+  //       if (reader.result && typeof reader.result === "string") {
+  //         const base64data = reader.result.split(",")[1];
+  //         return base64data
+  //       }
+  //     };
+
   //   try {
   //     const response = await axios.post(
   //       import.meta.env.VITE_API_URL + "/bookingRoutes/approveParkingBooking",
@@ -577,8 +744,10 @@ const UserDetails: React.FC = () => {
   //       import.meta.env.VITE_ENCRYPTION_KEY
   //     );
   //     console.log("API Response:", data);
-
+  //     console.log("data----------------->beforeparkingdata", data);
   //     if (data.success) {
+
+  //       console.log("data----------------->afterparkingdata", data);
   //       localStorage.setItem("token", "Bearer " + data.token);
 
   //       const updatedParking = parking.map((tour) =>
@@ -595,28 +764,177 @@ const UserDetails: React.FC = () => {
   //   }
   // };
 
-  // const actionReadParking = (rowData: any) => {
-  //   const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+  const readParking = async (booking: any) => {
+    const {
+      refuserId,
+      refFName,
+      refLName,
+      travelStartDate,
+      travelEndDate,
+      VehicleModel,
+      vehicleNumber,
+      refLocation,
+      refStatus,
+      refParkingName,
+    } = booking;
 
-  //   return (
-  //     <div className="flex items-center gap-2">
-  //       <button
-  //         className={`${
-  //           isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-  //         } text-white py-1 px-2 rounded`}
-  //         onClick={() => {
-  //           if (!isApproved) {
-  //             readParking(rowData.refuserId); // Call readTour to approve it
-  //           }
-  //         }}
-  //         disabled={isApproved} // Disable the button if already approved
-  //       >
-  //         {isApproved ? "Approved" : "Approve"}{" "}
-  //         {/* Show "Approved" if already approved */}
-  //       </button>
-  //     </div>
-  //   );
-  // };
+    const checkInDate = new Date(travelStartDate).toLocaleDateString();
+    const checkInTime = new Date(travelStartDate).toLocaleTimeString();
+    const checkOutDate = new Date(travelEndDate).toLocaleDateString();
+    const checkOutTime = new Date(travelEndDate).toLocaleTimeString();
+
+    const doc = (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View>
+            <Text style={styles.header}>Explore Vacations AG</Text>
+            <Text style={styles.paragraph}>
+              Oberfeldstrasse 10, 8302 Kloten, Switzerland{"\n"}
+              +41 44 442 30 35 | ✉️ info@explorevacations.ch{"\n"}
+              www.explorevacations.ch
+            </Text>
+
+            <Text style={styles.subHeader}>Booking Confirmation – Parking</Text>
+
+            <Text style={styles.paragraph}>
+              Dear Mr./Ms. {refFName} {refLName},{"\n"}
+              Thank you for your online booking with Explore Vacations AG. We
+              hereby confirm your parking reservation at {refParkingName},{" "}
+              {refLocation}.
+            </Text>
+
+            <View style={styles.infoGroup}>
+              <Text>
+                <Text style={styles.label}>Booking Number:</Text> #
+                {booking.carParkingBookingId}
+              </Text>
+              <Text>
+                <Text style={styles.label}>Customer:</Text> {refFName}{" "}
+                {refLName}
+              </Text>
+              <Text>
+                <Text style={styles.label}>Parking Period:</Text>
+              </Text>
+              <Text>
+                Check-in: {checkInDate}, {checkInTime}
+              </Text>
+              <Text>
+                Check-out: {checkOutDate}, {checkOutTime}
+              </Text>
+              <Text>
+                <Text style={styles.label}>Vehicle:</Text> {VehicleModel},{" "}
+                {vehicleNumber}
+              </Text>
+              <Text>
+                <Text style={styles.label}>Location:</Text> {refLocation}
+              </Text>
+              <Text>
+                <Text style={styles.label}>Payment Status:</Text>{" "}
+                {refStatus === "Approved" ? "Paid" : "Pay on Arrival"}
+              </Text>
+            </View>
+
+            <Text style={styles.subHeader}>Important Information:</Text>
+            <View style={{ marginTop: 10, marginLeft: 10 }}>
+              <Text style={{ marginBottom: 5 }}>
+                • Please bring this confirmation with you on the day of arrival.
+              </Text>
+              <Text style={{ marginBottom: 5 }}>
+                • Our free shuttle service to the terminal will be arranged for
+                you after your booking.
+              </Text>
+              <Text>
+                • Return transport will be provided after you call us upon your
+                return.
+              </Text>
+            </View>
+
+            <Text style={styles.paragraph}>
+              If you have any questions, please contact us at +41 44 442 30 35
+              or info@explorevacations.ch.
+            </Text>
+
+            <Text style={styles.paragraph}>
+              Thank you for choosing us. We wish you a pleasant journey!
+            </Text>
+
+            <Text style={{ marginTop: 20 }}>
+              Best regards,{"\n"}Your Explore Vacations AG Team
+            </Text>
+          </View>
+        </Page>
+      </Document>
+    );
+
+    const pdfBlob = await pdf(doc).toBlob();
+    const reader = new FileReader();
+    reader.readAsDataURL(pdfBlob);
+
+    reader.onloadend = async () => {
+      if (reader.result && typeof reader.result === "string") {
+        const base64data = reader.result.split(",")[1];
+        try {
+          const response = await axios.post(
+            import.meta.env.VITE_API_URL +
+              "/bookingRoutes/approveParkingBooking",
+            {
+              userId: refuserId,
+              pdfBase64: base64data,
+            },
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          const data = decrypt(
+            response.data[1],
+            response.data[0],
+            import.meta.env.VITE_ENCRYPTION_KEY
+          );
+
+          if (data.success) {
+            localStorage.setItem("token", "Bearer " + data.token);
+
+            const updatedParking = parking.map((p) =>
+              p.refuserId === refuserId ? { ...p, refStatus: "Approved" } : p
+            );
+            setParking(updatedParking);
+          } else {
+            console.error("API update failed:", data);
+          }
+        } catch (e) {
+          console.error("Error approving booking:", e);
+        }
+      }
+    };
+  };
+
+  const actionReadParking = (rowData: any) => {
+    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
+
+    return (
+      <div className="flex items-center gap-2">
+        <button
+          className={`${
+            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+          } text-white py-1 px-2 rounded`}
+          onClick={() => {
+            if (!isApproved) {
+              // readParking(rowData.refuserId); // Call readTour to approve it
+              readParking(rowData);
+            }
+          }}
+          disabled={isApproved} // Disable the button if already approved
+        >
+          {isApproved ? "Approved" : "Approve"}{" "}
+          {/* Show "Approved" if already approved */}
+        </button>
+      </div>
+    );
+  };
 
   const formatDate = (rowData: any) => {
     if (!rowData.refPickupDate) return ""; // Handle empty values
@@ -626,6 +944,50 @@ const UserDetails: React.FC = () => {
       month: "short",
       day: "2-digit",
     }).format(date);
+  };
+
+  // const downloadPdf = async () => {
+  //   const bookingNumber = "123456";
+
+  //   const doc = (
+  //     <BookingPDF
+  //       title="Booking Confirmation"
+  //       customerName="John Doe"
+  //       bookingNumber={bookingNumber}
+  //       firstName="John"
+  //       lastName="Doe"
+  //       vehicleMake="Toyota"
+  //       vehicleModel="Camry"
+  //       vehicleLicensePlate="ABC1234"
+  //       location="Zurich Airport"
+  //       paymentStatus="paid"
+  //       checkInDate={new Date().toISOString().split("T")[0]}
+  //       checkInTime={new Date().toLocaleTimeString()}
+  //       checkOutDate={new Date().toISOString().split("T")[0]}
+  //       checkOutTime={new Date().toLocaleTimeString()}
+  //       nearbylocation="Zurich"
+  //     />
+  //   );
+
+  //   try {
+  //     const pdfBlob = await pdf(doc).toBlob();
+  //     const reader = new FileReader();
+  //       reader.readAsDataURL(pdfBlob);
+
+  //       reader.onloadend = async () => {
+  //         if (reader.result && typeof reader.result === "string") {
+  //           const base64data = reader.result.split(",")[1];
+  //           return base64data
+  //         }
+  //       };
+
+  //   } catch (error) {
+  //     console.error("Error generating or downloading PDF:", error);
+  //   }
+  // };
+
+  const formatToSwissTime = (dateString: any) => {
+    return moment(dateString).tz("Europe/Zurich").format("DD.MM.YYYY HH:mm");
   };
 
   return (
@@ -648,8 +1010,8 @@ const UserDetails: React.FC = () => {
               ></Column>
 
               <Column
-                field="refPackageName"
-                header="Package Name"
+                field="refCustId"
+                header="User CustID"
                 style={{ minWidth: "150px" }}
               />
               <Column
@@ -657,6 +1019,23 @@ const UserDetails: React.FC = () => {
                 header="User Name"
                 style={{ minWidth: "200px" }}
               />
+
+              <Column
+                field="refUserMail"
+                header="Email"
+                style={{ minWidth: "150px" }}
+              />
+              <Column
+                field="refTourCustID"
+                header="TourCustID"
+                style={{ minWidth: "150px" }}
+              />
+              <Column
+                field="refPackageName"
+                header="Package Name"
+                style={{ minWidth: "150px" }}
+              />
+
               <Column
                 field="refUserMail"
                 header="User Email"
@@ -671,6 +1050,7 @@ const UserDetails: React.FC = () => {
                 field="refArrivalDate"
                 header="Arrival Date"
                 style={{ minWidth: "200px" }}
+                body={(rowData) => formatToSwissTime(rowData.refArrivalDate)}
               />
               <Column
                 field="refSingleRoom"
@@ -712,7 +1092,8 @@ const UserDetails: React.FC = () => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-              {/* <Column body={actionReadCustomize} header="Read" /> */}
+              <Column body={actionReadCustomize} header="Approve" />
+
               <Column body={actionDeleteCustomize} header="Delete" />
             </DataTable>
           </div>
@@ -732,8 +1113,23 @@ const UserDetails: React.FC = () => {
                 body={(_, options) => options.rowIndex + 1}
               ></Column>
               <Column
-                field="refuserId"
-                header="USer Id"
+                field="refCustId"
+                header="User CustID"
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refUserName"
+                header="User Name"
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refUserMail"
+                header="User Email"
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refTourCustID"
+                header="Tour CustID"
                 style={{ minWidth: "200px" }}
               />
               <Column
@@ -825,7 +1221,7 @@ const UserDetails: React.FC = () => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-              {/* <Column body={actionReadTour} header="Read" /> */}
+              <Column body={actionReadTour} header="Approve" />
               <Column body={actionDeleteTour} header="Delete" />
             </DataTable>
           </div>
@@ -908,7 +1304,7 @@ const UserDetails: React.FC = () => {
                 body={(rowData) => rowData.refFormDetails.join(", ")}
                 style={{ minWidth: "200px" }}
               /> */}
-                {/* <Column body={actionReadCar} header="Read" /> */}
+              <Column body={actionReadCar} header="Approve" />
               <Column body={actionDeleteCar} header="Delete" />
             </DataTable>
           </div>
@@ -926,6 +1322,21 @@ const UserDetails: React.FC = () => {
                 header="S.No"
                 headerStyle={{ width: "3rem" }}
                 body={(_, options) => options.rowIndex + 1}
+              />
+              <Column
+                field="refCustId"
+                header="User CustId"
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refFName"
+                header="User Name"
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refUserEmail"
+                header="User Email"
+                style={{ minWidth: "250px" }}
               />
               <Column
                 field="refParkingName"
@@ -982,7 +1393,9 @@ const UserDetails: React.FC = () => {
                 header="Handover PersonPhone"
                 style={{ minWidth: "100px" }}
               />
-              {/* <Column body={actionReadParking} header="Read" /> */}
+              {/* <Column body={hanldleviewPDFAction()} header="View PDF" style={{ minWidth: "100px" }} /> */}
+              {/* <Column body={ViewPDFAction} header="View PDF" style={{ minWidth: "100px" }} /> */}
+              <Column body={actionReadParking} header="Approve" />
               <Column body={actionDeleteParking} header="Delete" />
             </DataTable>
           </div>

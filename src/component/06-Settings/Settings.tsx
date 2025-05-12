@@ -6,7 +6,7 @@ import Destination from "../../Pages/00-Destination/Destination";
 import Location from "../../Pages/01-Location/Location";
 import Activities from "../../Pages/02-Activities/Activities";
 import Categories from "../../Pages/03-Categories/Categories";
-// import Notification from "../../Pages/11-Notification/Notification";
+import Notification from "../../Pages/11-Notification/Notification";
 
 const Settings: React.FC = () => {
     const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
@@ -52,13 +52,13 @@ const Settings: React.FC = () => {
                         </Card>
                     </div>
                        {/* Notification */}
-                       {/* <div className="flex-1">
+                       <div className="flex-1">
                         <Card style={{ color: "#0a5c9c" }} title="Notification">
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("notification")} />
                             </div>
                         </Card>
-                    </div> */}
+                    </div>
                     
                 </div>
             </div>
@@ -86,9 +86,9 @@ const Settings: React.FC = () => {
 
             
             {/* Notification Sidebar */}
-            {/* <Sidebar style={{ width: "70vw" }} visible={visibleSidebar === "notification"} onHide={() => setVisibleSidebar(null)} position="right">
+            <Sidebar style={{ width: "70vw" }} visible={visibleSidebar === "notification"} onHide={() => setVisibleSidebar(null)} position="right">
               <Notification/>
-            </Sidebar> */}
+            </Sidebar>
         </>
     );
 };

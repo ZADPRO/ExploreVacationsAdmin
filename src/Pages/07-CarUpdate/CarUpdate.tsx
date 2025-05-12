@@ -1,13 +1,15 @@
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import CryptoJS from "crypto-js";
 import { fetchNewcarservices } from "../../services/NewServices";
 import { InputText } from "primereact/inputtext";
-
+import { Toast } from "primereact/toast";
 import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
+import { FileUpload } from "primereact/fileupload";
+import { decryptAPIResponse } from "../../utils";
 interface CarUpdateProps {
   closeCarupdatesidebar: () => void;
   CarupdateID: string;
@@ -55,6 +57,39 @@ interface Carname {
   refVehicleTypeId: number;
   refVehicleTypeName: string;
 }
+interface CarType {
+  refCarTypeId: number;
+  refCarTypeName: string;
+}
+
+interface CarDetails {
+  refVehicleTypeId: number;
+  refCarsId: number;
+  refPersonCount: string;
+  refVehicleTypeName: string;
+  refBag: string;
+  refFuelType: string;
+  refcarManufactureYear: string;
+  refMileage: string;
+  refTrasmissionType: string;
+  refCarTypeName:string;
+  refFuleLimit: string;
+  refCarTypeId: number;
+  refOtherRequirements: string;
+  refRentalAgreement: string;
+  refFuelPolicy: string;
+  refCarPrice: string;
+  refPaymentTerms: string;
+  Benifits: string[]; // assuming strings; change type if different
+  Include: string[]; // assuming strings
+  Exclude: string[]; // assuming strings
+  refFormDetails: any[]; // use a proper type instead of `any` if known
+  carImagePath: {
+    filename: string;
+    contentType: string;
+    content: string;
+  } | null;
+}
 
 type DecryptResult = any;
 
@@ -64,47 +99,46 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 }) => {
   const [_visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
+    const [carType, setCarType] = useState<CarType[]>([]);
   const [_vechiletype, setVechileType] = useState<any[]>([]);
-  const [driver, setDriver] = useState<Driverdetails[]>([]);
+  const [_driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
   const [exclude, setExclude] = useState<Excludes[]>([]);
-
+  const toast = useRef<Toast>(null);
   const [_submitLoading, setSubmitLoading] = useState(false);
   const isFormSubmitting = false;
-  const [formDataobject, setFormDataobject] = useState({
+  const [formDataObject, setFormDataobject] = useState<CarDetails>({
     refVehicleTypeId: 0,
     refCarsId: 0,
     refPersonCount: "",
+    refCarTypeName:"",
     refVehicleTypeName: "",
     refBag: "",
+    refCarPrice: "",
     refFuelType: "",
     refcarManufactureYear: "",
     refMileage: "",
     refTrasmissionType: "",
     refFuleLimit: "",
-    refDriverDetailsId: 0,
+    refCarTypeId: 0,
     refOtherRequirements: "",
     refRentalAgreement: "",
     refFuelPolicy: "",
-    refDriverRequirements: "",
     refPaymentTerms: "",
-    // refBenifits: [],
-    // refInclude: [],
-    // refExclude: [],
     Benifits: [],
     Include: [],
     Exclude: [],
     refFormDetails: [],
-    carImagePath: null,
+    carImagePath: { filename: "", contentType: "", content: "" },
   });
-
-  const [selectesvechile, _setSelectedvechile] = useState<any[]>([]);
-
+  
+  const [formDataImage, setFormDataImage] = useState<any>([]);
+  const [_selectesvechile, _setSelectedvechile] = useState<any[]>([]);
+  const [_editStaffId, setEditStaffId] = useState<number | null>(null);
   const [_cabDetils, setCabDetails] = useState<any[]>([]);
   const [extra, setExtra] = useState<Form[]>([]);
 
-  const [selectedDriver, _setSelectedDriver] = useState<any[]>([]);
 
   const [_editDriverId, setEditDriverId] = useState<number | null>(null);
 
@@ -130,6 +164,35 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
+
+
+    const fetchCarType = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/carsRoutes/getCarType",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data car details", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("fetchCarType--------->", data);
+        setCarType(data.Data);
+       }
+    } catch (e: any) {
+      console.log("Error fetching destinations:", e);
+    }
+  };
   const fetchDriver = async () => {
     try {
       const response = await axios.get(
@@ -158,28 +221,51 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     }
   };
 
-  // upload galary
+  // const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
 
-  // const customUploader = async (event: any) => {
-  //   console.table("event", event);
-  //   const file = event.files[0];
-  //   const formData = new FormData();
-  //   formData.append("Image", file);
-  //   console.log("formData", formData);
+  //   const formDataObject = Object.fromEntries(
+  //     new FormData(e.target as HTMLFormElement)
+  //   );
+  //   console.log("formDataObject------------>handleform-------", formDataObject);
 
-  //   for (let pair of formData.entries()) {
-  //     console.log(pair[0] + ":", pair[1]);
-  //   }
-  //   console.log("formData------------>", formData);
   //   try {
   //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL + "/carsRoutes/uploadCars",
-
-  //       formData,
-
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
+  //       {
+  //         refCarsId: +CarupdateID,
+  //         refVehicleTypeId: +selectesvechile,
+  //         refPersonCount: formDataObject.refPersonCount,
+  //         refBag: formDataObject.refBag,
+  //         refFuelType: formDataObject.refFuelType,
+  //         refcarManufactureYear: formDataObject.refcarManufactureYear,
+  //         refMileage: formDataObject.refMileage,
+  //         refTrasmissionType: formDataObject.refTrasmissionType,
+  //         refFuleLimit: formDataObject.refFuleLimit,
+  //         refDriverDetailsId: +selectedDriver,
+  //         refOtherRequirements: formDataObject.refOtherRequirements,
+  //         refRentalAgreement: formDataObject.refRentalAgreement,
+  //         refFuelPolicy: formDataObject.refFuelPolicy,
+  //         refDriverRequirements: formDataObject.refDriverRequirements,
+  //         refPaymentTerms: formDataObject.refPaymentTerms,
+  //         // refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
+  //         // refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
+  //         // refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
+  //         // refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
+  //         refBenifits: formDataObject.Benifits,
+  //         refInclude: formDataObject.Include,
+  //         refExclude: formDataObject.Exclude,
+  //         refFormDetails: formDataObject.refFormDetails,
+  //         // carImagePath: formData.productImage,
+  //         carImagePath:
+  //           formData === ""
+  //             ? formDataObject.carImagePath?.filename ?? ""
+  //             : formData,
+  //       },
   //       {
   //         headers: {
   //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
   //         },
   //       }
   //     );
@@ -190,69 +276,74 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   //       import.meta.env.VITE_ENCRYPTION_KEY
   //     );
 
-  //     localStorage.setItem("token", "Bearer " + data.token);
-  //     console.log("data==============", data);
+  //     console.log("+++++++++++++++++++++=", data);
 
+  //     setSubmitLoading(false);
   //     if (data.success) {
-  //       console.log("data+", data);
-  //       handleUploadSuccess(data);
-  //     } else {
-  //       console.log("data-", data);
-  //       handleUploadFailure(data);
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       setEditDriverId(null);
+  //       fetchNewcarservices().then((result) => {
+  //         setCabDetails(result);
+  //       });
+  //       setVisible(false);
   //     }
-  //   } catch (error) {
-  //     handleUploadFailure(error);
+  //   } catch (e) {
+  //     console.error("Error updating driver:", e);
+  //     setSubmitLoading(false);
+  //     setEditDriverId(null);
   //   }
-  // };
-  // const handleUploadSuccess = (response: any) => {
-  //   console.log("Upload Successful:", response);
-  //   setFormData((prevFormData: any) => ({
-  //     ...prevFormData,
-  //     productImage: response.filePath,
-  //   }));
-  // };
 
-  // const handleUploadFailure = (error: any) => {
-  //   console.error("Upload Failed:", error);
-  //   // Add your failure handling logic here
+  //   // await addNewcarpackage(payload);
+  //   // setIsFormSubmitting(false);
   // };
 
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const formDataobject = Object.fromEntries(
-      new FormData(e.target as HTMLFormElement)
-    );
-    console.log("formDataobject------------>handleform-------", formDataobject);
+
 
     try {
+      // // Create a properly typed carImagePath value
+      // let carImagePathValue;
+
+      // if (formData === "") {
+      //   // Check if carImagePath exists and has the filename property
+      //   if (
+      //     formDataObject.carImagePath &&
+      //     "filename" in formDataObject.carImagePath
+      //   ) {
+      //     carImagePathValue = formDataObject.carImagePath.filename;
+      //   } else {
+      //     carImagePathValue = "";
+      //   }
+      // } else {
+      //   carImagePathValue = formData;
+      // }
+
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
         {
           refCarsId: +CarupdateID,
-          refVehicleTypeId: +selectesvechile,
-          refPersonCount: formDataobject.refPersonCount,
-          refBag: formDataobject.refBag,
-          refFuelType: formDataobject.refFuelType,
-          refcarManufactureYear: formDataobject.refcarManufactureYear,
-          refMileage: formDataobject.refMileage,
-          refTrasmissionType: formDataobject.refTrasmissionType,
-          refFuleLimit: formDataobject.refFuleLimit,
-          refDriverDetailsId: +selectedDriver,
-          refOtherRequirements: formDataobject.refOtherRequirements,
-          refRentalAgreement: formDataobject.refRentalAgreement,
-          refFuelPolicy: formDataobject.refFuelPolicy,
-          refDriverRequirements: formDataobject.refDriverRequirements,
-          refPaymentTerms: formDataobject.refPaymentTerms,
-          // refBenifits: selectedbenefits.map((act) => act.refBenifitsId + ""),
-          // refInclude: selectedinclude.map((act) => act.refIncludeId + ""),
-          // refExclude: selectedexclude.map((act) => act.refExcludeId + ""),
-          // refFormDetails: selectedform.map((act) => act.refFormDetailsId + ""),
-          refBenifits: formDataobject.Benifits,
-          refInclude: formDataobject.Include,
-          refExclude: formDataobject.Exclude,
-          refFormDetails: formDataobject.refFormDetails,
-          carImagePath: formDataobject.productImage,
+          refVehicleTypeId: +formDataObject.refVehicleTypeId,
+          refCarTypeId: +formDataObject.refCarTypeId,
+          refPersonCount: formDataObject.refPersonCount,
+          refBag: formDataObject.refBag,
+          refFuelType: formDataObject.refFuelType,
+          refCarPrice:formDataObject.refCarPrice,
+          refcarManufactureYear: formDataObject.refcarManufactureYear,
+          refMileage: formDataObject.refMileage,
+          refTrasmissionType: formDataObject.refTrasmissionType,
+          refFuleLimit: formDataObject.refFuleLimit,
+          refOtherRequirements: formDataObject.refOtherRequirements,
+          refRentalAgreement: formDataObject.refRentalAgreement,
+          refFuelPolicy: formDataObject.refFuelPolicy,
+          refPaymentTerms: formDataObject.refPaymentTerms,
+          refBenifits: formDataObject.Benifits,
+          refInclude: formDataObject.Include,
+          refExclude: formDataObject.Exclude,
+          refFormDetails: formDataObject.refFormDetails,
+          carImagePath: formDataImage===""? formDataObject.carImagePath?.filename ?? "":formDataImage,
+         
         },
         {
           headers: {
@@ -284,23 +375,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
       setSubmitLoading(false);
       setEditDriverId(null);
     }
-
-    // await addNewcarpackage(payload);
-    // setIsFormSubmitting(false);
   };
-  // const handleInput = (
-  //   event: React.ChangeEvent<HTMLInputElement> | { value: number | null },
-  //   name?: string
-  // ) => {
-  //   if ("target" in event) {
-  //     // Handling for InputText
-  //     const { name, value } = event.target;
-  //     setFormData((prev: any) => ({ ...prev, [name]: value }));
-  //   } else if (name) {
-  //     // Handling for InputNumber
-  //     setFormData((prev: any) => ({ ...prev, [name]: event.value || 0 })); // Default to 0 if null
-  //   }
-  // };
 
   const fetchCarname = async () => {
     try {
@@ -324,6 +399,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("Car Name----------->", data);
         setCar(data.result);
+       
         setVechileType(data.result);
       }
     } catch (e: any) {
@@ -338,6 +414,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     fetchBenefits();
     fetchInclude();
     fetchExclude();
+    fetchCarType();
   }, [CarupdateID]);
 
   const fetchExtra = async () => {
@@ -478,21 +555,22 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
 
         // Set form data object with fetched data
         setFormDataobject({
+          refCarTypeId: +carDetails.refCarTypeId,
           refCarsId: +carDetails.refCarsId,
           refVehicleTypeId: +carDetails.refVehicleTypeId,
           refPersonCount: carDetails.refPersonCount || "",
           refBag: carDetails.refBagCount || "",
           refVehicleTypeName: carDetails.refVehicleTypeName || "",
+          refCarTypeName: carDetails.refCarTypeName || "",
           refFuelType: carDetails.refFuelType || "",
           refcarManufactureYear: carDetails.refcarManufactureYear || "",
           refMileage: carDetails.refMileage || "",
+          refCarPrice: carDetails.refCarPrice || "",
           refTrasmissionType: carDetails.refTrasmissionType || "",
           refFuleLimit: carDetails.refFuleLimit || "",
-          refDriverDetailsId: +carDetails.refDriverDetailsId,
           refOtherRequirements: carDetails.refOtherRequirements || "",
           refRentalAgreement: carDetails.refRentalAgreement || "",
           refFuelPolicy: carDetails.refFuelPolicy || "",
-          refDriverRequirements: carDetails.refDriverRequirements || "",
           refPaymentTerms: carDetails.refPaymentTerms || "",
           Benifits: carDetails.Benifits || [],
           Include: carDetails.Include || [],
@@ -510,8 +588,8 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   };
 
   useEffect(() => {
-    console.log("Formdatacheck------>", formDataobject);
-  }, [formDataobject]);
+    console.log("Formdatacheck------>", formDataObject);
+  }, [formDataObject]);
 
   const handleInput = (
     event: React.ChangeEvent<HTMLInputElement> | { value: number | null },
@@ -533,6 +611,120 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   //   await handleUpdateSubmit(e);
   // };
 
+  //delete image
+
+  //delete parking image
+  const deleteCarimage = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/deleteCarImage",
+        {
+          refCarsId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting ",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditStaffId(null);
+    }
+  };
+
+  const customUploader = async (event: any) => {
+    console.table("event", event);
+    const file = event.files[0];
+    const formData = new FormData();
+    formData.append("Image", file);
+    console.log("formData", formData);
+
+    if (file) {
+      setFormDataImage(file);
+    }
+
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ":", pair[1]);
+    }
+    console.log("formData------------>", formData);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/carsRoutes/uploadCars",
+
+        formData,
+
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      localStorage.setItem("token", "Bearer " + data.token);
+      console.log("data==============", data);
+
+      if (data.success) {
+        console.log("data+", data);
+        handleUploadSuccess(data);
+      } else {
+        console.log("data-", data);
+        handleUploadFailure(data);
+      }
+    } catch (error) {
+      handleUploadFailure(error);
+    }
+  };
+
+  const handleUploadSuccess = (response: any) => {
+    console.log("Upload Successful:", response);
+    // setFormData((prevFormData: any) => ({
+    //   ...prevFormData,
+    //   productImage: response.filePath,
+    // }));
+setFormDataImage(response.filePath);
+
+  };
+
+  const handleUploadFailure = (error: any) => {
+    console.error("Upload Failed:", error);
+    // Add your failure handling logic here
+  };
+
   return (
     <div>
       <div>
@@ -546,30 +738,14 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           }}
           className="mt-4"
         >
-          {/* Vechiletype  and Personcount */}
           <div className="flex flex-row gap-3 mt-3">
-            {/* <Dropdown
-              // value={selectesvechile}
-              // onChange={(e: DropdownChangeEvent) => {
-              //   setSelectedvechile(e.value);
-              //   fetchCarname();
-              // }}
-              // options={car}
-              optionValue="refVehicleTypeId"
-              optionLabel="refVehicleTypeName"
-              placeholder="Choose a VechileType"
-              className="w-full"
-            />
-            <InputNumber
-              name="refPersonCount"
-              placeholder="Enter Person Count"
-              className="w-full"
-              onChange={handleInput}
-            /> */}
+           
 
-            <Dropdown
-              value={formDataobject.refVehicleTypeId}
+           <Dropdown
+              value={formDataObject.refVehicleTypeId}
               onChange={(e: DropdownChangeEvent) => {
+
+                console.log("valuee--------",e.value)
                 setFormDataobject((prev) => ({
                   ...prev,
                   refVehicleTypeId: e.value,
@@ -580,11 +756,39 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               placeholder="Choose a Vehicle Type"
               className="w-full"
               options={car}
-            />
+            /> 
+
+            <Dropdown
+              value={formDataObject.refCarTypeId}
+              
+              onChange={(e: DropdownChangeEvent) => {
+                  console.log("valuee--------",e.value)
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  refCarTypeId: e.value,
+                }));
+              }}
+              optionValue="refCarTypeId"
+              optionLabel="refCarTypeName"
+              placeholder="Choose a Car Type"
+              className="w-full"
+              options={carType}
+              
+            /> 
+            
+            </div>
+             <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refPersonCount"
-              value={formDataobject.refPersonCount}
+              value={formDataObject.refPersonCount}
               placeholder="Enter Person Count"
+              className="w-full"
+              onChange={handleInput}
+            />
+            <InputText
+              name="refFuelType"
+              value={formDataObject.refFuelType}
+              placeholder="Enter Fuel Type"
               className="w-full"
               onChange={handleInput}
             />
@@ -593,31 +797,32 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refBag"
-              value={formDataobject.refBag}
+              value={formDataObject.refBag}
               placeholder="Enter No of Bags"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
-              name="refFuelType"
-              value={formDataobject.refFuelType}
-              placeholder="Enter Fuel Type"
+              name="refCarPrice"
+              value={formDataObject.refCarPrice}
+              placeholder="Enter Car Price"
               className="w-full"
               onChange={handleInput}
             />
+            
           </div>
           {/* ManufactureYear  and Mileage */}
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refcarManufactureYear"
-              value={formDataobject.refcarManufactureYear}
+              value={formDataObject.refcarManufactureYear}
               placeholder="Enter Manufacture Year"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refMileage"
-              value={formDataobject.refMileage}
+              value={formDataObject.refMileage}
               placeholder="Enter Mileage"
               className="w-full"
               onChange={handleInput}
@@ -627,23 +832,23 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refTrasmissionType"
-              value={formDataobject.refTrasmissionType}
+              value={formDataObject.refTrasmissionType}
               placeholder="Enter Transmission Type"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refFuleLimit"
-              value={formDataobject.refFuleLimit}
+              value={formDataObject.refFuleLimit}
               placeholder="Enter Fuel Limit"
               className="w-full"
               onChange={handleInput}
             />
           </div>
           {/* DriverDetailsId  and OtherRequirements */}
-          <div className="flex flex-row gap-3 mt-3">
+          {/* <div className="flex flex-row gap-3 mt-3">
             <Dropdown
-              value={formDataobject.refDriverDetailsId}
+              value={formDataObject.refDriverDetailsId}
               onChange={(e: DropdownChangeEvent) => {
                 setFormDataobject((prev) => ({
                   ...prev,
@@ -658,41 +863,41 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
             />
             <InputText
               name="refOtherRequirements"
-              value={formDataobject.refOtherRequirements}
+              value={formDataObject.refOtherRequirements}
               placeholder="Enter Other Requirements"
               className="w-full"
               onChange={handleInput}
             />
-          </div>
+          </div> */}
           {/* RentalAgreement  and Fuel Policy */}
           <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refRentalAgreement"
-              value={formDataobject.refRentalAgreement}
+              value={formDataObject.refRentalAgreement}
               placeholder="Enter RentalAgreement"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refFuelPolicy"
-              value={formDataobject.refFuelPolicy}
+              value={formDataObject.refFuelPolicy}
               placeholder="Enter Fuel Policy"
               className="w-full"
               onChange={handleInput}
             />
           </div>
-          {/* DriverRequirements  and PaymentTerms */}
+
           <div className="flex flex-row gap-3 mt-3">
             <InputText
-              name="refDriverRequirements"
-              value={formDataobject.refDriverRequirements}
-              placeholder="Enter DriverRequirements"
+              name="refOtherRequirements"
+              value={formDataObject.refOtherRequirements}
+              placeholder="Enter Other Requirements"
               className="w-full"
               onChange={handleInput}
             />
             <InputText
               name="refPaymentTerms"
-              value={formDataobject.refPaymentTerms}
+              value={formDataObject.refPaymentTerms}
               placeholder="Enter PaymentTerms"
               className="w-full"
               onChange={handleInput}
@@ -711,7 +916,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* Benifits  and  Include*/}
           <div className="flex flex-row w-[100%] gap-3 mt-3">
             <MultiSelect
-              value={formDataobject.Benifits}
+              value={formDataObject.Benifits}
               onChange={(e) => {
                 setFormDataobject((prev) => ({
                   ...prev,
@@ -727,7 +932,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               className="w-full md:w-25rem"
             />
             <MultiSelect
-              value={formDataobject.Include}
+              value={formDataObject.Include}
               onChange={(e) => {
                 setFormDataobject((prev) => ({
                   ...prev,
@@ -747,7 +952,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           {/* Exclude  and  FormDetails*/}
           <div className="flex flex-row w-[100%] gap-3 mt-3">
             <MultiSelect
-              value={formDataobject.Exclude}
+              value={formDataObject.Exclude}
               onChange={(e) => {
                 setFormDataobject((prev) => ({
                   ...prev,
@@ -763,9 +968,9 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               className="w-full md:w-25rem"
             />
             <MultiSelect
-              value={formDataobject.refFormDetails}
+              value={formDataObject.refFormDetails}
               onChange={(e) => {
-                setFormDataobject((prev) => ({
+                 setFormDataobject((prev) => ({
                   ...prev,
                   refFormDetails: e.value,
                 }));
@@ -779,7 +984,34 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               className="w-full md:w-25rem"
             />
           </div>
-          {/* <div className="flex flex-col justify-center w-[100%] align-middle mt-4">
+          <div className="w-[30%] h-[30%] relative">
+            {formDataObject?.carImagePath && (
+              <>
+                <img
+                  src={`data:${formDataObject.carImagePath.contentType};base64,${formDataObject.carImagePath.content}`}
+                  alt="Car Image"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+                +
+                <button
+                  type="button"
+                  onClick={() => {
+                    console.log(
+                      "Deleting image for ID:",
+                      formDataObject.refCarsId
+                    );
+                    deleteCarimage(formDataObject.refCarsId);
+                                  
+                  }}
+                  className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
+                  title="Remove Image"
+                >
+                  &times;
+                </button>
+              </>
+            )}
+          </div>
+          <div className="flex flex-col justify-center w-[100%] align-middle mt-4">
             <FileUpload
               name="logo"
               customUpload
@@ -792,7 +1024,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               }
             />
             {" "}
-          </div> */}
+          </div>
 
           <div className="mt-4 flex justify-end">
             <Button

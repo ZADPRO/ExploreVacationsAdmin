@@ -22,12 +22,32 @@ interface StaffDetails {
   refDOB: string;
   refDesignation: string;
   refQualification: string;
-  refProfileImage: string;
+  refProfileImage: {
+    filename: string;
+    contentType: string;
+    content: string;
+  } | null;
   refMoblile: string;
   userTypeId: number;
   refUserEmail: string;
 }
 
+interface FormDataType {
+  refuserId: number;
+  refFName: string;
+  refLName: string;
+  refDOB: string;
+  refDesignation: string;
+  refQualification: string;
+  refProfileImage: {
+    filename: string;
+    contentType: string;
+    content: string;
+  } | null;
+  refMoblile: string;
+  userTypeId: number[];
+  refUserEmail: string;
+}
 const UpdateStaff: React.FC<StaffUpdateProps> = ({
   closeStaffupdatesidebar,
   StaffupdateID,
@@ -37,14 +57,16 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
   const [_isAddStaffOpen, setIsAddStaffOpen] = useState(false);
   const [selectedEmployeeType, setSelectedEmployeeType] = useState<any[]>([]);
   const [employeeType, setEmployeeType] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
+  const [_submitLoading, setSubmitLoading] = useState(false);
+  const [_editStaffId, setEditStaffId] = useState<number | null>(null);
+  const [formData, setFormData] = useState<FormDataType>({
     refuserId: 0,
     refFName: "",
     refLName: "",
     refDOB: "",
     refDesignation: "",
     refQualification: "",
-    refProfileImage: "",
+    refProfileImage: { filename: "", contentType: "", content: "" },
     refMoblile: "",
     userTypeId: [],
     refUserEmail: "",
@@ -76,6 +98,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("data - list api - line 53", data);
         setStaff(data.result);
+       
       }
     } catch (e: any) {
       console.log("Error fetching destinations:", e);
@@ -99,9 +122,11 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
           refDesignation: formData.refDesignation,
           refQualification: formData.refQualification,
           refProfileImage:
-            profileImage === "" ? formData.refProfileImage : profileImage,
+            profileImage === ""
+              ? formData.refProfileImage?.filename ?? ""
+              : profileImage,
           refMoblile: formData.refMoblile,
-          userTypeId: selectedEmployeeType.map((item: number) =>
+          refUserTypeId: selectedEmployeeType.map((item: number) =>
             item.toString()
           ),
           // refUserEmail: formData.refUserEmail,
@@ -127,6 +152,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
 
         setIsAddStaffOpen(false);
         fetchSingleIDStaffdataForm();
+        fetchStaff();
       }
     } catch (e) {
       console.error("Error fetching locations:", e);
@@ -159,6 +185,27 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         setFormData(data.result[0]);
+        setFormData({
+          ...formData,
+          refProfileImage: {
+            filename: "",
+            contentType: "",
+            content: "",
+          },
+        });
+        setFormData({
+          refuserId: data.result[0].refuserId,
+          refFName: data.result[0].refFName,
+          refLName: data.result[0].refLName,
+          refDOB: data.result[0].refDOB,
+          refDesignation: data.result[0].refDesignation,
+          refQualification: data.result[0].refQualification,
+          refProfileImage: data.result[0].refProfileImage,
+          refMoblile: data.result[0].refMoblile,
+          userTypeId: data.result[0].userTypeId,
+          refUserEmail: data.result[0].refUserEmail,
+        });
+
         setSelectedEmployeeType(data.result[0].userTypeId);
         console.log("data.result[0]--->", data.result[0].userTypeId);
       }
@@ -166,6 +213,56 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
       console.error("Error fetching tour data:", e);
     }
   };
+
+  //delete image
+
+  const deleteStaffimage = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/adminRoutes/deleteEmployeeImage",
+        {
+          refuserId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchStaff();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting Staff",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditStaffId(null);
+    }
+  };
+
   const fetchEmployeeType = async () => {
     try {
       const response = await axios.get(
@@ -363,6 +460,29 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                 className="p-inputtext-sm w-full"
               /> */}
             </div>
+            <div className="w-[30%] h-[30%] relative">
+              {formData?.refProfileImage && (
+                <>
+                  <img
+                    src={`data:${formData.refProfileImage.contentType};base64,${formData.refProfileImage.content}`}
+                    alt="Staff Profile Image"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      console.log("Deleting image for ID:", formData.refuserId);
+                      deleteStaffimage(formData.refuserId);
+                      setFormData({ ...formData, refProfileImage: null });
+                    }}
+                    className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
+                    title="Remove Image"
+                  >
+                    &times;
+                  </button>
+                </>
+              )}
+            </div>
 
             <div>
               <h2 className="mt-3">Upload Profile * </h2>
@@ -374,7 +494,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                 accept="image/*"
                 maxFileSize={10000000}
                 emptyTemplate={
-                  <p className="m-0">Drag and drop your Map here to upload.</p>
+                  <p className="m-0">Drag and drop your image here to upload.</p>
                 }
               />
             </div>
