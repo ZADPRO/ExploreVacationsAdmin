@@ -1723,6 +1723,7 @@ const CarServices: React.FC = () => {
               </div>
             </div>
           </TabPanel>
+         
           {/* <TabPanel header="Driver Details">
             <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center justify-center gap-4 w-[60%] sm:w-full p-4 ">

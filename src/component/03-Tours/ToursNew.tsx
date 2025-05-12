@@ -1018,7 +1018,7 @@ function ToursNew() {
           value={tourDetails}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={2}
+          rows={1}
         >
           <Column
             header="S.No"
