@@ -114,13 +114,13 @@ const Parking: React.FC = () => {
   };
 
 
-  const handleInput1 = (e:any) => {
-  const { name, value } = e.target || e.value ? e : { name: '', value: '' };
-  setInputs((prev) => ({
-    ...prev,
-    [name]: value
-  }));
-};
+//   const handleInput1 = (e:any) => {
+//   const { name, value } = e.target || e.value ? e : { name: '', value: '' };
+//   setInputs((prev) => ({
+//     ...prev,
+//     [name]: value
+//   }));
+// };
 
   const fetchService = async () => {
     try {
