@@ -4,7 +4,7 @@ import axios from "axios";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import CryptoJS from "crypto-js";
-import { useState, useEffect,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { MultiSelect } from "primereact/multiselect";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -75,7 +75,6 @@ const Notification: React.FC = () => {
     }));
   };
 
-
   const toast = useRef<Toast>(null);
 
   const Addnotification = async () => {
@@ -118,9 +117,9 @@ const Notification: React.FC = () => {
           detail: " Added successfully!",
           life: 3000,
         });
-        
+
         localStorage.setItem("token", "Bearer " + data.token);
-        
+
         fetchnotification();
       }
     } catch (e) {
@@ -132,7 +131,6 @@ const Notification: React.FC = () => {
     fetchEmployeeType();
     fetchnotification();
   }, []);
-    
 
   // Employee type
 
@@ -187,7 +185,8 @@ const Notification: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("fetchnotification-------", data);
         const sorted = data.Result.sort(
-          (a: Notification, b: Notification) => b.refNotificationsId - a.refNotificationsId
+          (a: Notification, b: Notification) =>
+            b.refNotificationsId - a.refNotificationsId
         );
         setNotification(sorted);
         setNotification(data.Result);
@@ -293,9 +292,7 @@ const Notification: React.FC = () => {
       <div>
         <h2 className="text-xl font-bold mb-4">Notification</h2>
         <TabView>
-     
           <TabPanel header="Add Notification">
-            
             <div className="flex flex-col items-center justify-center gap-10% w-[100%] ">
               {" "}
               <Toast ref={toast} />
@@ -368,7 +365,7 @@ const Notification: React.FC = () => {
           </TabPanel>
           <TabPanel header="History">
             <div className="mt-3 p-2">
-            <Toast ref={toast} />
+              <Toast ref={toast} />
               <h3 className="text-lg font-bold">Added Notification</h3>
               <DataTable
                 value={notification}
@@ -415,10 +412,33 @@ const Notification: React.FC = () => {
                   field="refDescription"
                   header="Description"
                 />
-                <Column
+                {/* <Column
+                className=""
                   headerStyle={{ width: "15rem" }}
                   field="refNotes"
                   header="Notes"
+                /> */}
+                <Column
+                  field="refNotes"
+                  header="Notes"
+                  headerStyle={{ width: "15rem" }}
+                  body={(rowData) => {
+                    const isLink =
+                      typeof rowData.refNotes === "string" &&
+                      rowData.refNotes.startsWith("http");
+                    return isLink ? (
+                      <a
+                        href={rowData.refNotes}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#326fd1] underline"
+                      >
+                        {rowData.refNotes}
+                      </a>
+                    ) : (
+                      <span>{rowData.refNotes}</span>
+                    );
+                  }}
                 />
 
                 <Column body={actionDeleteNotification} header="Delete" />

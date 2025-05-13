@@ -26,10 +26,7 @@ const StaffNotification: React.FC = () => {
   const [_error, setError] = useState<string | null>(null);
 
   const fetchReadData = async () => {
-   
-
     try {
-   
       const response = await axios.get(
         import.meta.env.VITE_API_URL + "/notificationRoutes/staffNotifications",
         {
@@ -39,14 +36,13 @@ const StaffNotification: React.FC = () => {
           },
         }
       );
-      
 
       const data = decryptAPIResponse(
         response.data[1],
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-    console.log("fetchReadData");
+      console.log("fetchReadData");
       console.log("fetchReadData------", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
@@ -149,7 +145,7 @@ const StaffNotification: React.FC = () => {
             field="refSubject"
             header="Subject"
           />
-          <Column
+          {/* <Column
             headerStyle={{ width: "15rem" }}
             field="refUserType"
             header="Employee Type"
@@ -158,16 +154,33 @@ const StaffNotification: React.FC = () => {
                 ? rowData.refUserType.join(", ")
                 : rowData.refUserType
             }
-          />
+          /> */}
           <Column
             headerStyle={{ width: "15rem" }}
             field="refDescription"
             header="Description"
           />
           <Column
-            headerStyle={{ width: "15rem" }}
             field="refNotes"
             header="Notes"
+            headerStyle={{ width: "15rem" }}
+            body={(rowData) => {
+              const isLink =
+                typeof rowData.refNotes === "string" &&
+                rowData.refNotes.startsWith("http");
+              return isLink ? (
+                <a
+                  href={rowData.refNotes}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#326fd1] underline"
+                >
+                  {rowData.refNotes}
+                </a>
+              ) : (
+                <span>{rowData.refNotes}</span>
+              );
+            }}
           />
           <Column
             header="Read"
@@ -177,15 +190,15 @@ const StaffNotification: React.FC = () => {
               );
               return (
                 <button
-                onClick={() => !isRead && markAsRead(rowData)}
-                disabled={isRead}
-              >
-                <TiTickOutline
-                  className={`text-3xl cursor-pointer ${
-                    isRead ? "text-[#00b50c96]" : "text-[#ef1e0796]"
-                  }`}
-                />
-              </button>
+                  onClick={() => !isRead && markAsRead(rowData)}
+                  disabled={isRead}
+                >
+                  <TiTickOutline
+                    className={`text-3xl cursor-pointer ${
+                      isRead ? "text-[#00b50c96]" : "text-[#ef1e0796]"
+                    }`}
+                  />
+                </button>
               );
             }}
           />
