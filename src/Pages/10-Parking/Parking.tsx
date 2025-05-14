@@ -1135,7 +1135,7 @@ const Parking: React.FC = () => {
                         maxFileSize={10000000}
                         emptyTemplate={
                           <p className="m-0">
-                            Drag and drop your image here to upload.
+                            Drag and drop your image here to upload in Kb.
                           </p>
                         }
                       />

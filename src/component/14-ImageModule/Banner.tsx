@@ -425,7 +425,7 @@ const Banner: React.FC = () => {
                 maxFileSize={10000000}
                 emptyTemplate={
                   <p className="m-0">
-                    Drag and drop your Banner image here to upload.
+                    Drag and drop your Banner image here to upload in Kb.
                   </p>
                 }
               />

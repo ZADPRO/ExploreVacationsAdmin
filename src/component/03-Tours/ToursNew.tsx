@@ -1417,7 +1417,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Map here to upload.
+                      Drag and drop your Map here to upload in Kb.
                     </p>
                   }
                 />
@@ -1436,7 +1436,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Cover Image here to upload.
+                      Drag and drop your Cover Image here to upload in Kb.
                     </p>
                   }
                   multiple
@@ -1456,7 +1456,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Image here to upload.
+                      Drag and drop your Image here to upload in Kb.
                     </p>
                   }
                   multiple

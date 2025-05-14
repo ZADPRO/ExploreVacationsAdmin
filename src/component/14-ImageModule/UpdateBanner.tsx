@@ -17,32 +17,43 @@ interface BannerProps {
 }
 
 interface ModuleOption {
-    label: string;
-    value: number;
-  }
-  const moduleOptions: ModuleOption[] = [
-    { label: "Parking", value: 1 },
-    { label: "Car", value: 2 },
-    { label: "Tour", value: 3 },
-    { label: "Home", value: 4 },
-  ];
-  
+  label: string;
+  value: number;
+}
+
+interface Banner{
+   refHomePageId: string,
+    refHomePageName: string,
+    homePageHeading: string,
+    homePageContent: string,
+    refOffer: string,
+    refOfferName: string,
+    homePageImage: { filename: string, contentType: string, content: string } |null,
+    refModuleId: string | null,
+}
+
+const moduleOptions: ModuleOption[] = [
+  { label: "Parking", value: 1 },
+  { label: "Car", value: 2 },
+  { label: "Tour", value: 3 },
+  { label: "Home", value: 4 },
+];
 
 const UpdateBanner: React.FC<BannerProps> = ({
   closeBanner,
   BannerupdateID,
 }) => {
-  const [inputs, setInputs] = useState({
+  const [inputs, setInputs] = useState<Banner>({
     refHomePageId: "",
     refHomePageName: "",
     homePageHeading: "",
     homePageContent: "",
     refOffer: "",
     refOfferName: "",
-    homePageImage:{ filename: "", contentType: "", content: "" },
+    homePageImage: { filename: "", contentType: "", content: "" },
     refModuleId: null,
   });
-    const [selectedType, setSelectedType] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
   const [profileImage, setProfileImage] = useState("");
   const [_submitLoading, setSubmitLoading] = useState(false);
   // const [formDataImages, setFormdataImages] = useState<any>([]);
@@ -51,9 +62,11 @@ const UpdateBanner: React.FC<BannerProps> = ({
   const [_bannerSingle, setBannerSingle] = useState("");
   const [_loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
+  const [_editStaffId, setEditStaffId] = useState<number | null>(null);
+
 
   const Updatebanner = async (e: FormEvent<HTMLFormElement>) => {
-     e.preventDefault(); 
+    e.preventDefault();
     setSubmitLoading(true);
 
     const token = localStorage.getItem("token");
@@ -69,7 +82,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
           refOfferName: inputs.refOfferName,
           refModuleId: selectedType,
           homePageImage:
-            profileImage === "" ? inputs.homePageImage?.filename: profileImage,
+            profileImage === "" ? inputs.homePageImage?.filename ?? "" : profileImage,
         },
         {
           headers: {
@@ -219,15 +232,62 @@ const UpdateBanner: React.FC<BannerProps> = ({
     console.error("Upload Failed:", error);
     // Add your failure handling logic here
   };
-    // const handleDropdownChange = (e: DropdownChangeEvent) => {
-    //   const { name, value } = e.target.value;
-  
-    //   setInputs((prevState) => ({
-    //     ...prevState,
-    //     [name]: value,
-    //   }));
-    // };
+  // const handleDropdownChange = (e: DropdownChangeEvent) => {
+  //   const { name, value } = e.target.value;
 
+  //   setInputs((prevState) => ({
+  //     ...prevState,
+  //     [name]: value,
+  //   }));
+  // };
+
+  //delete banner
+
+    const deletebanner = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/bookingRoutes/deletehomeImage",
+        {
+          refHomePageId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+                toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting ",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditStaffId(null);
+    }
+  };
   return (
     <div>
       <Toast ref={toast} />
@@ -240,6 +300,29 @@ const UpdateBanner: React.FC<BannerProps> = ({
         }}
         className="mt-4"
       >
+        <div className="w-[30%] h-[30%] relative">
+          {inputs?.homePageImage && (
+            <>
+              <img
+                src={`data:${inputs.homePageImage.contentType};base64,${inputs.homePageImage.content}`}
+                alt="Staff Profile Image"
+                className="w-full h-full object-cover rounded-lg"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  console.log("Deleting image for ID:", inputs.refHomePageId);
+                  deletebanner(inputs.refHomePageId);
+                  setInputs({ ...inputs, homePageImage: null });
+                }}
+                className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
+                title="Remove Image"
+              >
+                &times;
+              </button>
+            </>
+          )}
+        </div>
         <div className="mt-3">
           <h2 className="mt-3">Upload Image</h2>
           <FileUpload
@@ -251,7 +334,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
             maxFileSize={10000000}
             emptyTemplate={
               <p className="m-0">
-                Drag and drop your Banner image here to upload.
+                Drag and drop your Banner image here to upload in Kb.
               </p>
             }
           />
@@ -281,7 +364,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
             value={inputs.homePageHeading}
             required
           />
-{/* 
+          {/* 
           <Dropdown
             name="refModuleId"
             value={selectedType}
@@ -298,14 +381,14 @@ const UpdateBanner: React.FC<BannerProps> = ({
             name="refModuleId"
             value={selectedType}
             onChange={(e: DropdownChangeEvent) => {
-              console.log("inputs----", inputs.refModuleId)
+              console.log("inputs----", inputs.refModuleId);
               setSelectedType(e.value);
             }}
             options={moduleOptions}
             optionValue="value"
             placeholder="Select Module"
             className="w-full"
-          />
+          />
         </div>
         <div className="flex flex-row gap-3 mt-5">
           <InputText
