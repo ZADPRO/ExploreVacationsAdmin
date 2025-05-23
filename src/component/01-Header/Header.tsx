@@ -4,12 +4,13 @@ import { AnimatePresence, motion } from "framer-motion";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdOutlineTravelExplore } from "react-icons/md";
 // import { FaCarOn } from "react-icons/fa6";
+import { FaUserTie } from "react-icons/fa";
 import { RiParkingFill } from "react-icons/ri";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
 import { FaUserGear } from "react-icons/fa6";
 import { FaSignOutAlt } from "react-icons/fa";
-import { HiUserAdd } from "react-icons/hi";
+import { LuHandshake } from "react-icons/lu";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoMdNotifications } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
@@ -25,7 +26,7 @@ const routes: any = [
   },
   {
     path: "/userdetails",
-    label: "User Details",
+    label: "User Bookings",
     icon: <FaUserGear />,
     roles: [1], // Admin only
   },
@@ -44,8 +45,14 @@ const routes: any = [
   {
     path: "/staff",
     label: "Staff",
-    icon: <HiUserAdd />,
+    icon: <FaUserTie />,
     roles: [1], // Admin only
+  },
+  {
+    path: "/patner",
+    label: "Partner",
+    icon: <LuHandshake />,
+    roles: [1],
   },
   {
     path: "/tour",
@@ -70,15 +77,15 @@ const routes: any = [
     path: "/staffnotification",
     label: "Staff Notification",
     icon: <IoMdNotifications />,
-    roles: [1,2,4,5], // Admin + Employee for Parking
+    roles: [1, 2, 4, 5], // Admin + Employee for Parking
   },
   {
     path: "/settings",
     label: "Settings",
     icon: <IoSettingsSharp />,
-    roles: [1,2], // Admin only
+    roles: [1, 2], // Admin only
   },
-  
+
   {
     path: "/logout",
     label: "Logout",
@@ -123,7 +130,6 @@ export default function Header({ children }: HeaderProps) {
   const filteredRoutes = routes.filter((route: any) =>
     route.roles.includes(roleId)
   );
-  
 
   return (
     <div>

@@ -18,6 +18,8 @@ import Dashboard from "../02-Dashboard/Dashboard";
 import StaffNotification from "../../Pages/12-StaffNotification/StaffNotification";
 import Userlist from "../../Pages/13-UserList/Userlist";
 import Banner from "../14-ImageModule/Banner";
+import Patner from "../../Pages/14-Patner/Patner";
+import TourAgreement from "../Pdf/TourAgreement";
 // import Staff from "../../Pages/08-Satff/Staff";
 
 const MainRoutes: React.FC = () => {
@@ -39,6 +41,8 @@ const MainRoutes: React.FC = () => {
             <Route path="/staffnotification" element={<StaffNotification />} />
             <Route path="/parking" element={<Parking />} />
             <Route path="/staff" element={<Staff />} />
+            <Route path="/patner" element={<Patner/>}/>
+             <Route path="/touragreement" element={<TourAgreement/>  }/>
           </Routes>
         </Header>
       </Router>

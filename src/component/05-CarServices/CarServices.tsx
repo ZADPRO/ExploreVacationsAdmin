@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef, type FormEvent } from "react";
+import { useState, useEffect, useRef, type FormEvent } from "react";
 import { Button } from "primereact/button";
 import { Sidebar } from "primereact/sidebar";
 import { InputText } from "primereact/inputtext";
@@ -20,6 +20,7 @@ import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
 
 import CarUpdate from "../../Pages/07-CarUpdate/CarUpdate";
+import AddExtra from "./AddExtra";
 interface Carname {
   createdAt: string;
   createdBy: string;
@@ -60,6 +61,7 @@ interface Excludes {
 }
 interface Form {
   refFormDetails: string;
+  refPrice: string;
 }
 
 type DecryptResult = any;
@@ -99,9 +101,12 @@ const CarServices: React.FC = () => {
     refCarPrice: "",
     refDriverRequirements: "",
     refPaymentTerms: "",
+    refCarGroupName: "",
+    refExtraKMcharges: "",
   });
   const [visible, setVisible] = useState(false);
   const [car, setCar] = useState<Carname[]>([]);
+  const [group, setGroup] = useState<Carname[]>([]);
   const [carType, setCarType] = useState<CarType[]>([]);
   const [_driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
@@ -113,7 +118,7 @@ const CarServices: React.FC = () => {
   const [vechiletype, setVechileType] = useState<any[]>([]);
   const [selectesvechile, setSelectedvechile] = useState<any[]>([]);
   const [selectedCarType, setSelectedCarType] = useState<CarType | null>(null);
-
+  const [selectedCarGroup, setSelectedCarGroup] = useState<any[]>([]);
   const [selectedbenefits, setSelectedbenefits] = useState<any[]>([]);
   const [selectedinclude, setSelectedinclude] = useState<any[]>([]);
   const [selectedexclude, setSelectedexclude] = useState<any[]>([]);
@@ -126,8 +131,10 @@ const CarServices: React.FC = () => {
     setCarupdatesidebar(false);
   };
 
-  
   const showupdatemodel = false;
+  const [editingRowGroup, setEditingRowGroup] = useState(null);
+  const [editedValueGroup, setEditedValueGroup] = useState("");
+
   const [editingRowCars, setEditingRowCars] = useState(null);
   const [editedValueCars, setEditedValue] = useState("");
   const [_editDriverId, setEditDriverId] = useState<number | null>(null);
@@ -159,6 +166,7 @@ const CarServices: React.FC = () => {
   const [editExtraValue, setEditExtraValue] = useState({
     refFormDetailsId: "",
     refFormDetails: "",
+    refPrice: "",
   });
   const [formData, setFormData] = useState<any>([]);
   const toast = useRef<Toast>(null);
@@ -293,8 +301,7 @@ const CarServices: React.FC = () => {
           ...prevState,
           refVehicleTypeName: "", // Reset this field only
         }));
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -308,7 +315,60 @@ const CarServices: React.FC = () => {
     }
   };
 
-  
+  //cargroup
+
+  const AddCargrop = async () => {
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/newCarsRoutes/addCarGroup",
+        { refCarGroupName: inputs.refCarGroupName },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      setSubmitLoading(false);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchCarname(); // Refresh list
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Added",
+          life: 3000,
+        });
+        // **Clear only the input field**
+        setInputs((prevState) => ({
+          ...prevState,
+          refCarGroupName: "", // Reset this field only
+        }));
+        fetchCargroup();
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Adding",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.log("Error adding car:", e);
+      setSubmitLoading(false);
+    }
+  };
+
   const fetchCarname = async () => {
     try {
       const response = await axios.get(
@@ -335,6 +395,37 @@ const CarServices: React.FC = () => {
       }
     } catch (e: any) {
       console.log("Error fetching destinations:", e);
+    }
+  };
+
+  //cargroup
+
+  const fetchCargroup = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/newCarsRoutes/listCarGroup",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data car details", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("data - setGroup", data);
+        
+        setGroup(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching setGroup:", e);
     }
   };
 
@@ -377,6 +468,47 @@ const CarServices: React.FC = () => {
       setSubmitLoading(false);
     }
   };
+
+  // delete car group
+
+  const deleteCargroup = async (refCarGroupId: number) => {
+    if (!refCarGroupId) {
+      console.error("Invalid data: Missing ID");
+      return;
+    }
+
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/newCarsRoutes/deleteCarGroup",
+        { refCarGroupId }, // Correct payload
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("Deleted -->", data);
+
+      setSubmitLoading(false);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchCargroup(); // Refresh the list after deletion
+      }
+    } catch (e) {
+      console.error("Error deleting car:", e);
+      setSubmitLoading(false);
+    }
+  };
+
   const CarnameactionTemplate = (rowData: any) => {
     return (
       <div className="flex gap-2">
@@ -402,6 +534,38 @@ const CarServices: React.FC = () => {
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
           onClick={() => deleteCarname(rowData.refVehicleTypeId)}
+        />
+      </div>
+    );
+  };
+
+  // cargroup
+
+  const CarnameactionTemplateGroup = (rowData: any) => {
+    return (
+      <div className="flex gap-2">
+        {editingRowGroup === rowData.refCarGroupId ? (
+          // Update Button (Visible when editing)
+          <Button
+            label="Update"
+            icon="pi pi-check"
+            className="p-button-success p-button-sm"
+            onClick={() => updateCargroup()}
+          />
+        ) : (
+          // Edit Button (Visible when not editing)
+          <Button
+            icon="pi pi-pencil"
+            className="p-button-warning p-button-sm"
+            onClick={() => handleEditClickGroup(rowData)}
+          />
+        )}
+
+        {/* Delete Button (Always visible) */}
+        <Button
+          icon="pi pi-trash"
+          className="p-button-danger p-button-sm"
+          onClick={() => deleteCargroup(rowData.refCarGroupId)}
         />
       </div>
     );
@@ -679,8 +843,60 @@ const CarServices: React.FC = () => {
           detail: "Successfully updated",
           life: 3000,
         });
+      } else {
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While updating Vechile",
+          life: 3000,
+        });
       }
-      else {
+    } catch (e) {
+      console.log("Error adding car:", e);
+      setSubmitLoading(false);
+    }
+  };
+
+  //updatr group
+
+  const updateCargroup = async () => {
+    setSubmitLoading(true);
+
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/newCarsRoutes/updateCarGroup",
+        {
+          refCarGroupId: editingRowGroup,
+          refCarGroupName: editedValueGroup,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("hloooooooooooooooooooooooooooo");
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      setSubmitLoading(false);
+      console.log("updatecarname---------->", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        setEditingRowGroup(null);
+        fetchCargroup();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully updated",
+          life: 3000,
+        });
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -761,7 +977,7 @@ const CarServices: React.FC = () => {
     fetchExclude();
     fetchExtra();
     fetchCarType();
-
+    fetchCargroup();
     fetchNewcarservices().then((result) => {
       setCabDetails(result);
     });
@@ -790,8 +1006,10 @@ const CarServices: React.FC = () => {
         {
           refVehicleTypeId: +selectesvechile,
           refCarTypeId: selectedCarType,
+          refCarGroupId: selectedCarGroup,
           refPersonCount: formDataobject.refPersonCount,
           refBag: formDataobject.refBag,
+          refExtraKMcharges: formDataobject.refExtraKMcharges,
           refFuelType: formDataobject.refFuelType,
           refcarManufactureYear: formDataobject.refcarManufactureYear,
           refMileage: formDataobject.refMileage,
@@ -804,9 +1022,9 @@ const CarServices: React.FC = () => {
           // refDriverRequirements: formDataobject.refDriverRequirements,
           refPaymentTerms: formDataobject.refPaymentTerms,
           refCarPrice: formDataobject.refCarPrice,
-          refBenifits: selectedbenefits.map((act) => act.refBenifitsId ),
-          refInclude: selectedinclude.map((act) => act.refIncludeId ),
-          refExclude: selectedexclude.map((act) => act.refExcludeId ),
+          refBenifits: selectedbenefits.map((act) => act.refBenifitsId),
+          refInclude: selectedinclude.map((act) => act.refIncludeId),
+          refExclude: selectedexclude.map((act) => act.refExcludeId),
           refFormDetails: selectedform.map((act) => act.refFormDetailsId),
           carImagePath: formData.productImage,
         },
@@ -849,6 +1067,13 @@ const CarServices: React.FC = () => {
     setEditedValue(rowData.refVehicleTypeName);
   };
 
+  //car group
+
+  const handleEditClickGroup = (rowData: any) => {
+    setEditingRowGroup(rowData.refCarGroupId);
+    setEditedValueGroup(rowData.refCarGroupName);
+  };
+
   const carNameTemplate = (rowData: any) => {
     return editingRowCars === rowData.refVehicleTypeId ? (
       <InputText
@@ -857,6 +1082,19 @@ const CarServices: React.FC = () => {
       />
     ) : (
       rowData.refVehicleTypeName
+    );
+  };
+
+  // cargroup
+
+  const carGroupTemplate = (rowData: any) => {
+    return editingRowGroup === rowData.refCarGroupId ? (
+      <InputText
+        value={editedValueGroup}
+        onChange={(e) => setEditedValueGroup(e.target.value)}
+      />
+    ) : (
+      rowData.refCarGroupName
     );
   };
 
@@ -910,8 +1148,7 @@ const CarServices: React.FC = () => {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -975,8 +1212,7 @@ const CarServices: React.FC = () => {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -1040,8 +1276,7 @@ const CarServices: React.FC = () => {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -1064,12 +1299,14 @@ const CarServices: React.FC = () => {
     setEditExtraValue({ ...rowData });
   };
 
-  const handleExtraInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleExtraInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: "refFormDetails" | "refPrice"
+  ) => {
     const newValue = e.target.value;
-    console.log("Updated Input:", newValue); // Debugging line
     setEditExtraValue((prevData) => ({
       ...prevData,
-      refFormDetails: newValue, // Update state
+      [field]: newValue,
     }));
   };
 
@@ -1579,7 +1816,7 @@ const CarServices: React.FC = () => {
           <Column
             className="  text-[#0a5c9c] underline cursor-pointer  "
             header="Car Name"
-              field="refVehicleTypeName"
+            field="refVehicleTypeName"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
               <div
@@ -1677,13 +1914,14 @@ const CarServices: React.FC = () => {
         onHide={() => setVisible(false)}
         position="right"
       >
+        <Toast ref={toast} />
         <h2 className="text-xl font-bold mb-4">Add Cab Rental</h2>
 
         <TabView>
           <TabPanel header="Car Details">
             <div className="flex flex-col gap-4">
-              <div className="flex gap-3 items-center">
-                <h2>Add Car Name:</h2>
+              <div className="flex flex-col gap-3 items-center">
+                <h2 className="text-lg font-bold">Add Car Name:</h2>
                 <div className=" flex flex-row justify-between">
                   <InputText
                     name="refVehicleTypeName"
@@ -1722,8 +1960,50 @@ const CarServices: React.FC = () => {
                 </DataTable>
               </div>
             </div>
+
+            <div className="flex flex-col gap-4 mt-5">
+              <div className="flex flex-col gap-3 items-center">
+                <h2 className="text-lg font-bold">Add Car Group:</h2>
+                <div className=" flex flex-row justify-between">
+                  <InputText
+                    name="refCarGroupName"
+                    value={inputs.refCarGroupName}
+                    onChange={handleInput}
+                    placeholder="Enter Car Group Name"
+                    className="p-inputtext-sm w-[50%]"
+                  />
+                  <div>
+                    <Button
+                      label={submitLoading ? "Adding..." : "Add Car Name"}
+                      icon="pi pi-check"
+                      className="p-button-primary"
+                      onClick={AddCargrop}
+                      disabled={submitLoading}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="">
+                <h3 className="text-lg font-bold">Added Cars Group</h3>
+                <DataTable value={group} className="p-datatable-sm mt-2">
+                  <Column
+                    field="refCarGroupId"
+                    header="S.No"
+                    body={(_rowData, { rowIndex }) => rowIndex + 1}
+                    style={{ width: "10%", color: "#0a5c9c" }}
+                  />
+                  <Column
+                    field="refCarGroupName"
+                    header="Car Group Name"
+                    body={carGroupTemplate}
+                    style={{ color: "#0a5c9c" }}
+                  />
+                  <Column body={CarnameactionTemplateGroup} header="Actions" />
+                </DataTable>
+              </div>
+            </div>
           </TabPanel>
-         
+
           {/* <TabPanel header="Driver Details">
             <div className="flex flex-col gap-4">
             <div className="flex flex-col items-center justify-center gap-4 w-[60%] sm:w-full p-4 ">
@@ -2069,7 +2349,7 @@ const CarServices: React.FC = () => {
                 <div className="bg-white shadow-md p-4 rounded-lg">
                   <h4 className="font-semibold">Extra Charges</h4>
 
-                  <AddForm
+                  {/* <AddForm
                     submitCallback={(values) => {
                       if (values.length < 1) {
                         return;
@@ -2080,6 +2360,18 @@ const CarServices: React.FC = () => {
                       ).then((result) => {
                         fetchExtra();
                         console.log(result);
+                      });
+                    }}
+                  /> */}
+                  <AddExtra
+                    submitCallback={(values) => {
+                      if (values.length < 1) return;
+
+                      values.forEach((entry) => {
+                        addItemBaseOnKey(entry, "form").then((result) => {
+                          fetchExtra();
+                          console.log(result);
+                        });
                       });
                     }}
                   />
@@ -2098,10 +2390,29 @@ const CarServices: React.FC = () => {
                         editExtraId === rowData.refFormDetailsId ? (
                           <InputText
                             value={editExtraValue.refFormDetails}
-                            onChange={handleExtraInputChange}
+                            onChange={(e) =>
+                              handleExtraInputChange(e, "refFormDetails")
+                            }
                           />
                         ) : (
                           rowData.refFormDetails
+                        )
+                      }
+                    />
+
+                    <Column
+                      field="refPrice"
+                      header="Price"
+                      body={(rowData) =>
+                        editExtraId === rowData.refFormDetailsId ? (
+                          <InputText
+                            value={editExtraValue.refPrice}
+                            onChange={(e) =>
+                              handleExtraInputChange(e, "refPrice")
+                            }
+                          />
+                        ) : (
+                          rowData.refPrice
                         )
                       }
                     />
@@ -2134,7 +2445,6 @@ const CarServices: React.FC = () => {
             <div>
               <h2 className="text-xl font-bold">Add New Car Package</h2>
               <form onSubmit={handleSubmit} method="post">
-              
                 <div className="flex flex-row gap-3 mt-3">
                   <Dropdown
                     value={selectesvechile}
@@ -2159,6 +2469,19 @@ const CarServices: React.FC = () => {
                     optionValue="refCarTypeId"
                     optionLabel="refCarTypeName"
                     placeholder="Choose Car Type"
+                    className="w-full"
+                    required
+                  />
+                  <Dropdown
+                    value={selectedCarGroup}
+                    onChange={(e: DropdownChangeEvent) => {
+                      setSelectedCarGroup(e.value);
+                      fetchCargroup();
+                    }}
+                    options={group}
+                    optionValue="refCarGroupId"
+                    optionLabel="refCarGroupName"
+                    placeholder="Choose Car Group"
                     className="w-full"
                     required
                   />
@@ -2205,6 +2528,13 @@ const CarServices: React.FC = () => {
                   <InputText
                     name="refMileage"
                     placeholder="Enter Mileage"
+                    className="w-full"
+                    onChange={handleInput}
+                    required
+                  />
+                  <InputText
+                    name="refExtraKMcharges"
+                    placeholder="Enter Extra charges"
                     className="w-full"
                     onChange={handleInput}
                     required
@@ -2289,7 +2619,7 @@ const CarServices: React.FC = () => {
                     onChange={handleInput}
                     required
                   /> */}
-                    <InputText
+                  <InputText
                     name="refOtherRequirements"
                     placeholder="Enter Other Requirements"
                     className="w-full"

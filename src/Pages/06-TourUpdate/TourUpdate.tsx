@@ -55,7 +55,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   const [include, setInclude] = useState<Includes[]>([]);
 
   const [exclude, setExclude] = useState<Excludes[]>([]);
-  const [mapformData, setMapformdata] = useState<any>([]);
+  const [mapformData, setMapformdata] = useState("");
 
   const [coverImage, setCoverImage] = useState("");
   // const [tourDetails, setTourDetails] = useState<TourPacakge[]>([]);
@@ -239,10 +239,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
     const formData = new FormData();
     formData.append("Image", file);
     console.log("formData", formData);
-    if (file) {
-      setMapformdata(file);
-    }
-
+   
     for (let pair of formData.entries()) {
       console.log("-------->______________", pair[0] + ":", pair[1]);
     }
@@ -362,10 +359,10 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
         
         // Update the refGallery array with the file path returned from the server
         if (data.files && data.files.length > 0) {
-          const newImage = data.files[0];
+          const newImage = data.files;
           setFormData((prev) => ({
             ...prev,
-            refGallery: [...prev.refGallery, newImage]
+            refGallery: [...prev.refGallery, ...newImage]
           }));
         }
       } else {

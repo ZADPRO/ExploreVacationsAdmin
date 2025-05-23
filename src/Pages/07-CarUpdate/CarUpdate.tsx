@@ -61,8 +61,13 @@ interface CarType {
   refCarTypeId: number;
   refCarTypeName: string;
 }
+interface Group {
+  refCarGroupId: number;
+  refCarGroupName: string;
+}
 
 interface CarDetails {
+  refCarGroupId: number;
   refVehicleTypeId: number;
   refCarsId: number;
   refPersonCount: string;
@@ -71,8 +76,9 @@ interface CarDetails {
   refFuelType: string;
   refcarManufactureYear: string;
   refMileage: string;
+  refExtraKMcharges: string;
   refTrasmissionType: string;
-  refCarTypeName:string;
+  refCarTypeName: string;
   refFuleLimit: string;
   refCarTypeId: number;
   refOtherRequirements: string;
@@ -98,9 +104,11 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   CarupdateID,
 }) => {
   const [_visible, setVisible] = useState(false);
+  const [group, setGroup] = useState<Group[]>([]);
   const [car, setCar] = useState<Carname[]>([]);
-    const [carType, setCarType] = useState<CarType[]>([]);
+  const [carType, setCarType] = useState<CarType[]>([]);
   const [_vechiletype, setVechileType] = useState<any[]>([]);
+  // const [selectedCarGroup, setSelectedCarGroup] = useState<any[]>([]);
   const [_driver, setDriver] = useState<Driverdetails[]>([]);
   const [benefit, setBenefit] = useState<Benefits[]>([]);
   const [include, setInclude] = useState<Includes[]>([]);
@@ -110,9 +118,11 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   const isFormSubmitting = false;
   const [formDataObject, setFormDataobject] = useState<CarDetails>({
     refVehicleTypeId: 0,
+    refCarGroupId: 0,
+    refExtraKMcharges: "",
     refCarsId: 0,
     refPersonCount: "",
-    refCarTypeName:"",
+    refCarTypeName: "",
     refVehicleTypeName: "",
     refBag: "",
     refCarPrice: "",
@@ -132,13 +142,12 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     refFormDetails: [],
     carImagePath: { filename: "", contentType: "", content: "" },
   });
-  
+
   const [formDataImage, setFormDataImage] = useState<any>([]);
   const [_selectesvechile, _setSelectedvechile] = useState<any[]>([]);
   const [_editStaffId, setEditStaffId] = useState<number | null>(null);
   const [_cabDetils, setCabDetails] = useState<any[]>([]);
   const [extra, setExtra] = useState<Form[]>([]);
-
 
   const [_editDriverId, setEditDriverId] = useState<number | null>(null);
 
@@ -164,9 +173,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
-
-
-    const fetchCarType = async () => {
+  const fetchCarType = async () => {
     try {
       const response = await axios.get(
         import.meta.env.VITE_API_URL + "/carsRoutes/getCarType",
@@ -188,7 +195,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("fetchCarType--------->", data);
         setCarType(data.Data);
-       }
+      }
     } catch (e: any) {
       console.log("Error fetching destinations:", e);
     }
@@ -300,36 +307,19 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   const handleUpdateSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-
-
     try {
-      // // Create a properly typed carImagePath value
-      // let carImagePathValue;
-
-      // if (formData === "") {
-      //   // Check if carImagePath exists and has the filename property
-      //   if (
-      //     formDataObject.carImagePath &&
-      //     "filename" in formDataObject.carImagePath
-      //   ) {
-      //     carImagePathValue = formDataObject.carImagePath.filename;
-      //   } else {
-      //     carImagePathValue = "";
-      //   }
-      // } else {
-      //   carImagePathValue = formData;
-      // }
-
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/updateCars",
         {
           refCarsId: +CarupdateID,
           refVehicleTypeId: +formDataObject.refVehicleTypeId,
           refCarTypeId: +formDataObject.refCarTypeId,
+          refCarGroupId: +formDataObject.refCarGroupId,
           refPersonCount: formDataObject.refPersonCount,
           refBag: formDataObject.refBag,
           refFuelType: formDataObject.refFuelType,
-          refCarPrice:formDataObject.refCarPrice,
+          refCarPrice: formDataObject.refCarPrice,
+          refExtraKMcharges: formDataObject.refExtraKMcharges,
           refcarManufactureYear: formDataObject.refcarManufactureYear,
           refMileage: formDataObject.refMileage,
           refTrasmissionType: formDataObject.refTrasmissionType,
@@ -338,12 +328,16 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
           refRentalAgreement: formDataObject.refRentalAgreement,
           refFuelPolicy: formDataObject.refFuelPolicy,
           refPaymentTerms: formDataObject.refPaymentTerms,
-          refBenifits: formDataObject.Benifits,
-          refInclude: formDataObject.Include,
-          refExclude: formDataObject.Exclude,
-          refFormDetails: formDataObject.refFormDetails,
-          carImagePath: formDataImage===""? formDataObject.carImagePath?.filename ?? "":formDataImage,
-         
+          refBenifits: formDataObject.Benifits.map(String),
+          refInclude: formDataObject.Include.map(String),
+          refExclude: formDataObject.Exclude.map(String),
+
+          refFormDetails: formDataObject.refFormDetails.map(String),
+          // refFormDetails: formDataObject.refFormDetails,
+          carImagePath:
+            formDataImage === ""
+              ? formDataObject.carImagePath?.filename ?? ""
+              : formDataImage,
         },
         {
           headers: {
@@ -399,7 +393,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("Car Name----------->", data);
         setCar(data.result);
-       
+
         setVechileType(data.result);
       }
     } catch (e: any) {
@@ -415,6 +409,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     fetchInclude();
     fetchExclude();
     fetchCarType();
+    fetchCargroup();
   }, [CarupdateID]);
 
   const fetchExtra = async () => {
@@ -557,6 +552,8 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
         setFormDataobject({
           refCarTypeId: +carDetails.refCarTypeId,
           refCarsId: +carDetails.refCarsId,
+          refCarGroupId: +carDetails.refCarGroupId,
+          refExtraKMcharges: carDetails.refExtraKMcharges || "",
           refVehicleTypeId: +carDetails.refVehicleTypeId,
           refPersonCount: carDetails.refPersonCount || "",
           refBag: carDetails.refBagCount || "",
@@ -668,10 +665,6 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     formData.append("Image", file);
     console.log("formData", formData);
 
-    if (file) {
-      setFormDataImage(file);
-    }
-
     for (let pair of formData.entries()) {
       console.log(pair[0] + ":", pair[1]);
     }
@@ -716,8 +709,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     //   ...prevFormData,
     //   productImage: response.filePath,
     // }));
-setFormDataImage(response.filePath);
-
+    setFormDataImage(response.filePath);
   };
 
   const handleUploadFailure = (error: any) => {
@@ -725,6 +717,33 @@ setFormDataImage(response.filePath);
     // Add your failure handling logic here
   };
 
+  const fetchCargroup = async () => {
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_API_URL + "/newCarsRoutes/listCarGroup",
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("data car details", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        console.log("data - setGroup", data);
+        setGroup(data.result);
+      }
+    } catch (e: any) {
+      console.log("Error fetching setGroup:", e);
+    }
+  };
   return (
     <div>
       <div>
@@ -739,13 +758,10 @@ setFormDataImage(response.filePath);
           className="mt-4"
         >
           <div className="flex flex-row gap-3 mt-3">
-           
-
-           <Dropdown
+            <Dropdown
               value={formDataObject.refVehicleTypeId}
               onChange={(e: DropdownChangeEvent) => {
-
-                console.log("valuee--------",e.value)
+                console.log("valuee--------", e.value);
                 setFormDataobject((prev) => ({
                   ...prev,
                   refVehicleTypeId: e.value,
@@ -756,13 +772,12 @@ setFormDataImage(response.filePath);
               placeholder="Choose a Vehicle Type"
               className="w-full"
               options={car}
-            /> 
+            />
 
             <Dropdown
               value={formDataObject.refCarTypeId}
-              
               onChange={(e: DropdownChangeEvent) => {
-                  console.log("valuee--------",e.value)
+                console.log("valuee--------", e.value);
                 setFormDataobject((prev) => ({
                   ...prev,
                   refCarTypeId: e.value,
@@ -773,11 +788,25 @@ setFormDataImage(response.filePath);
               placeholder="Choose a Car Type"
               className="w-full"
               options={carType}
-              
-            /> 
-            
-            </div>
-             <div className="flex flex-row gap-3 mt-3">
+            />
+
+            <Dropdown
+              value={formDataObject.refCarGroupId}
+              onChange={(e: DropdownChangeEvent) => {
+                console.log("valuee--------", e.value);
+                setFormDataobject((prev) => ({
+                  ...prev,
+                  refCarGroupId: e.value,
+                }));
+              }}
+              optionValue="refCarGroupId"
+              optionLabel="refCarGroupName"
+              placeholder="Choose a Car Group"
+              className="w-full"
+              options={group}
+            />
+          </div>
+          <div className="flex flex-row gap-3 mt-3">
             <InputText
               name="refPersonCount"
               value={formDataObject.refPersonCount}
@@ -809,7 +838,6 @@ setFormDataImage(response.filePath);
               className="w-full"
               onChange={handleInput}
             />
-            
           </div>
           {/* ManufactureYear  and Mileage */}
           <div className="flex flex-row gap-3 mt-3">
@@ -824,6 +852,13 @@ setFormDataImage(response.filePath);
               name="refMileage"
               value={formDataObject.refMileage}
               placeholder="Enter Mileage"
+              className="w-full"
+              onChange={handleInput}
+            />
+            <InputText
+              name="refExtraKMcharges"
+              value={formDataObject.refExtraKMcharges}
+              placeholder="Enter Extra KM charges"
               className="w-full"
               onChange={handleInput}
             />
@@ -970,7 +1005,7 @@ setFormDataImage(response.filePath);
             <MultiSelect
               value={formDataObject.refFormDetails}
               onChange={(e) => {
-                 setFormDataobject((prev) => ({
+                setFormDataobject((prev) => ({
                   ...prev,
                   refFormDetails: e.value,
                 }));
@@ -1001,7 +1036,6 @@ setFormDataImage(response.filePath);
                       formDataObject.refCarsId
                     );
                     deleteCarimage(formDataObject.refCarsId);
-                                  
                   }}
                   className="absolute top-1 right-1 bg-amber-50 text-[#000] text-3xl rounded-full w-2 h-6 flex items-center justify-center hover:bg-red-600"
                   title="Remove Image"

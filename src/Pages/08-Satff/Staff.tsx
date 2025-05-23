@@ -728,7 +728,7 @@ const Staff: React.FC = () => {
                 </form>
               </div>
             </TabPanel>
-            <TabPanel header="History">
+            <TabPanel header="Audit">
               <div className="flex flex-row w-[100%] gap-4 sm:w-full mb-4">
                 <div className="flex flex-col h-[50%] gap-2">
                   <label htmlFor="selectedHistory">Select Date</label>
