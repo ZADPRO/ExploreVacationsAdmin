@@ -12,7 +12,7 @@ import car from "../../assets/images/image.png";
 import logo from "../../assets/images/logo.png";
 // import ViewPDFAction from "../Pdf/viewPDFAction ";
 import moment from "moment-timezone";
-import PdfViewer from "../Pdf/PdfViewer";
+// import PdfViewer from "../Pdf/PdfViewer";
 type DecryptResult = any;
 
 
@@ -3510,10 +3510,10 @@ const UserDetails: React.FC = () => {
 
 
 
-const actinViewCar = (rowData: any) => {
-    const pdfUrl = `${import.meta.env.VITE_API_URL}/uploads/agreements/${rowData.refAgreementPath?.filename}`;
-    return <PdfViewer pdfUrl={pdfUrl} />;
-};
+// const actinViewCar = (rowData: any) => {
+//     const pdfUrl = `${import.meta.env.VITE_API_URL}/uploads/agreements/${rowData.refAgreementPath?.filename}`;
+//     return <PdfViewer pdfUrl={pdfUrl} />;
+// };
 
   return (
     <div className="p-10 mt-0">
