@@ -15,7 +15,6 @@ import moment from "moment-timezone";
 import PdfViewer from "../Pdf/PdfViewer";
 type DecryptResult = any;
 
-
 const styles = StyleSheet.create({
   page: {
     padding: 40,
@@ -68,7 +67,7 @@ const UserDetails: React.FC = () => {
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
-    const [UserDetails, setUserDetails] = useState<any[]>([]);
+  const [UserDetails, setUserDetails] = useState<any[]>([]);
   const [UserDetail, setTourDetail] = useState<any[]>([]);
   const [TourBooking, setTourBooking] = useState<any[]>([]);
   const [CarBookings, setCarBookings] = useState<any[]>([]);
@@ -330,7 +329,6 @@ const UserDetails: React.FC = () => {
     );
   };
 
-
   //delete user
 
   const deleteUSer = async (id: any) => {
@@ -338,7 +336,7 @@ const UserDetails: React.FC = () => {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/newCarsRoutes/deleteOfflineCarBooking",
         {
-           offlineCarBookingId : id,
+          offlineCarBookingId: id,
         },
         {
           headers: {
@@ -937,7 +935,7 @@ const UserDetails: React.FC = () => {
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);
-            fetchCustomize(); 
+            fetchCustomize();
 
             const updatedTourCustomize = UserDetail.map((tour) =>
               tour.refuserId === refuserId
@@ -998,9 +996,7 @@ const UserDetails: React.FC = () => {
   //Car
 
   //
-  
-  
-  
+
   const actionDeleteCar = (rowData: any) => {
     console.log(rowData);
 
@@ -3224,8 +3220,7 @@ const UserDetails: React.FC = () => {
           const response = await axios.post(
             import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
             {
-              userId: refuserId
-,
+              userId: refuserId,
               pdfBase64: base64data,
             },
             {
@@ -3274,10 +3269,7 @@ const UserDetails: React.FC = () => {
             if (!isApproved) {
               readCarAgreement(rowData); // Call readTour to approve it
             }
-            console.log(
-              "----------------------------------refuserId",
-              rowData
-            );
+            console.log("----------------------------------refuserId", rowData);
           }}
           disabled={isApproved} // Disable the button if already approved
         >
@@ -3289,7 +3281,7 @@ const UserDetails: React.FC = () => {
   };
 
   const readParking = async (booking: any) => {
-      console.log("bookingid--------", booking);
+    console.log("bookingid--------", booking);
     const {
       refuserId,
       refFName,
@@ -3516,14 +3508,13 @@ const UserDetails: React.FC = () => {
   //   }
   // };
 
-
-
-const actinViewCar = (rowData: any) => {
-  console.log("Row Data:-------->", rowData);
-    const pdfUrl = `${import.meta.env.VITE_API_URL}/src/assets/carAgreement/${rowData.refAgreementPath?.filename}`;
+  const actinViewCar = (rowData: any) => {
+    console.log("Row Data:-------->", rowData);
+    // https://explorevacations.max-idigital.ch/src/assets/carAgreement/17466163716824287.pdf
+    const pdfUrl = `https://explorevacations.max-idigital.ch/src/assets/carAgreement/${rowData.refAgreementPath}`;
     console.log("PDF URL:", pdfUrl);
     return <PdfViewer pdfUrl={pdfUrl} />;
-};
+  };
 
   return (
     <div className="p-10 mt-0">
@@ -3775,7 +3766,7 @@ const actinViewCar = (rowData: any) => {
                 headerStyle={{ width: "3rem" }}
                 body={(_, options) => options.rowIndex + 1}
               />
-               <Column
+              <Column
                 field="refCustId"
                 header="User CustID"
                 style={{ minWidth: "150px" }}
@@ -3831,7 +3822,7 @@ const actinViewCar = (rowData: any) => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-                <Column body={actinViewCar} header="View Pdf" />
+              <Column body={actinViewCar} header="View Pdf" />
               <Column body={actionReadCar} header="Approve" />
               <Column body={actionDeleteCar} header="Delete" />
             </DataTable>
@@ -3987,9 +3978,9 @@ const actinViewCar = (rowData: any) => {
             </DataTable>
           </div>
         </TabPanel>
-         <TabPanel header="User Form  Details">
+        <TabPanel header="User Form  Details">
           <div className="mt-1 p-2 ">
-            <h3 className="text-lg font-bold mb-4">User Form  Details</h3>
+            <h3 className="text-lg font-bold mb-4">User Form Details</h3>
             <DataTable
               value={UserDetails}
               paginator
@@ -4039,7 +4030,7 @@ const actinViewCar = (rowData: any) => {
                 header="Area"
                 style={{ minWidth: "200px" }}
               />
-                <Column
+              <Column
                 field="refcountry"
                 header="country"
                 style={{ minWidth: "200px" }}

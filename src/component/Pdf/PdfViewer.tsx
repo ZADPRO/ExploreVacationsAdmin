@@ -10,6 +10,7 @@ interface PdfViewerProps {
 const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl }) => {
   const [visible, setVisible] = useState(false);
 
+  console.log(pdfUrl)
   return (
     <div className="card flex justify-content-center">
       <Button
@@ -27,12 +28,12 @@ const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl }) => {
         modal
       >
         <iframe
-                    src={pdfUrl}
-                    title="PDF Agreement"
-                    width="100%"
-                    height="600px"
-                    style={{ border: 'none' }}
-                />
+          src={pdfUrl}
+          title="PDF Agreement"
+          width="100%"
+          height="600px"
+          style={{ border: "none" }}
+        />
       </Dialog>
     </div>
   );
