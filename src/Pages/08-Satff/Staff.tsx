@@ -380,7 +380,6 @@ const Staff: React.FC = () => {
     }
   };
   const handleUploadSuccessMap = (response: any) => {
-   
     console.log("Upload Successful:", response);
     setProfileImage(response.filePath);
   };
@@ -699,7 +698,7 @@ const Staff: React.FC = () => {
                         className="p-inputtext-sm w-full"
                       />
                     </div>
-                  
+
                     <div>
                       <h2 className="mt-3">Upload Profile </h2>
                       <FileUpload
@@ -711,7 +710,7 @@ const Staff: React.FC = () => {
                         maxFileSize={10000000}
                         emptyTemplate={
                           <p className="m-0">
-                            Drag and drop your image here to upload in Kb.
+                            Drag and drop your image here to upload in MB.
                           </p>
                         }
                       />

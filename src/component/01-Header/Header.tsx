@@ -157,7 +157,7 @@ export default function Header({ children }: HeaderProps) {
                       animate="show"
                       exit="hidden"
                     >
-                      Admin Pannel
+                      Admin Panel
                     </motion.h1>
                   )}
                 </AnimatePresence>

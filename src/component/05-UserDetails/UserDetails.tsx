@@ -12,7 +12,7 @@ import car from "../../assets/images/image.png";
 import logo from "../../assets/images/logo.png";
 // import ViewPDFAction from "../Pdf/viewPDFAction ";
 import moment from "moment-timezone";
-// import PdfViewer from "../Pdf/PdfViewer";
+import PdfViewer from "../Pdf/PdfViewer";
 type DecryptResult = any;
 
 
@@ -444,15 +444,15 @@ const UserDetails: React.FC = () => {
     const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
 
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 cursor-pointer">
         <button
           className={`${
             isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
+          } text-white py-1 px-2 rounded cursor-pointer`}
           onClick={() => {
             if (!isApproved) {
-              readCustomizr(rowData.refuserId); // Call readTour to approve it
-              console.log("id-------------->", rowData.refuserId);
+              readCustomizr(rowData); // Call readTour to approve it
+              console.log("id-------------->", rowData);
             }
           }}
           disabled={isApproved} // Disable the button if already approved
@@ -918,7 +918,7 @@ const UserDetails: React.FC = () => {
             import.meta.env.VITE_API_URL +
               "/bookingRoutes/approveCustomizeTourBooking",
             {
-              userId: booking,
+              userId: refuserId,
               pdfBase64: base64data,
             },
             {
@@ -937,6 +937,7 @@ const UserDetails: React.FC = () => {
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);
+            fetchCustomize(); 
 
             const updatedTourCustomize = UserDetail.map((tour) =>
               tour.refuserId === refuserId
@@ -997,6 +998,9 @@ const UserDetails: React.FC = () => {
   //Car
 
   //
+  
+  
+  
   const actionDeleteCar = (rowData: any) => {
     console.log(rowData);
 
@@ -1607,7 +1611,7 @@ const UserDetails: React.FC = () => {
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);
-
+            fetchTourBookings();
             const updatedTourBooking = TourBooking.map((tour) =>
               tour.refuserId === refuserId
                 ? { ...tour, refStatus: "Approved" }
@@ -1675,7 +1679,7 @@ const UserDetails: React.FC = () => {
           } text-white py-1 px-2 rounded`}
           onClick={() => {
             if (!isApproved) {
-              readTours(rowData.refuserId); // Call readTour to approve it
+              readTours(rowData); // Call readTour to approve it
             }
           }}
           disabled={isApproved} // Disable the button if already approved
@@ -2049,7 +2053,7 @@ const UserDetails: React.FC = () => {
                 style={{
                   display: "flex",
                   flexDirection: "column",
-                  width: "50%", // Use percentage for proper layout
+                  width: "70%", // Use percentage for proper layout
                 }}
               >
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
@@ -3220,7 +3224,8 @@ const UserDetails: React.FC = () => {
           const response = await axios.post(
             import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
             {
-              userId: booking,
+              userId: refuserId
+,
               pdfBase64: base64data,
             },
             {
@@ -3239,6 +3244,7 @@ const UserDetails: React.FC = () => {
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);
+            fetchCarBookings();
             console.log("----------------------------------refuserId", booking);
             const updatedCar = CarBookings.map((p) =>
               p.booking === booking ? { ...p, refStatus: "Approved" } : p
@@ -3266,11 +3272,11 @@ const UserDetails: React.FC = () => {
           } text-white py-1 px-2 rounded`}
           onClick={() => {
             if (!isApproved) {
-              readCarAgreement(rowData.refuserId); // Call readTour to approve it
+              readCarAgreement(rowData); // Call readTour to approve it
             }
             console.log(
               "----------------------------------refuserId",
-              rowData.refuserId
+              rowData
             );
           }}
           disabled={isApproved} // Disable the button if already approved
@@ -3283,6 +3289,7 @@ const UserDetails: React.FC = () => {
   };
 
   const readParking = async (booking: any) => {
+      console.log("bookingid--------", booking);
     const {
       refuserId,
       refFName,
@@ -3415,6 +3422,7 @@ const UserDetails: React.FC = () => {
 
           if (data.success) {
             localStorage.setItem("token", "Bearer " + data.token);
+            fetchParkingBookings();
 
             const updatedParking = parking.map((p) =>
               p.refuserId === refuserId ? { ...p, refStatus: "Approved" } : p
@@ -3510,10 +3518,12 @@ const UserDetails: React.FC = () => {
 
 
 
-// const actinViewCar = (rowData: any) => {
-//     const pdfUrl = `${import.meta.env.VITE_API_URL}/uploads/agreements/${rowData.refAgreementPath?.filename}`;
-//     return <PdfViewer pdfUrl={pdfUrl} />;
-// };
+const actinViewCar = (rowData: any) => {
+  console.log("Row Data:-------->", rowData);
+    const pdfUrl = `${import.meta.env.VITE_API_URL}/src/assets/carAgreement/${rowData.refAgreementPath?.filename}`;
+    console.log("PDF URL:", pdfUrl);
+    return <PdfViewer pdfUrl={pdfUrl} />;
+};
 
   return (
     <div className="p-10 mt-0">
@@ -3821,7 +3831,7 @@ const UserDetails: React.FC = () => {
                 header="Other Requirements"
                 style={{ minWidth: "300px" }}
               />
-                {/* <Column body={actinViewCar} header="View Pdf" /> */}
+                <Column body={actinViewCar} header="View Pdf" />
               <Column body={actionReadCar} header="Approve" />
               <Column body={actionDeleteCar} header="Delete" />
             </DataTable>

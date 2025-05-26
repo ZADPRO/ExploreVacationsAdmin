@@ -310,7 +310,8 @@ const Patner: React.FC = () => {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        
+        fetchOfferPatner();
+        fetchPatner();
 
         const updatedAirportBooking = airportBookings.map((tour) =>
           tour.refuserId === refuserId
