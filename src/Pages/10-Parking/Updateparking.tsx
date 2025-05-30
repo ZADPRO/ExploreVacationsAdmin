@@ -8,6 +8,10 @@ import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
 import { MultiSelect } from "primereact/multiselect";
 import { Toast } from "primereact/toast";
+import { useTranslation } from "react-i18next";
+
+
+
 interface ParkingUpdateProps {
   closeParkingupdatesidebar: () => void;
   refCarParkingId: string;
@@ -45,7 +49,8 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
   closeParkingupdatesidebar,
   refCarParkingId,
 }) => {
-   const isFormSubmitting = false;
+  const isFormSubmitting = false;
+  const { t } = useTranslation("global");
   const [inputs, setInputs] = useState<ParkingDetails>({
     refCarParkingId: refCarParkingId,
     refParkingTypeId: "",
@@ -237,10 +242,10 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
 
           instructions: inputs.instructions,
           description: inputs.description,
-          parkingSlotImage: 
-          parkingImg === ""
-            ? inputs.parkingSlotImage?.filename ?? ""
-            : parkingImg,
+          parkingSlotImage:
+            parkingImg === ""
+              ? inputs.parkingSlotImage?.filename ?? ""
+              : parkingImg,
           refStatus: inputs.refStatus,
         },
         {
@@ -270,7 +275,7 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
           life: 3000,
         });
         fetchParking();
-      
+
         closeParkingupdatesidebar();
       } else {
         console.error("API update failed:", data);
@@ -349,7 +354,6 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
       console.log("data==============", data);
 
       if (data.success) {
-       
         console.log("data+", data);
         handleUploadSuccessMap(data);
       } else {
@@ -362,12 +366,12 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
   };
 
   const handleUploadSuccessMap = (response: any) => {
-      toast.current?.show({
-          severity: "success",
-          summary: "Success",
-          detail: "Successfully Updated",
-          life: 3000,
-        });
+    toast.current?.show({
+      severity: "success",
+      summary: "Success",
+      detail: "Successfully Updated",
+      life: 3000,
+    });
     console.log("Upload Successful:", response);
     setParkingImg(response.filePath);
   };
@@ -450,11 +454,11 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
   return (
     <div>
       <div>
-         <Toast ref={toast} />
+        <Toast ref={toast} />
         <h2 className="text-xl font-bold">
-          Update New Parking Package ID: {refCarParkingId}
+          {t("dashboard.Update New Parking Package")} ID: {refCarParkingId}
         </h2>
-
+        <p className="text-sm text-[#f60000] mt-3">{t("dashboard.warning")}</p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -607,7 +611,7 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
             <Calendar
               name="MaximumBookingDuration"
               value={inputs.MaximumBookingDuration}
-              placeholder="Min Booking Duration"
+              placeholder="Max Booking Duration"
               onChange={handleValue}
             />
           </div>
@@ -712,9 +716,8 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
             )}
           </div>
 
-
           <div>
-            <h2 className="mt-3">Upload Parking Image </h2>
+            <h2 className="mt-3">{t("dashboard.Upload Parking Image")} </h2>
             <FileUpload
               name="logo"
               customUpload
@@ -723,7 +726,7 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
               accept="image/*"
               maxFileSize={10000000}
               emptyTemplate={
-                <p className="m-0">Drag and drop your image here to upload.</p>
+                <p className="m-0">{t("dashboard.imagewarning")}</p>
               }
             />
           </div>
@@ -731,9 +734,9 @@ const Updateparking: React.FC<ParkingUpdateProps> = ({
           <div className="mt-4 flex justify-end">
             <Button
               type="submit"
-              label="Submit"
+              label={t("dashboard.Submit")}
               onClick={closeParkingupdatesidebar}
-                loading={isFormSubmitting}
+              loading={isFormSubmitting}
             />
           </div>
         </form>

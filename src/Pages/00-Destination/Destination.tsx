@@ -10,6 +10,9 @@ import { Column } from "primereact/column";
 import { fetchDestinations } from "../../services/DestinationService";
 import { Toast } from "primereact/toast";
 type DecryptResult = any;
+import { useTranslation } from "react-i18next";
+
+
 
 interface Destination {
   refDestinationId: number;
@@ -17,6 +20,7 @@ interface Destination {
 }
 
 const Destination: React.FC = () => {
+  const { t } = useTranslation("global");
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -188,8 +192,14 @@ const Destination: React.FC = () => {
         setEditdestinationId(null);
         setEditDestinationValue("");
 
-        // Fetch updated destinations
-        fetchDestinations().then(setDestinations);
+        fetchDestinations().then((result) => {
+          console.log("-------------",result)
+          setDestinations(result);
+        });
+        fetchDestinations();
+        console.log('fetchDestinations', fetchDestinations())
+
+
         toast.current?.show({
           severity: "success",
           summary: "Success",
@@ -237,6 +247,12 @@ const Destination: React.FC = () => {
       console.log("deleted-->", data);
       setSubmitLoading(false);
       if (data.success) {
+        toast.current?.show({
+          severity: "error",
+          summary: "Deleted",
+          detail: "Destination deleted successfully",
+          life: 3000,
+        });
         localStorage.setItem("token", "Bearer " + data.token);
         fetchDestinations().then((result) => {
           setDestinations(result);
@@ -294,14 +310,17 @@ const Destination: React.FC = () => {
 
       <div>
         <h2 className="text-xl font-bold text-[#0a5c9c] mb-3">
-          Add New Destination
+          {t("dashboard.Add New Destination")}
         </h2>
+        <p className="text-sm text-[#f60000] mt-3 mb-3">
+          {t("dashboard.warning")}
+        </p>
         <div className="mb-3 flex flex-row justify-between">
           <InputText
             name="refDestination"
             value={inputs.refDestination}
             onChange={handleInput}
-            placeholder="Enter Destination"
+            placeholder={t("dashboard.Enter Destination")}
             className="p-inputtext-sm w-[50%]"
           />
           <div>
@@ -317,7 +336,9 @@ const Destination: React.FC = () => {
       </div>
 
       <div className="mt-4">
-        <h3 className="text-lg font-bold">Added Destinations</h3>
+        <h3 className="text-lg font-bold">
+          {t("dashboard.Added Destinations")}
+        </h3>
         <DataTable value={destinations} className="p-datatable-sm mt-2">
           <Column
             body={snoTemplate}
@@ -327,7 +348,7 @@ const Destination: React.FC = () => {
           <Column
             field="refDestinationName"
             style={{ color: "#0a5c9c" }}
-            header="Destination Name"
+            header={t("dashboard.Destination Name")}
             body={(rowData) =>
               editDestinationId === rowData.refDestinationId ? (
                 <InputText
@@ -340,7 +361,10 @@ const Destination: React.FC = () => {
             }
           />
 
-          <Column body={DeleteActionTemplateDelete} header="Actions" />
+          <Column
+            body={DeleteActionTemplateDelete}
+            header={t("dashboard.Actions")}
+          />
         </DataTable>
       </div>
     </>

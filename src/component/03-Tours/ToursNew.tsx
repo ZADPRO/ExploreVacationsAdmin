@@ -24,6 +24,9 @@ import { fetchNewcarservices } from "../../services/NewServices";
 import TourUpdate from "../../Pages/06-TourUpdate/TourUpdate";
 
 import { Toast } from "primereact/toast";
+import { useTranslation } from "react-i18next";
+
+
 
 interface Destination {
   refDestinationId: string;
@@ -71,6 +74,7 @@ function transformArrayToObject(array: string[], key: string) {
 }
 
 function ToursNew() {
+  const { t } = useTranslation("global");
   const [submitLoading, setSubmitLoading] = useState(false);
   console.log(submitLoading);
   const [isAddTourOpen, setIsAddTourOpen] = useState(false);
@@ -200,7 +204,7 @@ function ToursNew() {
       console.error("Error fetching locations:", e);
     }
   };
- 
+
   const resetForm = (form: HTMLFormElement) => {
     setSelectedDestination(null);
     setSelectedLocations([]);
@@ -216,7 +220,6 @@ function ToursNew() {
     setMapformdata("");
     form.reset();
   };
-  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -428,8 +431,7 @@ function ToursNew() {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -493,8 +495,7 @@ function ToursNew() {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -652,7 +653,6 @@ function ToursNew() {
     formData.append("Image", file);
     console.log("formData", formData);
 
-
     for (let pair of formData.entries()) {
       console.log("-------->______________", pair[0] + ":", pair[1]);
     }
@@ -703,9 +703,7 @@ function ToursNew() {
   const customUploader = async (event: any) => {
     console.table("event", event);
 
-   
     for (let i = 0; i < event.files.length; i++) {
-      
       const formData = new FormData();
       const file = event.files[i];
       formData.append("images", file);
@@ -1004,16 +1002,16 @@ function ToursNew() {
     <>
       <Toast ref={toast} />
       <div className="flex justify-between p-4">
-        <h2 className="text-2xl font-semibold">Tours</h2>
+        <h2 className="text-2xl font-semibold">{t("dashboard.Tours")}</h2>
         <Button
-          label="Add new tour"
+          label={t("dashboard.Add New Tour")}
           severity="success"
           onClick={() => setIsAddTourOpen(true)}
         />
       </div>
 
       <div className=" p-3 -mt-5">
-        <h3 className="text-lg font-bold">Added Tours</h3>
+        <h3 className="text-lg font-bold">{t("dashboard.Added Tours")}</h3>
         <DataTable
           value={tourDetails}
           tableStyle={{ minWidth: "50rem" }}
@@ -1021,14 +1019,14 @@ function ToursNew() {
           rows={1}
         >
           <Column
-            header="S.No"
+            header={t("dashboard.SNo")}
             headerStyle={{ width: "3rem" }}
             body={(_, options) => options.rowIndex + 1}
           />
 
           <Column
             className="   text-[#0a5c9c] underline cursor-pointer   "
-            header="Package Name"
+            header={t("dashboard.Package Name")}
             field="refPackageName"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
@@ -1036,7 +1034,6 @@ function ToursNew() {
                 onClick={() => {
                   setTourupdateID(rowData.refPackageId);
                   setTourupdatesidebar(true);
-
                 }}
               >
                 {" "}
@@ -1046,7 +1043,7 @@ function ToursNew() {
           />
           <Column
             field="refDestinationName"
-            header="Destination"
+            header={t("dashboard.Destination")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
@@ -1061,7 +1058,7 @@ function ToursNew() {
           />
           <Column
             field="refDurationIday"
-            header="No of Day"
+            header={t("dashboard.No of Day")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
@@ -1077,7 +1074,7 @@ function ToursNew() {
 
           <Column
             field="refDurationINight"
-            header="No of Night"
+            header={t("dashboard.No of Night")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId && editTourData ? (
@@ -1093,13 +1090,13 @@ function ToursNew() {
 
           <Column
             field="refGroupSize"
-            header="Group Size"
+             header={t("dashboard.Group Size")}
             style={{ minWidth: "200px" }}
           />
 
           <Column
             field="refTourPrice"
-            header="Tour Price"
+          header={t("dashboard.Tour Price")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
@@ -1115,7 +1112,7 @@ function ToursNew() {
 
           <Column
             field="refTourCode"
-            header="Tour Code"
+            header={t("dashboard.Tour Code")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
@@ -1131,7 +1128,7 @@ function ToursNew() {
 
           <Column
             field="refSeasonalPrice"
-            header="Seasonal Price"
+           header={t("dashboard.Seasonal Price")}
             style={{ minWidth: "200px" }}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
@@ -1161,16 +1158,17 @@ function ToursNew() {
           /> */}
 
           <Column
-            header="Location"
+            header={t("dashboard.Location")}
             style={{ minWidth: "200px" }}
-            body={(rowData) => (
-              <>
-                {/* {rowData.refLocationName} */}
-                {rowData.refLocationName.map((loc: any) => (
-                  <div>{loc}</div>
-                ))}
-              </>
-            )}
+            field="refLocationName"
+            // body={(rowData) => (
+            //   <>
+            //     {/* {rowData.refLocationName} */}
+            //     {rowData.refLocationName.map((loc: any) => (
+            //       <div>{loc}</div>
+            //     ))}
+            //   </>
+            // )}
             // body={(rowData) =>
             //   editTourId === rowData.refPackageId ? (
             //     <InputText
@@ -1185,7 +1183,7 @@ function ToursNew() {
 
           <Column
             field="refActivity"
-            header="Activity"
+            header={t("dashboard.Activity")}
             style={{ minWidth: "200px" }}
             body={(rowData) => (
               <>
@@ -1222,7 +1220,7 @@ function ToursNew() {
             // }
           /> */}
           {/* <Column body={actionTemplate} header="Actions" /> */}
-          <Column body={actionDeleteTour} header="Delete" />
+          <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
         </DataTable>
       </div>
 
@@ -1233,9 +1231,13 @@ function ToursNew() {
         position="right"
       >
         <Toast ref={toast} />
-        <h2 className="text-xl font-bold">Add New Tour</h2>
+        <h2 className="text-xl font-bold">{t("dashboard.Add New Tour")}</h2>
+
+        <p className="text-sm text-[#f60000] mt-3">
+         {t("dashboard.warning")}
+        </p>
         <TabView>
-          <TabPanel header="Tour Form Details">
+          <TabPanel header={t("dashboard.Tour Form details")}>
             <form onSubmit={handleSubmit} method="post">
               <InputText
                 name="packageName"
@@ -1407,7 +1409,7 @@ function ToursNew() {
               {/* Map upload */}
 
               <div>
-                <h2 className="mt-3">Upload Map </h2>
+                <h2 className="mt-3">  {t("dashboard.Upload Map")}</h2>
                 <FileUpload
                   name="logo"
                   customUpload
@@ -1417,7 +1419,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Map here to upload in Kb.
+                      {t("dashboard.imagewarning")}
                     </p>
                   }
                 />
@@ -1426,7 +1428,7 @@ function ToursNew() {
               {/* Image Cover */}
 
               <div>
-                <h2 className="mt-3">Upload Cover Image</h2>
+                <h2 className="mt-3">{t("dashboard.Upload Cover Image")}</h2>
                 <FileUpload
                   name="cover"
                   customUpload
@@ -1436,8 +1438,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Cover Image here to upload in Kb.
-                    </p>
+                     {t("dashboard.imagewarning")}  </p>
                   }
                   multiple
                 />
@@ -1446,7 +1447,7 @@ function ToursNew() {
               {/* Image Upload */}
 
               <div>
-                <h2 className="mt-3">Upload Image</h2>
+                <h2 className="mt-3">   {t("dashboard.Upload Gallery Image")} </h2>
                 <FileUpload
                   name="logo"
                   customUpload
@@ -1456,8 +1457,7 @@ function ToursNew() {
                   maxFileSize={10000000}
                   emptyTemplate={
                     <p className="m-0">
-                      Drag and drop your Image here to upload in Kb.
-                    </p>
+                  {t("dashboard.imagewarning")}   </p>
                   }
                   multiple
                 />
@@ -1465,7 +1465,7 @@ function ToursNew() {
               <div className="mt-4 flex justify-end">
                 <Button
                   type="submit"
-                  label="Submit"
+                  label= {t("dashboard.Submit")} 
                   loading={isFormSubmitting}
                 />
               </div>
@@ -1478,7 +1478,7 @@ function ToursNew() {
                 {/* Card 1 */}
 
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Include</h4>
+                  <h4 className="font-semibold mb-3">{t("dashboard.Include")} </h4>
 
                   <AddForm
                     submitCallback={(values) => {
@@ -1528,7 +1528,7 @@ function ToursNew() {
 
                 {/* Card 2 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Exclude</h4>
+                  <h4 className="font-semibold mb-3"> {t("dashboard.Exclude")} </h4>
 
                   <AddForm
                     submitCallback={(values) => {

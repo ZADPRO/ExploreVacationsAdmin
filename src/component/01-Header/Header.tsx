@@ -16,91 +16,93 @@ import { IoMdNotifications } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
 import { FaImages } from "react-icons/fa";
 import "./Header.css";
+import { useTranslation } from "react-i18next";
 
-const routes: any = [
-  {
-    path: "/dashboard",
-    label: "Dashboard",
-    icon: <MdSpaceDashboard />,
-    roles: [1, 2, 3, 4, 5], // All roles
-  },
-  {
-    path: "/userdetails",
-    label: "User Bookings",
-    icon: <FaUserGear />,
-    roles: [1], // Admin only
-  },
-  {
-    path: "/banner",
-    label: "Banner",
-    icon: <FaImages />,
-    roles: [1], // Admin only
-  },
-  {
-    path: "/userlist",
-    label: "User List",
-    icon: <FaUsers />,
-    roles: [1], // Admin only
-  },
-  {
-    path: "/staff",
-    label: "Staff",
-    icon: <FaUserTie />,
-    roles: [1], // Admin only
-  },
-  {
-    path: "/patner",
-    label: "Partner",
-    icon: <LuHandshake />,
-    roles: [1],
-  },
-  {
-    path: "/tour",
-    label: "Tours",
-    icon: <MdOutlineTravelExplore />,
-    roles: [1, 2], // Admin + Employee for Tours
-  },
-  {
-    path: "/carservices",
-    label: "CarRental",
-    icon: <FaCar />,
-    roles: [1, 4], // Admin + Employee for Cars
-  },
-  {
-    path: "/parking",
-    label: "Car Parking",
-    icon: <RiParkingFill />,
-    roles: [1, 5], // Admin + Employee for Parking
-  },
 
-  {
-    path: "/staffnotification",
-    label: "Staff Notification",
-    icon: <IoMdNotifications />,
-    roles: [1, 2, 4, 5], // Admin + Employee for Parking
-  },
-  {
-    path: "/settings",
-    label: "Settings",
-    icon: <IoSettingsSharp />,
-    roles: [1, 2], // Admin only
-  },
 
-  {
-    path: "/logout",
-    label: "Logout",
-    icon: <FaSignOutAlt />,
-    roles: [1, 2, 3, 4, 5], // All roles
-  },
-];
 
 interface HeaderProps {
   children: ReactNode; // Type children prop explicitly as ReactNode
 }
 
 export default function Header({ children }: HeaderProps) {
+  const { t } = useTranslation("global");
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
+  const routes: any = [
+    {
+      path: "/dashboard",
+      label: t("dashboard.dashboard"),
+      icon: <MdSpaceDashboard />,
+      roles: [1, 2, 3, 4, 5],
+    },
+    {
+      path: "/userdetails",
+      label: t("dashboard.userBookings"),
+      icon: <FaUserGear />,
+      roles: [1],
+    },
+    {
+      path: "/banner",
+      label: t("dashboard.banner"),
+      icon: <FaImages />,
+      roles: [1],
+    },
+    {
+      path: "/userlist",
+      label: t("dashboard.userList"),
+      icon: <FaUsers />,
+      roles: [1],
+    },
+    {
+      path: "/staff",
+      label: t("dashboard.staff"),
+      icon: <FaUserTie />,
+      roles: [1],
+    },
+    {
+      path: "/patner",
+      label: t("dashboard.partner"),
+      icon: <LuHandshake />,
+      roles: [1],
+    },
+    {
+      path: "/tour",
+      label: t("dashboard.tours"),
+      icon: <MdOutlineTravelExplore />,
+      roles: [1, 2],
+    },
+    {
+      path: "/carservices",
+      label: t("dashboard.carRental"),
+      icon: <FaCar />,
+      roles: [1, 4],
+    },
+    {
+      path: "/parking",
+      label: t("dashboard.carParking"),
+      icon: <RiParkingFill />,
+      roles: [1, 5],
+    },
+    {
+      path: "/staffnotification",
+      label: t("dashboard.staffNotification"),
+      icon: <IoMdNotifications />,
+      roles: [1, 2, 4, 5],
+    },
+    {
+      path: "/settings",
+      label: t("dashboard.settings"),
+      icon: <IoSettingsSharp />,
+      roles: [1, 2],
+    },
+    {
+      path: "/",
+      label: t("dashboard.logout"),
+      icon: <FaSignOutAlt />,
+      roles: [1, 2, 3, 4, 5],
+    },
+  ];
 
   const showAnimation = {
     hidden: {

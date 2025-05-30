@@ -244,6 +244,12 @@ const Activities: React.FC = () => {
       setSubmitLoading(false);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
+         toast.current?.show({
+          severity: "error",
+          summary: "Deleted",
+          detail: " deleted successfully",
+          life: 3000,
+        });
         setActivities(
           activities.filter(
             (activity) => activity.refActivitiesId !== refActivitiesId
@@ -291,6 +297,10 @@ const Activities: React.FC = () => {
     <>
        <Toast ref={toast} />
       <h2 className="font-bold mb-3">Add New Activities</h2>
+
+      <p className="text-sm text-[#f60000] mt-3 mb-3">
+          Please fill in the details below in English. *
+        </p>
 
       <div className="flex flex-row gap-5">
         {" "}

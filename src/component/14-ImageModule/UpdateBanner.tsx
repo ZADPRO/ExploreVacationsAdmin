@@ -10,6 +10,8 @@ import { Toast } from "primereact/toast";
 import { FileUpload } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { useTranslation } from "react-i18next";
+
 
 interface BannerProps {
   closeBanner: () => void;
@@ -21,15 +23,19 @@ interface ModuleOption {
   value: number;
 }
 
-interface Banner{
-   refHomePageId: string,
-    refHomePageName: string,
-    homePageHeading: string,
-    homePageContent: string,
-    refOffer: string,
-    refOfferName: string,
-    homePageImage: { filename: string, contentType: string, content: string } |null,
-    refModuleId: string | null,
+interface Banner {
+  refHomePageId: string;
+  refHomePageName: string;
+  homePageHeading: string;
+  homePageContent: string;
+  refOffer: string;
+  refOfferName: string;
+  homePageImage: {
+    filename: string;
+    contentType: string;
+    content: string;
+  } | null;
+  refModuleId: string | null;
 }
 
 const moduleOptions: ModuleOption[] = [
@@ -63,7 +69,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
   const [_loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
   const [_editStaffId, setEditStaffId] = useState<number | null>(null);
-
+  const { t } = useTranslation("global");
 
   const Updatebanner = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -82,7 +88,9 @@ const UpdateBanner: React.FC<BannerProps> = ({
           refOfferName: inputs.refOfferName,
           refModuleId: selectedType,
           homePageImage:
-            profileImage === "" ? inputs.homePageImage?.filename ?? "" : profileImage,
+            profileImage === ""
+              ? inputs.homePageImage?.filename ?? ""
+              : profileImage,
         },
         {
           headers: {
@@ -243,7 +251,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
 
   //delete banner
 
-    const deletebanner = async (id: any) => {
+  const deletebanner = async (id: any) => {
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/bookingRoutes/deletehomeImage",
@@ -267,7 +275,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-                toast.current?.show({
+        toast.current?.show({
           severity: "success",
           summary: "Success",
           detail: "Successfully Deleted",
@@ -293,6 +301,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
       <Toast ref={toast} />
 
       <div>Banner ID : {BannerupdateID}</div>
+      <p className="text-sm text-[#f60000] mt-3">{t("dashboard.warning")}</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -324,7 +333,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
           )}
         </div>
         <div className="mt-3">
-          <h2 className="mt-3">Upload Image</h2>
+          <h2 className="mt-3">{t("dashboard.upload image")} </h2>
           <FileUpload
             name="logo"
             customUpload
@@ -332,17 +341,13 @@ const UpdateBanner: React.FC<BannerProps> = ({
             uploadHandler={profile}
             accept="image/*"
             maxFileSize={10000000}
-            emptyTemplate={
-              <p className="m-0">
-                Drag and drop your Banner image here to upload in Kb.
-              </p>
-            }
+            emptyTemplate={<p className="m-0">{t("dashboard.imagewarning")}</p>}
           />
         </div>
 
         <div className="flex flex-row gap-3 mt-5">
           <InputText
-            placeholder="Enter Banner heading"
+            placeholder={t("dashboard.Enter Banner heading")}
             name="refHomePageName"
             required
             className="w-full"
@@ -355,7 +360,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
 
           <InputText
             name="homePageHeading"
-            placeholder="Enter homepage heading"
+            placeholder={t("dashboard.Enter homepage heading")}
             className="w-full"
             onChange={(e: any) => {
               console.log("inputs----", inputs.homePageHeading);
@@ -386,13 +391,13 @@ const UpdateBanner: React.FC<BannerProps> = ({
             }}
             options={moduleOptions}
             optionValue="value"
-            placeholder="Select Module"
+            placeholder={t("dashboard.Select Module")}
             className="w-full"
           />
         </div>
         <div className="flex flex-row gap-3 mt-5">
           <InputText
-            placeholder="Enter homePage Content"
+            placeholder={t("dashboard.Enter homePage Content")}
             name="homePageContent"
             onChange={(e: any) => {
               console.log("inputs----", inputs.homePageContent);
@@ -404,7 +409,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
           />
           <InputText
             name="refOffer"
-            placeholder="Enter Offer"
+            placeholder={t("dashboard.Enter Offer")}
             onChange={(e: any) => {
               console.log("inputs----", inputs.refOffer);
               setInputs({ ...inputs, refOffer: e.target.value });
@@ -415,7 +420,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
           />
           <InputText
             name="refOfferName"
-            placeholder="Enter Offer Name"
+            placeholder={t("dashboard.Enter Offer Name")}
             onChange={(e: any) => {
               console.log("inputs----", inputs.refOfferName);
               setInputs({ ...inputs, refOfferName: e.target.value });
@@ -426,7 +431,7 @@ const UpdateBanner: React.FC<BannerProps> = ({
           />
         </div>
         <div className="flex justify-center mt-5">
-          <Button type="submit" label="Submit" onClick={closeBanner} />
+          <Button type="submit" label={t("dashboard.Submit")} onClick={closeBanner} />
         </div>
       </form>
     </div>

@@ -8,9 +8,10 @@ interface PdfViewerProps {
 }
 
 const PdfViewer: React.FC<PdfViewerProps> = ({ pdfUrl }) => {
+  console.log("pdfUrl", pdfUrl);
   const [visible, setVisible] = useState(false);
 
-  console.log(pdfUrl)
+  console.log(pdfUrl);
   return (
     <div className="card flex justify-content-center">
       <Button

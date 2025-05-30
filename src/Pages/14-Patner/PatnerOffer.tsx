@@ -12,6 +12,9 @@ import { Dropdown } from "primereact/dropdown";
 import { RadioButton } from "primereact/radiobutton";
 import { Sidebar } from "primereact/sidebar";
 import UpdatePatnerOffter from "./UpdatePatnerOffter";
+import { useTranslation } from "react-i18next";
+
+
 
 interface Offer {
   refOffersName: string;
@@ -23,15 +26,16 @@ interface Offer {
 }
 
 const PatnerOffer: React.FC = () => {
+  const { t } = useTranslation("global");
   const toast = useRef<Toast>(null);
   const [_submitLoading, setSubmitLoading] = useState(false);
   const [offer, setOffer] = useState<Offer[]>([]);
   const [_editPatnerId, setEditPatnerId] = useState<number | null>(null);
-  const[offerUpdatesidebar,setOfferUpdatesidebar]=useState(false)
-  const[offerupdateID,setOfferupdateID]=useState("")
+  const [offerUpdatesidebar, setOfferUpdatesidebar] = useState(false);
+  const [offerupdateID, setOfferupdateID] = useState("");
   const closeOfferupdatesidebar = () => {
     setOfferUpdatesidebar(false);
-  }
+  };
 
   const [formData, setFormData] = useState<Offer>({
     refOffersName: "",
@@ -150,107 +154,102 @@ const PatnerOffer: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("fetchOfferPatner------>", data);
         setOffer(data.result);
-        
       }
     } catch (e: any) {
       console.log("Error fetching patner:", e);
     }
   };
   // delete
-  
-    const deletePatnerOffer = async (id: any) => {
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/partnerRoutes/deleteOffers",
-          {
-            refOffersId: id,
+
+  const deletePatnerOffer = async (id: any) => {
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/partnerRoutes/deleteOffers",
+        {
+          refOffersId: id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
           },
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-  
-        const data = decryptAPIResponse(
-          response.data[1],
-          response.data[0],
-          import.meta.env.VITE_ENCRYPTION_KEY
-        );
-        console.log("API Response:", data);
-  
-        if (data.success) {
-          localStorage.setItem("token", "Bearer " + data.token);
-          fetchOfferPatner();
-          toast.current?.show({
-            severity: "success",
-            summary: "Success",
-            detail: "Successfully Deleted",
-            life: 3000,
-          });
-        } else {
-          console.error("API update failed:", data);
-          toast.current?.show({
-            severity: "error",
-            summary: data.error,
-            detail: "Error While Deleting Staff",
-            life: 3000,
-          });
         }
-      } catch (e) {
-        console.error("Error updating package:", e);
-        setSubmitLoading(false);
-        setEditPatnerId(null);
-      }
-    };
-  
-    const actionDeleteOffer = (rowData: any) => {
-      console.log(rowData);
-  
-      return (
-        <Button
-          icon="pi pi-trash"
-          severity="danger"
-          onClick={() => deletePatnerOffer(rowData.refOffersId)}
-        />
       );
-    }
 
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
 
-     const fetchSingleIDOffer = async (offerupdateID: string) => {
-      console.log("Fetching data for update patner:", offerupdateID);
-      try {
-        const response = await axios.post(
-          import.meta.env.VITE_API_URL + "/partnerRoutes/getOffers",
-          {
-            refOffersId: offerupdateID,
-          },
-          {
-            headers: {
-              Authorization: localStorage.getItem("token"),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-  
-        const data = decryptAPIResponse(
-          response.data[1],
-          response.data[0],
-          import.meta.env.VITE_ENCRYPTION_KEY
-        );
-  
-        console.log("fetchSingleIDStaffdataForm----------------", data);
-        if (data.success) {
-          localStorage.setItem("token", "Bearer " + data.token);
-
-            
-          
-        }
-      } catch (e) {
-        console.error("Error fetching tour data:", e);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+        fetchOfferPatner();
+        toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting Staff",
+          life: 3000,
+        });
       }
-    };
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditPatnerId(null);
+    }
+  };
+
+  const actionDeleteOffer = (rowData: any) => {
+    console.log(rowData);
+
+    return (
+      <Button
+        icon="pi pi-trash"
+        severity="danger"
+        onClick={() => deletePatnerOffer(rowData.refOffersId)}
+      />
+    );
+  };
+
+  const fetchSingleIDOffer = async (offerupdateID: string) => {
+    console.log("Fetching data for update patner:", offerupdateID);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/partnerRoutes/getOffers",
+        {
+          refOffersId: offerupdateID,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("fetchSingleIDStaffdataForm----------------", data);
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+      }
+    } catch (e) {
+      console.error("Error fetching tour data:", e);
+    }
+  };
 
   return (
     <div>
@@ -345,74 +344,72 @@ const PatnerOffer: React.FC = () => {
       </form>
 
       <div className="mt-3 p-2">
-        <h3 className="text-lg font-bold">Added Offer</h3>
+        <h3 className="text-lg font-bold">{t("dashboard.Added Offer")}</h3>
         <DataTable
           value={offer}
           scrollable
-          style={{ width: "700px" }} // fixed width, triggers horizontal scroll if columns wider than this
+          style={{ width: "700px" }}
           paginator
           rows={3}
         >
           <Column
-            header="S.No"
+            header={t("dashboard.SNo")} // <-- use translation here
             headerStyle={{ width: "3rem" }}
             body={(_, options) => options.rowIndex + 1}
-          ></Column>
+          />
           <Column
-            className="underline   text-[#0a5c9c]  cursor-pointer "
+            className="underline text-[#0a5c9c] cursor-pointer"
             headerStyle={{ width: "25rem" }}
             field="refOffersName"
-            header="Offers Name"
+            header={t("dashboard.OffersName")} // if you want to translate other headers too
             body={(rowData) => (
               <div
-              onClick={() => {
-                setOfferupdateID(rowData.refOffersId);
-                setOfferUpdatesidebar(true);
-                fetchSingleIDOffer(rowData.refOffersId);
-              }}
+                onClick={() => {
+                  setOfferupdateID(rowData.refOffersId);
+                  setOfferUpdatesidebar(true);
+                  fetchSingleIDOffer(rowData.refOffersId);
+                }}
               >
-                {" "}
                 {rowData.refOffersName}
               </div>
             )}
           />
-
           <Column
             headerStyle={{ width: "15rem" }}
             field="refCoupon"
-            header="Coupon"
+            header={t("dashboard.Coupon")}
           />
           <Column
             headerStyle={{ width: "15rem" }}
             field="refOfferType"
-            header="Offer Type"
+            header={t("dashboard.OfferType")}
           />
           <Column
             headerStyle={{ width: "15rem" }}
             field="refOfferValue"
-            header="Value"
+            header={t("dashboard.Value")}
           />
           <Column
             headerStyle={{ width: "15rem" }}
-            header="Status"
+            header={t("dashboard.Status")}
             body={(rowData) => (
               <span
                 className={`font-semibold ${
                   rowData.isActive ? "text-[#009f10]" : "text-[#c20000]"
                 }`}
               >
-                {rowData.isActive ? "Active" : "InActive"}
+                {rowData.isActive
+                  ? t("dashboard.Active")
+                  : t("dashboard.InActive")}
               </span>
             )}
           />
-
           <Column
             headerStyle={{ width: "15rem" }}
             field="refDescription"
-            header="Description"
+            header={t("dashboard.Description")}
           />
-
-          <Column body={actionDeleteOffer} header="Delete" />
+          <Column body={actionDeleteOffer} header={t("dashboard.Delete")} />
         </DataTable>
       </div>
       <Sidebar

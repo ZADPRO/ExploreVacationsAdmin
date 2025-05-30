@@ -10,6 +10,9 @@ import { Button } from "primereact/button";
 import { MultiSelect } from "primereact/multiselect";
 import { FileUpload } from "primereact/fileupload";
 import { decryptAPIResponse } from "../../utils";
+import { useTranslation } from "react-i18next";
+
+
 interface CarUpdateProps {
   closeCarupdatesidebar: () => void;
   CarupdateID: string;
@@ -103,6 +106,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
   closeCarupdatesidebar,
   CarupdateID,
 }) => {
+  const { t } = useTranslation("global");
   const [_visible, setVisible] = useState(false);
   const [group, setGroup] = useState<Group[]>([]);
   const [car, setCar] = useState<Carname[]>([]);
@@ -748,8 +752,11 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
     <div>
       <div>
         <h2 className="text-xl font-bold">
-          Update New Car Package ID :{CarupdateID}
+          {t("dashboard.Update New Car Package")} ID :{CarupdateID}
         </h2>
+         <p className="text-sm text-[#f60000] mt-3">
+           {t("dashboard.warning")}
+          </p>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -1054,7 +1061,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
               accept="image/*"
               maxFileSize={10000000}
               emptyTemplate={
-                <p className="m-0">Drag and drop your Image here to upload.</p>
+                <p className="m-0">{t("dashboard.imagewarning")}</p>
               }
             />
             {" "}
@@ -1064,7 +1071,7 @@ const CarUpdate: React.FC<CarUpdateProps> = ({
             <Button
               onClick={closeCarupdatesidebar}
               type="submit"
-              label="Submit"
+              label={t("dashboard.Submit")}
               loading={isFormSubmitting}
             />
           </div>

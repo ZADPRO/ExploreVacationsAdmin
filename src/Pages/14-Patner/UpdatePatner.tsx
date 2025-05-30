@@ -157,7 +157,10 @@ const UpdatePatner: React.FC<PaterUpdateProps> = ({
   return (
     <div>
       <div className="mt-5">
-        <p className="mb-5">Update Patner Id : {patnerupdateID}</p>
+        <p className="mb-5 font-bold">Update Patner Id : {patnerupdateID}</p>
+         <p className="text-sm text-[#f60000] mt-2 mb-5">
+            Please fill in the details below in English. *
+          </p>
         <Toast ref={toast} />
         <form
           onSubmit={(e) => {

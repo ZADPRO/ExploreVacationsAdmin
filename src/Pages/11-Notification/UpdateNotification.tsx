@@ -5,6 +5,8 @@ import { useState, useEffect,type FormEvent} from "react";
 import CryptoJS from "crypto-js";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
+
 
 import { Button } from "primereact/button";
 // import { decryptAPIResponse } from "../../utils";
@@ -21,6 +23,7 @@ const UpdateNotification: React.FC<NotificationUpdateProps> = ({
   closeNotificationupdatesidebar,
   NotificationupdateID,
 }) => {
+    const { t } = useTranslation("global");
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -239,8 +242,11 @@ const UpdateNotification: React.FC<NotificationUpdateProps> = ({
       <div>
          <Toast ref={toast} />
         <h2 className="text-xl font-bold">
-          Update Staff Notification ID: {NotificationupdateID}
+          {t("dashboard.Update Staff Notification ID")} : {NotificationupdateID}
         </h2>
+        <p className="text-sm text-[#f60000] mt-3 mb-3">
+          {t("dashboard.warning")}
+        </p>
 
         <form
           onSubmit={(e) => {
@@ -310,7 +316,7 @@ const UpdateNotification: React.FC<NotificationUpdateProps> = ({
             <div>
               <Button
                 type="submit"
-                label="Submit"
+                label={t("dashboard.Submit")}
                 onClick={closeNotificationupdatesidebar}
                 loading={isFormSubmitting}
               />

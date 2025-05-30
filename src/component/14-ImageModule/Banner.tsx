@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+  import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -11,6 +11,7 @@ import { FileUpload } from "primereact/fileupload";
 import { InputText } from "primereact/inputtext";
 import UpdateBanner from "./UpdateBanner";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { useTranslation } from "react-i18next";
 
 interface ModuleOption {
   label: string;
@@ -24,9 +25,10 @@ const moduleOptions: ModuleOption[] = [
 ];
 
 const Banner: React.FC = () => {
+  const { t } = useTranslation("global");
   const [banner, setBanner] = useState<any[]>([]);
   const [bannerSidebar, setBannerSidebar] = useState(false);
- 
+
   const [bannerupdateID, setBannerupdateID] = useState("");
   const [visible, setVisible] = useState(false);
   const [_editBannerId, setEditBannerId] = useState<number | null>(null);
@@ -48,7 +50,6 @@ const Banner: React.FC = () => {
   });
   const [_loading, setLoading] = useState(false);
   const [_error, setError] = useState<string | null>(null);
- 
 
   const toast = useRef<Toast>(null);
 
@@ -127,8 +128,6 @@ const Banner: React.FC = () => {
     }));
   };
 
-
-  
   const Addnewbanner = async () => {
     setSubmitLoading(true);
     if (!formDataImages || formDataImages.length === 0) {
@@ -153,8 +152,7 @@ const Banner: React.FC = () => {
           refOffer: inputs.refOffer,
           refOfferName: inputs.refOfferName,
           homePageImage: formDataImages,
-          refModuleId:inputs.refModuleId,
-
+          refModuleId: inputs.refModuleId,
         },
         {
           headers: {
@@ -332,9 +330,11 @@ const Banner: React.FC = () => {
       <div>
         <div className="p-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-semibold">Banner Creation</h2>
+            <h2 className="text-2xl font-semibold">
+              {t("dashboard.BannerCreation")}
+            </h2>
             <Button
-              label="Add new Banner"
+              label={t("dashboard.Add new Banner")}
               severity="success"
               onClick={() => setVisible(true)}
             />
@@ -342,7 +342,9 @@ const Banner: React.FC = () => {
         </div>
 
         <div className="mt-3 p-2">
-          <h3 className="text-lg font-bold">Added Banner Package</h3>
+          <h3 className="text-lg font-bold">
+            {t("dashboard.AddedBannerPackage")}
+          </h3>
           <DataTable
             value={banner}
             tableStyle={{ minWidth: "50rem" }}
@@ -350,15 +352,16 @@ const Banner: React.FC = () => {
             rows={3}
           >
             <Column
-              header="S.No"
+              header={t("dashboard.SNo")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
             ></Column>
+
             <Column
-              className="underline   text-[#0a5c9c]  cursor-pointer "
+              className="underline text-[#0a5c9c] cursor-pointer"
               headerStyle={{ width: "15rem" }}
               field="homePageHeading"
-              header="homePage Heading"
+              header={t("dashboard.homePageHeading")}
               body={(rowData) => (
                 <div
                   onClick={() => {
@@ -367,7 +370,6 @@ const Banner: React.FC = () => {
                     fetchSingleBanner(rowData.refHomePageId);
                   }}
                 >
-                  {" "}
                   {rowData.homePageHeading}
                 </div>
               )}
@@ -376,25 +378,28 @@ const Banner: React.FC = () => {
             <Column
               headerStyle={{ width: "15rem" }}
               field="refHomePageName"
-              header="HomePage Name"
+              header={t("dashboard.HomePageName")}
             />
+
             <Column
               headerStyle={{ width: "15rem" }}
               field="homePageContent"
-              header="homePage Content"
+              header={t("dashboard.homePageContent")}
             />
 
             <Column
               headerStyle={{ width: "15rem" }}
               field="refOfferName"
-              header="OfferName"
+              header={t("dashboard.OfferName")}
             />
+
             <Column
               headerStyle={{ width: "15rem" }}
               field="refOffer"
-              header="Offer"
+              header={t("dashboard.Offer")}
             />
-            <Column body={actionDelete} header="actionDelete" />
+
+            <Column body={actionDelete} header={t("dashboard.actionDelete")} />
           </DataTable>
         </div>
 
@@ -405,7 +410,11 @@ const Banner: React.FC = () => {
           position="right"
         >
           <Toast ref={toast} />
-          <h2 className="text-xl font-bold">Banner Creation</h2>
+          <h2 className="text-xl font-bold">{t("dashboard.BannerCreation")}</h2>
+
+          <p className="text-sm text-[#f60000] mt-3">
+            {t("dashboard.warning")}
+          </p>
 
           <form
             method="post"
@@ -415,7 +424,7 @@ const Banner: React.FC = () => {
             }}
           >
             <div className="mt-3">
-              <h2 className="mt-3">Upload Image</h2>
+              <h2 className="mt-3">{t("dashboard.upload image")}</h2>
               <FileUpload
                 name="logo"
                 customUpload
@@ -424,16 +433,14 @@ const Banner: React.FC = () => {
                 accept="image/*"
                 maxFileSize={10000000}
                 emptyTemplate={
-                  <p className="m-0">
-                    Drag and drop your Banner image here to upload in Kb.
-                  </p>
+                  <p className="m-0">{t("dashboard.imagewarning")} </p>
                 }
               />
             </div>
 
             <div className="flex flex-row gap-3 mt-5">
               <InputText
-                placeholder="Enter Banner heading"
+                placeholder={t("dashboard.Enter Banner heading")}
                 name="refHomePageName"
                 required
                 className="w-full"
@@ -441,7 +448,7 @@ const Banner: React.FC = () => {
               />
               <InputText
                 name="homePageHeading"
-                placeholder="Enter homepage heading"
+                placeholder={t("dashboard.Enter homepage heading")}
                 className="w-full"
                 onChange={handleInput}
                 required
@@ -451,13 +458,13 @@ const Banner: React.FC = () => {
                 value={inputs.refModuleId}
                 options={moduleOptions}
                 onChange={handleInput1}
-                placeholder="Select Module"
+                placeholder={t("dashboard.Select Module")}
                 className="w-full"
               />
             </div>
             <div className="flex flex-row gap-3 mt-5">
               <InputText
-                placeholder="Enter homePage Content"
+                placeholder={t("dashboard.Enter homePage Content")}
                 name="homePageContent"
                 onChange={handleInput}
                 required
@@ -465,21 +472,21 @@ const Banner: React.FC = () => {
               />
               <InputText
                 name="refOffer"
-                placeholder="Enter Offer"
+                placeholder={t("dashboard.Enter Offer")}
                 onChange={handleInput}
                 className="w-full"
                 required
               />
               <InputText
                 name="refOfferName"
-                placeholder="Enter Offer Name"
+                placeholder={t("dashboard.Enter Offer Name")}
                 onChange={handleInput}
                 className="w-full"
                 required
               />
             </div>
             <div className="flex justify-center mt-5">
-              <Button type="submit" label="Submit" loading={isFormSubmitting} />
+              <Button type="submit" label={t("dashboard.Submit")} loading={isFormSubmitting} />
             </div>
           </form>
         </Sidebar>

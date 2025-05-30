@@ -8,6 +8,9 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { useTranslation } from "react-i18next";
+
+
 
 type DecryptResult = any;
 
@@ -17,6 +20,7 @@ interface categories {
 }
 
 const Categories: React.FC = () => {
+  const { t } = useTranslation("global");
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -246,6 +250,12 @@ const Categories: React.FC = () => {
 
       setSubmitLoading(false);
       if (data.success) {
+         toast.current?.show({
+          severity: "error",
+          summary: "Deleted",
+          detail: " deleted successfully",
+          life: 3000,
+        });
         localStorage.setItem("token", "Bearer " + data.token);
         setCategories(
           categories.filter(
@@ -287,15 +297,19 @@ const Categories: React.FC = () => {
       <div>
       <Toast ref={toast} />
         <h2 className="text-xl font-bold text-[#0a5c9c] mb-3">
-          Add New Categories
+         {t("dashboard.Add New Categories")}
         </h2>
+
+        <p className="text-sm text-[#f60000] mt-3 mb-3">
+         {t("dashboard.warning")}
+        </p>
         <div className="mb-3">
           <InputText
             name="refCategory"
             value={inputs.refCategory}
             onChange={handleInput}
             placeholder="Enter Categories"
-            className="p-inputtext-sm w-full"
+            className="p-inputtext-sm w-[50%]"
           />
         </div>
         <Button
@@ -307,32 +321,33 @@ const Categories: React.FC = () => {
         />
       </div>
       <div className="mt-4">
-        <h3 className="text-lg font-bold">Added Categories</h3>
-        <DataTable value={categories} className="p-datatable-sm mt-2">
-          <Column
-            body={snoTemplate}
-            header="S.No"
-            style={{ width: "10%", color: "#0a5c9c" }}
+        <h3 className="text-lg font-bold">{t("dashboard.Added Categories")}</h3>
+       <DataTable value={categories} className="p-datatable-sm mt-2">
+  <Column
+    body={snoTemplate}
+    header={t("dashboard.SNo")}
+    style={{ width: "10%", color: "#0a5c9c" }}
+  />
+  <Column
+    field="refCategoryName"
+    style={{ color: "#0a5c9c" }}
+    header={t("dashboard.CategoryName")}
+    body={(rowData) => (
+      <>
+        {editCategoryId === rowData.refCategoryId ? (
+          <InputText
+            value={editCategoryValue}
+            onChange={handleActivityInputChange}
           />
-          <Column
-            field="refCategoryName"
-            style={{ color: "#0a5c9c" }}
-            header="Categories Name"
-            body={(rowData) => (
-              <>
-                {editCategoryId === rowData.refCategoryId ? (
-                  <InputText
-                    value={editCategoryValue}
-                    onChange={handleActivityInputChange}
-                  />
-                ) : (
-                  <>{rowData.refCategoryName}</>
-                )}
-              </>
-            )}
-          />
-          <Column body={actionTemplate} header="Actions" />
-        </DataTable>
+        ) : (
+          <>{rowData.refCategoryName}</>
+        )}
+      </>
+    )}
+  />
+  <Column body={actionTemplate} header={t("dashboard.Actions")} />
+</DataTable>
+
       </div>
     </>
   );

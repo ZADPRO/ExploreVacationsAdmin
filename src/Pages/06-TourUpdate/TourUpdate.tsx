@@ -17,6 +17,9 @@ import { FileUpload } from "primereact/fileupload";
 import Location from "../01-Location/Location";
 import { fetchTours } from "../../services/TourServices";
 import { Toast } from "primereact/toast";
+import { useTranslation } from "react-i18next";
+
+
 
 interface Destination {
   refDestinationId: string;
@@ -45,6 +48,7 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   tourupdateID,
 }) => {
   const isFormSubmitting = false;
+    const { t } = useTranslation("global");
 
   const [_isAddTourOpen, setIsAddTourOpen] = useState(false);
   const [destinations, setDestinations] = useState<Destination[]>([]);
@@ -837,8 +841,13 @@ const TourUpdate: React.FC<TourUpdateProps> = ({
   return (
     <div>
       <h2 className="text-xl font-bold">
-        Update New Tour Package ID:{tourupdateID}
+        {t("dashboard.Update New Tour Package")}  ID:{tourupdateID}
       </h2>
+      
+      
+       <p className="text-sm text-[#f60000] mt-3">
+           {t("dashboard.warning")}
+          </p>
 
       <form
         onSubmit={(e) => {

@@ -36,13 +36,13 @@ const MainRoutes: React.FC = () => {
             <Route path="/carrental" element={<CarRentals />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/userlist" element={<Userlist />} />
-            <Route path="/banner" element={<Banner/>}/>
+            <Route path="/banner" element={<Banner />} />
             <Route path="/userdetails" element={<UserDetails />} />
             <Route path="/staffnotification" element={<StaffNotification />} />
             <Route path="/parking" element={<Parking />} />
             <Route path="/staff" element={<Staff />} />
-            <Route path="/patner" element={<Patner/>}/>
-             <Route path="/touragreement" element={<TourAgreement/>  }/>
+            <Route path="/patner" element={<Patner />} />
+            <Route path="/touragreement" element={<TourAgreement />} />
           </Routes>
         </Header>
       </Router>

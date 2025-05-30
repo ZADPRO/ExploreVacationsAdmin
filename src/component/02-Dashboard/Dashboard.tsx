@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
 import { Card } from "primereact/card";
-// import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
-// import CryptoJS from "crypto-js";
 import { BsBell } from "react-icons/bs";
 import { FiArrowRight } from "react-icons/fi";
 import { decryptAPIResponse } from "../../utils";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+
 
 const Dashboard: React.FC = () => {
-  // const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
+  const { t } = useTranslation("global");
+
+  // language, flagEN, flagDE are not defined in your original snippet, so removed getFlag and handleChangeLang
+
   const [dashboard, setDashboard] = useState<any>({});
   const [staffnote, setStaffnote] = useState<any>({});
   const navigate = useNavigate();
 
   // Assuming 'roleId' is stored in localStorage
   const roleId = parseInt(localStorage.getItem("roleId") || "0", 10);
-  console.log('parseInt(localStorage.getItem("roleId") || "0", 10)', parseInt(localStorage.getItem("roleId") || "0", 10))
 
   // Map roleId to label
   const roleLabels: Record<number, string> = {
@@ -35,7 +38,7 @@ const Dashboard: React.FC = () => {
         import.meta.env.VITE_API_URL + "/adminRoutes/dashBoard",
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization: localStorage.getItem("token") || "",
             "Content-Type": "application/json",
           },
         }
@@ -46,15 +49,13 @@ const Dashboard: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data ---------->list dashboard", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        console.log("data - dashboard", data);
+        console.log("data------------------>", data);
         setDashboard(data.dashBoard[0]);
-        console.log("data - dashboard", data.dashBoard[0]);
       }
     } catch (e: any) {
-      console.log("Error fetching destinations:", e);
+      console.log("Error fetching dashboard:", e);
     }
   };
 
@@ -65,7 +66,7 @@ const Dashboard: React.FC = () => {
           "/notificationRoutes/staffNotificationCount",
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization: localStorage.getItem("token") || "",
             "Content-Type": "application/json",
           },
         }
@@ -76,17 +77,15 @@ const Dashboard: React.FC = () => {
         response.data[0],
         import.meta.env.VITE_ENCRYPTION_KEY
       );
-      console.log("data ---------->list fetchstaffnotification", data);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        console.log("data - fetchstaffnotification", data);
         setStaffnote(data.Result[0]);
-        console.log("data - fetchstaffnotification", data.Result[0]);
       }
     } catch (e: any) {
       console.log("Error fetching staffnotification:", e);
     }
   };
+
   useEffect(() => {
     fetchDashboard();
     fetchstaffnotification();
@@ -95,55 +94,68 @@ const Dashboard: React.FC = () => {
   const cardConfigs = [
     {
       key: "tourBookingCount",
-      title: "Tour Booked",
+      title: t("dashboard.Tour Booked"),
+      tabIndex: 1,
       path: "/userdetails",
       roles: ["Admin", "Employee - Tours"],
     },
     {
       key: "customizeTourBookingCount",
-      title: "Customize Booked",
+      title: t("dashboard.Customize Booked"),
+      tabIndex: 0,
       path: "/userdetails",
       roles: ["Admin", "Employee - Tours"],
     },
     {
       key: "carBookingCount",
-      title: "Car Booked",
+      title: t("dashboard.Car Booked"),
+      tabIndex: 2,
       path: "/userdetails",
       roles: ["Admin", "Employee - Cars"],
     },
     {
       key: "carParkingBookingCount",
-      title: "Parking Booked",
+      title: t("dashboard.Parking Booked"),
+      tabIndex: 3,
       path: "/userdetails",
       roles: ["Admin", "Employee - Parking"],
     },
     {
       key: "tourCount",
-      title: "Tour Package",
+      title: t("dashboard.Tour Package"),
+      tabIndex: 0,
       path: "/tour",
       roles: ["Admin", "Employee - Tours"],
     },
     {
       key: "carCount",
-      title: "Car Package",
+      title: t("dashboard.Car Package"),
+      tabIndex: 0,
       path: "/carservices",
       roles: ["Admin", "Employee - Cars"],
     },
     {
       key: "CarParkingCount",
-      title: "Parking Package",
+      title: t("dashboard.Parking Package"),
+      tabIndex: 0,
       path: "/parking",
       roles: ["Admin", "Employee - Parking"],
     },
     {
       key: "logInClientCount",
-      title: "Customer Login",
+      tabIndex: 0,
+      title: t("dashboard.Customer Login"),
       path: "/userlist",
-      roles: ["Admin", "Employee - Tours", "Employee - Cars", "Employee - Parking"],
+      roles: [
+        "Admin",
+        "Employee - Tours",
+        "Employee - Cars",
+        "Employee - Parking",
+      ],
     },
   ];
 
-  // Filter the cards to be shown for current user
+  // Filter cards visible to current user role
   const visibleCards = cardConfigs.filter((card) =>
     card.roles.includes(userRole)
   );
@@ -164,145 +176,33 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <div>
-        <div className="text-2xl font-semibold p-3">Dashboard</div>
+        <div className="text-2xl font-semibold p-3">
+          {t("dashboard.Dashboard")}
+        </div>
         <div className="flex flex-row justify-end">
           <div
             className="flex items-center w-[10%] justify-end cursor-pointer"
             onClick={() => navigate("/staffnotification")}
-            title="View Notifications"
+            title={t("dashboard.Customer Login")}
           >
             <NotificationIconWithBadge
               count={staffnote?.unReadNotifications || 0}
             />
           </div>
         </div>
-        {/* <div className="flex flex-col gap-20">
-          <div className="flex flex-row gap-10 px-5  justify-evenly">
-         
-            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] flex-1 h-10 cursor-pointer">
-              <Card style={{ color: "#0a5c9c" }} title="Tour Booked">
-                <div  className="flex  flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold">Count:</p>{" "}
-                  {dashboard?.tourBookingCount}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
-                </div>
-              </Card>
-            </div>
-        
-            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1 h-10">
-              <Card style={{ color: "#0a5c9c" }} title="Customize Booked">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard?.customizeTourBookingCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
-                </div>
-              </Card>
-            </div>
-       
-            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Car Booked">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.carBookingCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
-                </div>
-              </Card>
-            </div>
-          
-            <div onClick={() => navigate("/userdetails")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Parking Booked">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.carParkingBookingCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/userdetails")} />{" "}
-                </div>
-              </Card>
-            </div>
-          </div>
-          <div className="flex flex-row gap-10 px-5  justify-evenly">
-         
-            <div onClick={() => navigate("/tour")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Tour Package">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.tourCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/tour")} />{" "}
-                </div>
-              </Card>
-            </div>
-          
-            <div onClick={() => navigate("/carservices")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Car Package">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.carCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/carservices")} />{" "}
-                </div>
-              </Card>
-            </div>
-        
-            <div onClick={() => navigate("/parking")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Parking Package">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.CarParkingCount}{" "}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/parking")} />{" "}
-                </div>
-              </Card>
-            </div>
-        
-            <div  onClick={() => navigate("/userlist")} className="text-[#0a5c9c] cursor-pointer flex-1">
-              <Card style={{ color: "#0a5c9c" }} title="Customer Login">
-                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  {" "}
-                  <p className="font-bold"> Count:</p>
-                  {dashboard.logInClientCount}
-                </div>
-                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
-                  {" "}
-                  <FiArrowRight onClick={() => navigate("/userlist")} />{" "}
-                </div>
-              </Card>
-            </div>
-          </div>
-        </div> */}
+
         <div className="flex flex-row gap-10 px-5 justify-evenly flex-wrap">
           {visibleCards.map((card) => (
             <div
               key={card.key}
-              onClick={() => navigate(card.path)}
+              onClick={() =>
+                navigate(card.path, { state: { tabIndex: card.tabIndex } })
+              }
               className="text-[#0a5c9c] cursor-pointer flex-1 min-w-[250px] max-w-[300px]"
             >
               <Card style={{ color: "#0a5c9c" }} title={card.title}>
                 <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
-                  <p className="font-bold">Count:</p>
+                  <p className="font-bold">{t("dashboard.Count")}:</p>
                   {dashboard[card.key]}
                 </div>
                 <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">

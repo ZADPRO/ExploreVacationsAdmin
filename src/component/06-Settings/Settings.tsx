@@ -7,18 +7,20 @@ import Location from "../../Pages/01-Location/Location";
 import Activities from "../../Pages/02-Activities/Activities";
 import Categories from "../../Pages/03-Categories/Categories";
 import Notification from "../../Pages/11-Notification/Notification";
+import { useTranslation } from "react-i18next";
+
 
 const Settings: React.FC = () => {
     const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
-
+  const { t } = useTranslation("global");
     return (
         <>
             <div>
-                <div className="text-2xl font-semibold p-3">Settings</div>
+                <div className="text-2xl font-semibold p-3">{t("dashboard.Settings")}</div>
                 <div className="flex flex-row gap-3 px-5  justify-evenly">
                     {/* Destination */}
                     <div className="text-[#0a5c9c] flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title="Destination">
+                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Destination")}>
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("destination")} />
                             </div>
@@ -27,7 +29,7 @@ const Settings: React.FC = () => {
 
                     {/* Location */}
                     <div className="flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title="Location">
+                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Location")}>
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("location")} />
                             </div>
@@ -36,7 +38,7 @@ const Settings: React.FC = () => {
 
                     {/* Activities */}
                     <div className="flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title="Activities">
+                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Activities")}>
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("activities")} />
                             </div>
@@ -45,7 +47,7 @@ const Settings: React.FC = () => {
 
                     {/* Categories */}
                     <div className="flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title="Categories">
+                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Categories")}>
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("categories")} />
                             </div>
@@ -53,7 +55,7 @@ const Settings: React.FC = () => {
                     </div>
                        {/* Notification */}
                        <div className="flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title="Notification">
+                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Notification")}>
                             <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("notification")} />
                             </div>

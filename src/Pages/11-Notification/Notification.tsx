@@ -11,6 +11,9 @@ import { Column } from "primereact/column";
 import { Sidebar } from "primereact/sidebar";
 import { Toast } from "primereact/toast";
 import UpdateNotification from "./UpdateNotification";
+import { useTranslation } from "react-i18next";
+
+
 interface Notification {
   refNotificationsId: number;
   refSubject: string;
@@ -21,6 +24,7 @@ interface Notification {
 
 type DecryptResult = any;
 const Notification: React.FC = () => {
+  const { t } = useTranslation("global");
   const decrypt = (
     encryptedData: string,
     iv: string,
@@ -290,9 +294,15 @@ const Notification: React.FC = () => {
   return (
     <>
       <div>
-        <h2 className="text-xl font-bold mb-4">Notification</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {t("dashboard.Notification")}
+        </h2>
+
+        <p className="text-sm text-[#f60000] mt-3 mb-3">
+          {t("dashboard.warning")}
+        </p>
         <TabView>
-          <TabPanel header="Add Notification">
+          <TabPanel header={t("dashboard.Add Notification")}>
             <div className="flex flex-col items-center justify-center gap-10% w-[100%] ">
               {" "}
               <Toast ref={toast} />
@@ -363,10 +373,12 @@ const Notification: React.FC = () => {
               </form>
             </div>
           </TabPanel>
-          <TabPanel header="History">
+          <TabPanel header={t("dashboard.History")}>
             <div className="mt-3 p-2">
               <Toast ref={toast} />
-              <h3 className="text-lg font-bold">Added Notification</h3>
+              <h3 className="text-lg font-bold">
+                {t("dashboard.Added Notification")}
+              </h3>
               <DataTable
                 value={notification}
                 tableStyle={{ minWidth: "50rem" }}
@@ -374,15 +386,15 @@ const Notification: React.FC = () => {
                 rows={3}
               >
                 <Column
-                  header="S.No"
+                  header={t("dashboard.SNo")}
                   headerStyle={{ width: "3rem" }}
                   body={(_, options) => options.rowIndex + 1}
-                ></Column>
+                />
                 <Column
-                  className="underline   text-[#0a5c9c]  cursor-pointer "
+                  className="underline text-[#0a5c9c] cursor-pointer"
                   headerStyle={{ width: "20rem" }}
                   field="refSubject"
-                  header="Subject"
+                  header={t("dashboard.Subject")}
                   body={(rowData) => (
                     <div
                       onClick={() => {
@@ -391,7 +403,6 @@ const Notification: React.FC = () => {
                         fetchNotificationId(rowData.refNotificationsId);
                       }}
                     >
-                      {" "}
                       {rowData.refSubject}
                     </div>
                   )}
@@ -399,28 +410,21 @@ const Notification: React.FC = () => {
                 <Column
                   headerStyle={{ width: "15rem" }}
                   field="refUserType"
-                  header="Employee Type"
+                  header={t("dashboard.EmployeeType")}
                   body={(rowData) =>
                     Array.isArray(rowData.refUserType)
                       ? rowData.refUserType.join(", ")
                       : rowData.refUserType
                   }
                 />
-
                 <Column
                   headerStyle={{ width: "15rem" }}
                   field="refDescription"
-                  header="Description"
+                  header={t("dashboard.Description")}
                 />
-                {/* <Column
-                className=""
-                  headerStyle={{ width: "15rem" }}
-                  field="refNotes"
-                  header="Notes"
-                /> */}
                 <Column
                   field="refNotes"
-                  header="Notes"
+                  header={t("dashboard.Notes")}
                   headerStyle={{ width: "15rem" }}
                   body={(rowData) => {
                     const isLink =
@@ -440,8 +444,10 @@ const Notification: React.FC = () => {
                     );
                   }}
                 />
-
-                <Column body={actionDeleteNotification} header="Delete" />
+                <Column
+                  body={actionDeleteNotification}
+                  header={t("dashboard.Delete")}
+                />
               </DataTable>
             </div>
           </TabPanel>

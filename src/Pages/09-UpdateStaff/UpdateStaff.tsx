@@ -10,6 +10,8 @@ import { Button } from "primereact/button";
 import { decryptAPIResponse } from "../../utils";
 import { FileUpload } from "primereact/fileupload";
 import { MultiSelect } from "primereact/multiselect";
+import { useTranslation } from "react-i18next";
+
 
 interface StaffUpdateProps {
   closeStaffupdatesidebar: () => void;
@@ -53,6 +55,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
   StaffupdateID,
 }) => {
   const isFormSubmitting = false;
+  const { t } = useTranslation("global");
 
   const [_isAddStaffOpen, setIsAddStaffOpen] = useState(false);
   const [selectedEmployeeType, setSelectedEmployeeType] = useState<any[]>([]);
@@ -148,6 +151,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
       if (data.success) {
         // await addTour(payload);
         // setIsFormSubmitting(false);
+        
         localStorage.setItem("token", "Bearer " + data.token);
 
         setIsAddStaffOpen(false);
@@ -349,6 +353,12 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
   const handleUploadSuccessMap = (response: any) => {
     console.log("Upload Successful:", response);
     setProfileImage(response.filePath);
+     toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Updated",
+          life: 3000,
+        });
   };
 
   const handleUploadFailure = (error: any) => {
@@ -360,6 +370,11 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
     <div>
       <div>
         <Toast ref={toast} />
+        
+      <div>{t("dashboard.StaffID")} : {  StaffupdateID}</div>
+       <p className="text-sm text-[#f60000] mt-3">
+           {t("dashboard.warning")}
+          </p>
 
         <form
           onSubmit={(e) => {
@@ -485,7 +500,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
             </div>
 
             <div>
-              <h2 className="mt-3">Upload Profile * </h2>
+              <h2 className="mt-3"> {t("dashboard.Upload Profile")} * </h2>
               <FileUpload
                 name="logo"
                 customUpload
@@ -494,7 +509,7 @@ const UpdateStaff: React.FC<StaffUpdateProps> = ({
                 accept="image/*"
                 maxFileSize={10000000}
                 emptyTemplate={
-                  <p className="m-0">Drag and drop your image here to upload.</p>
+                  <p className="m-0">{t("dashboard.imagewarning")}</p>
                 }
               />
             </div>

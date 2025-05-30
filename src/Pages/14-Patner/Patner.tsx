@@ -14,6 +14,8 @@ import { Nullable } from "primereact/ts-helpers";
 import UpdatePatner from "../14-Patner/UpdatePatner";
 import PatnerOffer from "./PatnerOffer";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { useTranslation } from "react-i18next";
+
 
 interface Patner {
   refFName: String;
@@ -27,6 +29,7 @@ interface Patner {
 interface Offer {}
 
 const Patner: React.FC = () => {
+  const { t } = useTranslation("global");
   const [visible, setVisible] = useState(false);
   const toast = useRef<Toast>(null);
   const [_submitLoading, setSubmitLoading] = useState(false);
@@ -337,10 +340,8 @@ const Patner: React.FC = () => {
             isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
           } text-white py-1 px-2 rounded`}
           onClick={() => {
-            
             if (!isApproved) {
               readAirport(rowData.refuserId); // Call readTour to approve it
-             
             }
           }}
           disabled={isApproved} // Disable the button if already approved
@@ -385,16 +386,20 @@ const Patner: React.FC = () => {
     <div>
       <div className="p-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Partner Module</h2>
+          <h2 className="text-2xl font-semibold">
+            {t("dashboard.Partner Module")}
+          </h2>
           <Button
-            label="Add new Partner"
+            label={t("dashboard.Add New Partner")}
             severity="success"
             onClick={() => setVisible(true)}
           />
         </div>
 
         <div className="mt-3 p-2">
-          <h3 className="text-lg font-bold">Added Partner Package</h3>
+          <h3 className="text-lg font-bold">
+            {t("dashboard.Added Partner Package")}
+          </h3>
           <DataTable
             value={patner}
             tableStyle={{ minWidth: "50rem" }}
@@ -402,15 +407,15 @@ const Patner: React.FC = () => {
             rows={3}
           >
             <Column
-              header="S.No"
+              header={t("dashboard.SNo")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
-            ></Column>
+            />
             <Column
-              className="underline   text-[#0a5c9c]  cursor-pointer "
+              className="underline text-[#0a5c9c] cursor-pointer"
               headerStyle={{ width: "25rem" }}
               field="refCustId"
-              header="Staff ID"
+              header={t("dashboard.StaffID")}
               body={(rowData) => (
                 <div
                   onClick={() => {
@@ -419,44 +424,41 @@ const Patner: React.FC = () => {
                     fetchSingleIDPatnerdataForm(rowData.refuserId);
                   }}
                 >
-                  {" "}
                   {rowData.refCustId}
                 </div>
               )}
             />
-
             <Column
               headerStyle={{ width: "15rem" }}
               field="refFName"
-              header="First Name"
+              header={t("dashboard.First Name")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refLName"
-              header="Last Name"
+              header={t("dashboard.LastName")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refMoblile"
-              header="Moblile"
+              header={t("dashboard.Mobile")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refUserEmail"
-              header="Email"
+              header={t("dashboard.Email")}
             />
-             <Column
+            <Column
               headerStyle={{ width: "15rem" }}
               field="refOffersName"
-              header="Offers Name"
+              header={t("dashboard.OffersName")}
             />
             <Column
               className="cursor-pointer"
               body={actionReadAirport}
-              header="Apply"
+              header={t("dashboard.Apply")}
             />
-
-            <Column body={actionDeletePatner} header="Delete" />
+            <Column body={actionDeletePatner} header={t("dashboard.Delete")} />
           </DataTable>
         </div>
       </div>
@@ -467,10 +469,14 @@ const Patner: React.FC = () => {
         position="right"
       >
         <Toast ref={toast} />
-        <h2 className="text-xl font-bold mb-4">Add New Partner</h2>
+        <h2 className="text-xl font-bold mb-4">{t("dashboard.Add New Partner")}</h2>
+
+        <p className="text-sm text-[#f60000] mt-3">
+          {t("dashboard.warning")}
+        </p>
 
         <TabView>
-          <TabPanel header="Add Partner">
+          <TabPanel header={t("dashboard.Add Partner")}>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -544,7 +550,7 @@ const Patner: React.FC = () => {
               </div>
             </form>
           </TabPanel>
-          <TabPanel header="Add Partner Offer">
+          <TabPanel header={t("dashboard.Add Partner Offer")}>
             <PatnerOffer />
           </TabPanel>
         </TabView>

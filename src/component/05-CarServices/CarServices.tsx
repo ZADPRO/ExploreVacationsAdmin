@@ -18,6 +18,8 @@ import { MultiSelect } from "primereact/multiselect";
 
 import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
+import { useTranslation } from "react-i18next";
+
 
 import CarUpdate from "../../Pages/07-CarUpdate/CarUpdate";
 import AddExtra from "./AddExtra";
@@ -73,6 +75,7 @@ function transformArrayToObject(array: string[], key: string) {
 }
 
 const CarServices: React.FC = () => {
+  const { t } = useTranslation("global");
   const [inputs, setInputs] = useState({
     refVehicleTypeName: "",
     refCarTypeId: "",
@@ -421,7 +424,7 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         console.log("data - setGroup", data);
-        
+
         setGroup(data.result);
       }
     } catch (e: any) {
@@ -1792,15 +1795,17 @@ const CarServices: React.FC = () => {
     <div className="p-4">
       <Toast ref={toast} />
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Cab Rental</h2>
+        <h2 className="text-2xl font-semibold">{t("dashboard.Cab Rental")}</h2>
         <Button
-          label="Add Cab Rental"
+          label={t("dashboard.Add Cab Rental")}
           severity="success"
           onClick={() => setVisible(true)}
         />
       </div>
       <div className="mt-3 p-2">
-        <h3 className="text-lg font-bold">Added Car Package</h3>
+        <h3 className="text-lg font-bold">
+          {t("dashboard.Added Car Package")}
+        </h3>
         <DataTable
           value={cabDetils}
           tableStyle={{ minWidth: "50rem" }}
@@ -1808,14 +1813,14 @@ const CarServices: React.FC = () => {
           rows={4}
         >
           <Column
-            header="S.No"
+            header={t("dashboard.SNo")}
             headerStyle={{ width: "3rem" }}
             body={(_, options) => options.rowIndex + 1}
           ></Column>
 
           <Column
             className="  text-[#0a5c9c] underline cursor-pointer  "
-            header="Car Name"
+            header={t("dashboard.Car Name")}
             field="refVehicleTypeName"
             style={{ minWidth: "200px" }}
             body={(rowData) => (
@@ -1831,47 +1836,47 @@ const CarServices: React.FC = () => {
           ></Column>
           <Column
             field="refTrasmissionType"
-            header="Transmission Type"
+            header={t("dashboard.Transmission Type")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refcarManufactureYear"
-            header="Manufacture Year"
+            header={t("dashboard.Manufacture Year")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refPersonCount"
-            header="Person Count"
+            header={t("dashboard.Person Count")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refMileage"
-            header="Mileage"
+            header={t("dashboard.Mileage")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refCarPrice"
-            header="Car Price"
+            header={t("dashboard.Car Price")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refFuleLimit"
-            header="Fuel Limit"
+            header={t("dashboard.Fuel Limit")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refFuelType"
-            header="Fuel Type"
+            header={t("dashboard.Fuel Type")}
             style={{ minWidth: "200px" }}
           ></Column>
           <Column
             field="refBagCount"
-            header="Bag Count"
+            header={t("dashboard.Bag Count")}
             style={{ minWidth: "200px" }}
           ></Column>
           {/* Action Buttons Column */}
           <Column
-            header="Actions"
+            header={t("dashboard.Actions")}
             body={(rowData) => (
               <div style={{ display: "flex", gap: "8px" }}>
                 {/* <button
@@ -1915,24 +1920,32 @@ const CarServices: React.FC = () => {
         position="right"
       >
         <Toast ref={toast} />
-        <h2 className="text-xl font-bold mb-4">Add Cab Rental</h2>
-
+        <h2 className="text-xl font-bold mb-4">
+          {t("dashboard.Add Cab Rental")}
+        </h2>
+        <p className="text-sm text-[#f60000] mt-3">{t("dashboard.warning")}</p>
         <TabView>
-          <TabPanel header="Car Details">
+          <TabPanel header={t("dashboard.Car Details")}>
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-3 items-center">
-                <h2 className="text-lg font-bold">Add Car Name:</h2>
-                <div className=" flex flex-row justify-between">
+                <h2 className="text-lg font-bold">
+                  {t("dashboard.Add Car Name")}:
+                </h2>
+                <div className=" flex flex-row gap-5 justify-between">
                   <InputText
                     name="refVehicleTypeName"
                     value={inputs.refVehicleTypeName}
                     onChange={handleInput}
-                    placeholder="Enter Car Name"
+                    placeholder={t("dashboard.Enter Car Name")}
                     className="p-inputtext-sm w-[50%]"
                   />
                   <div>
                     <Button
-                      label={submitLoading ? "Adding..." : "Add Car Name"}
+                      label={
+                        submitLoading
+                          ? t("dashboard.Adding")
+                          : t("dashboard.Add Car Name")
+                      }
                       icon="pi pi-check"
                       className="p-button-primary"
                       onClick={AddCarname}
@@ -1942,39 +1955,50 @@ const CarServices: React.FC = () => {
                 </div>
               </div>
               <div className="">
-                <h3 className="text-lg font-bold">Added Cars</h3>
+                <h3 className="text-lg font-bold">
+                  {t("dashboard.Added Cars")}
+                </h3>
                 <DataTable value={car} className="p-datatable-sm mt-2">
                   <Column
                     field="refVehicleTypeId"
-                    header="S.No"
+                    header={t("dashboard.SNo")}
                     body={(_rowData, { rowIndex }) => rowIndex + 1}
                     style={{ width: "10%", color: "#0a5c9c" }}
                   />
                   <Column
                     field="refVehicleTypeName"
-                    header="Car Name"
+                    header={t("dashboard.Car Name")}
                     body={carNameTemplate}
                     style={{ color: "#0a5c9c" }}
                   />
-                  <Column body={CarnameactionTemplate} header="Actions" />
+                  <Column
+                    body={CarnameactionTemplate}
+                    header={t("dashboard.Actions")}
+                  />
                 </DataTable>
               </div>
             </div>
 
             <div className="flex flex-col gap-4 mt-5">
               <div className="flex flex-col gap-3 items-center">
-                <h2 className="text-lg font-bold">Add Car Group:</h2>
-                <div className=" flex flex-row justify-between">
+                <h2 className="text-lg font-bold">
+                  {t("dashboard.Add Car Group")}:
+                </h2>
+                <div className=" flex flex-row gap-3 justify-between">
                   <InputText
                     name="refCarGroupName"
                     value={inputs.refCarGroupName}
                     onChange={handleInput}
-                    placeholder="Enter Car Group Name"
+                    placeholder={t("dashboard.Enter Car Group Name")}
                     className="p-inputtext-sm w-[50%]"
                   />
                   <div>
                     <Button
-                      label={submitLoading ? "Adding..." : "Add Car Name"}
+                      label={
+                        submitLoading
+                          ? t("dashboard.Adding")
+                          : t("dashboard.Add Car Group")
+                      }
                       icon="pi pi-check"
                       className="p-button-primary"
                       onClick={AddCargrop}
@@ -1984,7 +2008,9 @@ const CarServices: React.FC = () => {
                 </div>
               </div>
               <div className="">
-                <h3 className="text-lg font-bold">Added Cars Group</h3>
+                <h3 className="text-lg font-bold">
+                  {t("dashboard.Added Cars Group")}
+                </h3>
                 <DataTable value={group} className="p-datatable-sm mt-2">
                   <Column
                     field="refCarGroupId"
@@ -1994,11 +2020,14 @@ const CarServices: React.FC = () => {
                   />
                   <Column
                     field="refCarGroupName"
-                    header="Car Group Name"
+                    header={t("dashboard.Car Group Name")}
                     body={carGroupTemplate}
                     style={{ color: "#0a5c9c" }}
                   />
-                  <Column body={CarnameactionTemplateGroup} header="Actions" />
+                  <Column
+                    body={CarnameactionTemplateGroup}
+                    header={t("dashboard.Actions")}
+                  />
                 </DataTable>
               </div>
             </div>
@@ -2204,13 +2233,13 @@ const CarServices: React.FC = () => {
               </div>
             </div>
           </TabPanel> */}
-          <TabPanel header="Other Details">
+          <TabPanel header={t("dashboard.Other Details")}>
             <div className="flex flex-col gap-4">
-              <h3>Additional Details:</h3>
+              <h3>{t("dashboard.Additional Details")}:</h3>
               <div className="flex flex-col gap-4">
                 {/* Card 1 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Benefits</h4>
+                  <h4 className="font-semibold">{t("dashboard.Benefits")}</h4>
                   <AddForm
                     submitCallback={(values) => {
                       if (values.length < 1) {
@@ -2235,7 +2264,7 @@ const CarServices: React.FC = () => {
 
                     <Column
                       field="refBenifitsName"
-                      header="Benefits"
+                      header={t("dashboard.Benefits")}
                       body={(rowData) =>
                         editBenefitId === rowData.refBenifitsId ? (
                           <InputText
@@ -2250,13 +2279,16 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={benefitActionTemplate} header="Actions" />
+                    <Column
+                      body={benefitActionTemplate}
+                      header={t("dashboard.Actions")}
+                    />
                   </DataTable>
                 </div>
 
                 {/* Card 2 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Include</h4>
+                  <h4 className="font-semibold">{t("dashboard.Include")}</h4>
 
                   <AddForm
                     submitCallback={(values) => {
@@ -2284,7 +2316,7 @@ const CarServices: React.FC = () => {
 
                     <Column
                       field="refIncludeName"
-                      header="Includes"
+                      header={t("dashboard.Include")}
                       body={(rowData) =>
                         editIncludeId === rowData.refIncludeId ? (
                           <InputText
@@ -2297,13 +2329,13 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={includeActionTemplate} header="Actions" />
+                    <Column body={includeActionTemplate} header={t("dashboard.Actions")} />
                   </DataTable>
                 </div>
 
                 {/* Card 3 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Exclude</h4>
+                  <h4 className="font-semibold">{t("dashboard.Exclude")}</h4>
 
                   <AddForm
                     submitCallback={(values) => {
@@ -2328,7 +2360,7 @@ const CarServices: React.FC = () => {
 
                     <Column
                       field="refExcludeName"
-                      header="Excludes"
+                      header={t("dashboard.Exclude")}
                       body={(rowData) =>
                         editExcludeId === rowData.refExcludeId ? (
                           <InputText
@@ -2341,13 +2373,13 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={excludeActionTemplate} header="Actions" />
+                    <Column body={excludeActionTemplate} header={t("dashboard.Actions")} />
                   </DataTable>
                 </div>
 
                 {/* Card 4 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">Extra Charges</h4>
+                  <h4 className="font-semibold">{t("dashboard.Extra Charges")}</h4>
 
                   {/* <AddForm
                     submitCallback={(values) => {
@@ -2385,7 +2417,7 @@ const CarServices: React.FC = () => {
 
                     <Column
                       field="refFormDetails"
-                      header="Extra Charges"
+                      header={t("dashboard.Extra Charges")}
                       body={(rowData) =>
                         editExtraId === rowData.refFormDetailsId ? (
                           <InputText
@@ -2402,7 +2434,7 @@ const CarServices: React.FC = () => {
 
                     <Column
                       field="refPrice"
-                      header="Price"
+                      header={t("dashboard.Price")}
                       body={(rowData) =>
                         editExtraId === rowData.refFormDetailsId ? (
                           <InputText
@@ -2417,7 +2449,7 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={extraActionTemplate} header="Actions" />
+                    <Column body={extraActionTemplate} header={t("dashboard.Actions")} />
                   </DataTable>
                 </div>
 
@@ -2441,9 +2473,9 @@ const CarServices: React.FC = () => {
             </div>
           </TabPanel>
 
-          <TabPanel header="Add New Services">
+          <TabPanel header={t("dashboard.Add New Services")}>
             <div>
-              <h2 className="text-xl font-bold">Add New Car Package</h2>
+              <h2 className="text-xl font-bold">{t("dashboard.Add New Car Package")}</h2>
               <form onSubmit={handleSubmit} method="post">
                 <div className="flex flex-row gap-3 mt-3">
                   <Dropdown
@@ -2454,6 +2486,7 @@ const CarServices: React.FC = () => {
                     }}
                     options={car}
                     optionValue="refVehicleTypeId"
+                    
                     optionLabel="refVehicleTypeName"
                     placeholder="Choose a Car Name"
                     className="w-full"
@@ -2715,7 +2748,7 @@ const CarServices: React.FC = () => {
                     maxFileSize={10000000}
                     emptyTemplate={
                       <p className="m-0">
-                        Drag and drop your Image here to upload in Kb.
+                     {t("dashboard.imagewarning")}
                       </p>
                     }
                   />
@@ -2725,7 +2758,7 @@ const CarServices: React.FC = () => {
                 <div className="mt-4 flex justify-end">
                   <Button
                     type="submit"
-                    label="Submit"
+                    label={t("dashboard.Submit")}
                     loading={isFormSubmitting}
                   />
                 </div>

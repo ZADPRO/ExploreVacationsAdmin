@@ -17,6 +17,8 @@ import UpdateStaff from "../09-UpdateStaff/UpdateStaff";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Nullable } from "primereact/ts-helpers";
 // import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { useTranslation } from "react-i18next";
+
 
 interface StaffDetails {
   refFName: string;
@@ -37,6 +39,7 @@ interface StaffDetails {
 
 type DecryptResult = any;
 const Staff: React.FC = () => {
+  const { t } = useTranslation("global");
   const [visible, setVisible] = useState(false);
   const [_submitLoading, setSubmitLoading] = useState(false);
   const isFormSubmitting = false;
@@ -505,17 +508,21 @@ const Staff: React.FC = () => {
 
   return (
     <div>
-      <div className="p-4">
+      <div className="p-4 mt-2">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Staff Module</h2>
+          <h2 className="text-2xl font-semibold">
+            {t("dashboard.Staff Module")}
+          </h2>
           <Button
-            label="Add new Staff"
+            label={t("dashboard.Add new Staff")}
             severity="success"
             onClick={() => setVisible(true)}
           />
         </div>
         <div className="mt-3 p-2">
-          <h3 className="text-lg font-bold">Added Staff Package</h3>
+          <h3 className="text-lg font-bold">
+            {t("dashboard.Added Staff Package")}
+          </h3>
           <DataTable
             value={staff}
             tableStyle={{ minWidth: "50rem" }}
@@ -523,15 +530,15 @@ const Staff: React.FC = () => {
             rows={3}
           >
             <Column
-              header="S.No"
+              header={t("dashboard.SNo")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
-            ></Column>
+            />
             <Column
-              className="underline   text-[#0a5c9c]  cursor-pointer "
+              className="underline text-[#0a5c9c] cursor-pointer"
               headerStyle={{ width: "25rem" }}
               field="refCustId"
-              header="Staff ID"
+              header={t("dashboard.StaffID")}
               body={(rowData) => (
                 <div
                   onClick={() => {
@@ -540,51 +547,41 @@ const Staff: React.FC = () => {
                     fetchStaffDetails(rowData.refuserId);
                   }}
                 >
-                  {" "}
                   {rowData.refCustId}
                 </div>
               )}
             />
-
             <Column
               headerStyle={{ width: "15rem" }}
               field="refFName"
-              header="First Name"
+              header={t("dashboard.First Name")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refLName"
-              header="Last Name"
+              header={t("dashboard.LastName")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refDOB"
-              header="Date of birth"
+              header={t("dashboard.DOB")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refMoblile"
-              header="Mobile"
+              header={t("dashboard.Mobile")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refQualification"
-              header="Qualification"
+              header={t("dashboard.Qualification")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refDesignation"
-              header="Designation"
-              //   body={(rowData) => (
-              //     <>
-              //       {/* {rowData.refLocationName} */}
-              //       {rowData.refDesignation.map((loc: any) => (
-              //         <div>{loc}</div>
-              //       ))}
-              //     </>
-              //   )}
+              header={t("dashboard.Designation")}
             />
-            <Column body={actionDeleteTour} header="Delete" />
+            <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
           </DataTable>
         </div>
 
@@ -595,10 +592,15 @@ const Staff: React.FC = () => {
           position="right"
         >
           <Toast ref={toast} />
-          <h2 className="text-xl font-bold mb-4">Add New Staff</h2>
+          <h2 className="text-xl font-bold mb-4">
+            {t("dashboard.Add new Staff")}
+          </h2>
 
           <TabView>
-            <TabPanel header="Add Staff">
+            <TabPanel header={t("dashboard.Add Staff")}>
+              <p className="text-sm text-[#f60000] mt-3 mb-3">
+                {t("dashboard.warning")}
+              </p>
               <div className="flex flex-col items-center justify-center gap-10% w-[100%] ">
                 {" "}
                 <form
@@ -746,6 +748,7 @@ const Staff: React.FC = () => {
                     options={historyOptions}
                     onChange={(e) => setSelectedHistory(e.value)}
                     optionLabel="label"
+                    maxSelectedLabels={1}
                     placeholder="Select Transaction Types"
                     display="chip"
                     filter

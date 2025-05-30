@@ -9,6 +9,8 @@ import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { useTranslation } from "react-i18next";
+
 
 interface Destination {
   refDestinationId: string;
@@ -16,6 +18,7 @@ interface Destination {
 }
 
 const Location: React.FC = () => {
+  const { t } = useTranslation("global");
   type DecryptResult = any;
 
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -319,6 +322,12 @@ const Location: React.FC = () => {
       setSubmitLoading(false);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
+        toast.current?.show({
+          severity: "error",
+          summary: "Deleted",
+          detail: "Location deleted successfully",
+          life: 3000,
+        });
         setAllLocations(
           allLocations.filter(
             (locations) => locations.refDestinationId !== refDestinationId
@@ -427,17 +436,22 @@ const Location: React.FC = () => {
   return (
     <div>
        <Toast ref={toast} />
-      <h2 className="text-xl font-bold text-[#0a5c9c]">Add New Location</h2>
+      <h2 className="text-xl font-bold text-[#0a5c9c]">{t("dashboard.Add New Location")}</h2>
+
+      <p className="text-sm text-[#f60000] mt-3 mb-3">
+        {t("dashboard.warning")}
+        </p>
       <div
         style={{
           marginTop: "3%",
           display: "flex",
           flexDirection: "row",
           justifyContent: "end",
+          marginBottom: "2%",
         }}
       >
         <Button
-          label="Add new location"
+          label={t("dashboard.Add New Location")}
           severity="success"
           onClick={() => setShowForm(true)}
         />
@@ -499,40 +513,40 @@ const Location: React.FC = () => {
       )}
 
       <DataTable value={allLocations} tableStyle={{ minWidth: "50rem" }}>
-        <Column
-          header="S.No"
-          headerStyle={{ width: "3rem" }}
-          body={(_data, options) => options.rowIndex + 1}
-        ></Column>
+  <Column
+    header={t("dashboard.SNo")}
+    headerStyle={{ width: "3rem" }}
+    body={(_data, options) => options.rowIndex + 1}
+  />
 
-        <Column
-          field="refDestinationName"
-          header="Destination"
-          style={{ minWidth: "5rem" }}
-        ></Column>
+  <Column
+    field="refDestinationName"
+    header={t("dashboard.Destination")}
+    style={{ minWidth: "5rem" }}
+  />
 
-        <Column
-          header="Locations"
-          body={(rowData) => (
-            <ul>
-              {rowData.locations &&
-                rowData.locations.map(
-                  (loc: Record<string, any>, index: number) => (
-                    <li key={index}>{loc.refLocationName}</li>
-                  )
-                )}
-            </ul>
+  <Column
+    header={t("dashboard.Locations")}
+    body={(rowData) => (
+      <ul>
+        {rowData.locations &&
+          rowData.locations.map(
+            (loc: Record<string, any>, index: number) => (
+              <li key={index}>{loc.refLocationName}</li>
+            )
           )}
-          style={{ minWidth: "5rem" }}
-        />
+      </ul>
+    )}
+    style={{ minWidth: "5rem" }}
+  />
 
-        {/* Action Buttons */}
-        <Column
-          header="Actions"
-          body={actionTemplate}
-          style={{ minWidth: "150px", textAlign: "center" }}
-        />
-      </DataTable>
+  <Column
+    header={t("dashboard.Actions")}
+    body={actionTemplate}
+    style={{ minWidth: "150px", textAlign: "center" }}
+  />
+</DataTable>
+
     </div>
   );
 };

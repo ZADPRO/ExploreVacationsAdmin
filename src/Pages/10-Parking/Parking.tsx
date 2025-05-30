@@ -17,6 +17,8 @@ import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { MultiSelect } from "primereact/multiselect";
 import Updateparking from "./Updateparking";
 import { Calendar } from "primereact/calendar";
+import { useTranslation } from "react-i18next";
+
 
 interface Service {
   Feature: string;
@@ -30,6 +32,7 @@ interface Service {
 
 type DecryptResult = any;
 const Parking: React.FC = () => {
+  const { t } = useTranslation("global");
   const [visible, setVisible] = useState(false);
   const [parkingImg, setParkingImg] = useState<any>([]);
   // const [parkingupdatesidebar, setParkingupdatesidebar] = useState(false);
@@ -62,8 +65,8 @@ const Parking: React.FC = () => {
     refPrice: "",
     refWeeklyDiscount: "",
     refExtraCharges: "",
-    MinimumBookingDuration: null,
-    MaximumBookingDuration: null,
+    MinimumBookingDuration: null as Date | null,
+    MaximumBookingDuration: null as Date | null,
     isCancellationAllowed: null,
     isRescheduleAllowed: null,
     ServiceFeatures: "",
@@ -113,14 +116,13 @@ const Parking: React.FC = () => {
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
-
-//   const handleInput1 = (e:any) => {
-//   const { name, value } = e.target || e.value ? e : { name: '', value: '' };
-//   setInputs((prev) => ({
-//     ...prev,
-//     [name]: value
-//   }));
-// };
+  //   const handleInput1 = (e:any) => {
+  //   const { name, value } = e.target || e.value ? e : { name: '', value: '' };
+  //   setInputs((prev) => ({
+  //     ...prev,
+  //     [name]: value
+  //   }));
+  // };
 
   const fetchService = async () => {
     try {
@@ -657,15 +659,19 @@ const Parking: React.FC = () => {
     <div>
       <div className="p-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Parking Module</h2>
+          <h2 className="text-2xl font-semibold">
+            {t("dashboard.Parking Module")}
+          </h2>
           <Button
-            label="Add new Parking"
+            label={t("dashboard.Add New Parking")}
             severity="success"
             onClick={() => setVisible(true)}
           />
         </div>
         <div className="mt-3 p-2">
-          <h3 className="text-lg font-bold">Added Parking Package</h3>
+          <h3 className="text-lg font-bold">
+            {t("dashboard.Added Parking Package")}
+          </h3>
           <DataTable
             value={parking}
             tableStyle={{ minWidth: "50rem" }}
@@ -673,16 +679,15 @@ const Parking: React.FC = () => {
             rows={3}
           >
             <Column
-              header="S.No"
+              header={t("dashboard.SNo")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
-            ></Column>
+            />
             <Column
-              className="underline   text-[#0a5c9c]  cursor-pointer "
-              // className=""
+              className="underline text-[#0a5c9c] cursor-pointer"
               headerStyle={{ width: "25rem" }}
               field="refParkingTypeName"
-              header="Parking Name"
+              header={t("dashboard.Parking Name")}
               body={(rowData) => (
                 <div
                   onClick={() => {
@@ -691,108 +696,105 @@ const Parking: React.FC = () => {
                     fetchParkingId(rowData.refCarParkingId);
                   }}
                 >
-                  {" "}
                   {rowData.refParkingName}
                 </div>
               )}
             />
-
             <Column
               headerStyle={{ width: "15rem" }}
               field="refParkingTypeName"
-              header="Parking Type"
+              header={t("dashboard.Parking Type")}
             />
-
             <Column
               headerStyle={{ width: "15rem" }}
               field="refCarParkingTypeName"
-              header="Vechile Type"
+              header={t("dashboard.Vehicle Type")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
               field="refServiceFeaturesList"
-              header="Service Features"
+              header={t("dashboard.Service Features")}
             />
             <Column
               headerStyle={{ width: "15rem" }}
-              header="Maximum Booking Duration"
-              body={() => new Date().toLocaleDateString()} // or use custom format
+              field="MaximumBookingDuration"
+              header={t("dashboard.Maximum Booking Duration")}
+              body={(rowData) => rowData.MaximumBookingDuration?.slice(0, 10)}
             />
-
             <Column
               headerStyle={{ width: "9rem" }}
               field="MinimumBookingDuration"
-              header="Minimum Booking Duration"
-              // body={() => new Date().toLocaleDateString()} // or use custom format
+              header={t("dashboard.Minimum Booking Duration")}
+               body={(rowData) => rowData.MinimumBookingDuration?.slice(0, 10)}
             />
             <Column
-              headerStyle={{ width: "9rem" }}
+              headerStyle={{ minWidth: "15rem" }}
               field="pricePerHourORday"
-              header="Price Per HourORday"
+              header={t("dashboard.Price Per Hour OR Day")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refAvailability"
-              header="Availability"
+              header={t("dashboard.Availability")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refBookingType"
-              header="Booking Type"
+              header={t("dashboard.Booking Type")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refExtraCharges"
-              header="ExtraCharges"
+              header={t("dashboard.Extra Charges")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refLocation"
-              header="Location"
+              header={t("dashboard.Location")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refOperatingHours"
-              header="Operating Hours"
+              header={t("dashboard.Operating Hours")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refWeeklyDiscount"
-              header="Weekly Discount"
+              header={t("dashboard.Weekly Discount")}
             />
-
             <Column
               headerStyle={{ width: "9rem" }}
               field="isCancellationAllowed"
-              header="Cancellation Allowed"
+              header={t("dashboard.Cancellation Allowed")}
+              body={(a) => (a.isCancellationAllowed ? "Yes" : "No")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="isRescheduleAllowed"
-              header="Reschedule Allowed"
+              header={t("dashboard.Reschedule Allowed")}
+              body={(a) => (a.isRescheduleAllowed ? "Yes" : "No")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="refStatus"
-              header="Status"
+              header={t("dashboard.Status")}
             />
-
             <Column
               headerStyle={{ width: "15rem" }}
               field="refAssociatedAirport"
-              header="Associated Airport"
+              header={t("dashboard.Associated Airport")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="description"
-              header="Description"
+              header={t("dashboard.Description")}
             />
             <Column
               headerStyle={{ width: "9rem" }}
               field="instructions"
-              header="Instructions"
+              header={t("dashboard.Instructions")}
             />
-            <Column body={actionDeleteTour} header="Delete" />
+            <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
           </DataTable>
         </div>
 
@@ -803,14 +805,21 @@ const Parking: React.FC = () => {
           position="right"
         >
           <Toast ref={toast} />
-          <h2 className="text-xl font-bold mb-4">Add New Parking</h2>
+          <h2 className="text-xl font-bold mb-4">
+            {t("dashboard.Add New Parking")}
+          </h2>
+          <p className="text-sm text-[#f60000] mt-3">
+            {t("dashboard.warning")}
+          </p>
 
           <TabView>
-            <TabPanel header="Service Features">
+            <TabPanel header={t("dashboard.Service Features")}>
               <div className="flex flex-col items-center flex-start gap-10% w-[100%] ">
                 {" "}
                 <div className="bg-white shadow-md p-4 flex flex-col  w-[100%] rounded-lg">
-                  <h4 className="font-semibold mb-3">Add Service Features</h4>
+                  <h4 className="font-semibold mb-3">
+                    {t("dashboard.Add Service Features")}
+                  </h4>
 
                   <AddForm
                     submitCallback={(values) => {
@@ -833,13 +842,13 @@ const Parking: React.FC = () => {
                   <DataTable value={service} className="p-datatable-sm mt-2">
                     <Column
                       body={snoTemplate}
-                      header="S.No"
+                      header={t("dashboard.SNo")}
                       style={{ width: "10%", color: "#0a5c9c" }}
                     />
 
                     <Column
                       field="refServiceFeatures"
-                      header="Service Features"
+                      header={t("dashboard.Service Features")}
                       body={(rowData) =>
                         editServiceId === rowData.refServiceFeaturesId ? (
                           <InputText
@@ -854,17 +863,20 @@ const Parking: React.FC = () => {
 
                     <Column
                       body={ServiceActionTemplateDelete}
-                      header="Actions"
+                      header={t("dashboard.Actions")}
                     />
                   </DataTable>
                 </div>
               </div>
             </TabPanel>
-            <TabPanel header="Parking Package">
+            <TabPanel header={t("dashboard.Parking Package")}>
               <div className="flex flex-col items-center flex-start gap-10% w-[100%] ">
                 {" "}
                 <div className="bg-white shadow-md p-4 flex flex-col  w-[100%] rounded-lg">
-                  <h4 className="font-semibold mb-3">Add New Parking </h4>
+                  <h4 className="font-semibold mb-3">
+                    {t("dashboard.Add New Parking")}{" "}
+                  </h4>
+
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -945,14 +957,7 @@ const Parking: React.FC = () => {
                         className="w-full"
                         required
                       />
-                      {/* <InputText
-                        name="refBookingType"
-                        value={inputs.refBookingType}
-                        onChange={handleInput}
-                        placeholder="Enter Booking Type (Online/Offline)"
-                        className="w-full"
-                        required
-                      /> */}
+
                       <Dropdown
                         name="refBookingType"
                         value={inputs.refBookingType}
@@ -967,14 +972,6 @@ const Parking: React.FC = () => {
                       />
                     </div>
                     <div className="flex flex-row gap-3 mt-3">
-                      {/* <InputText
-                        name="pricePerHourORday"
-                        value={inputs.pricePerHourORday}
-                        onChange={handleInput}
-                        placeholder="Price Per Hour/Day"
-                        className="w-full"
-                        required
-                      /> */}
                       <Dropdown
                         name="pricePerHourORday"
                         value={inputs.pricePerHourORday}
@@ -984,7 +981,7 @@ const Parking: React.FC = () => {
                         ]}
                         onChange={handleInput2}
                         placeholder="price Per HourORday"
-                       className="w-full"
+                        className="w-full"
                         required
                       />
                       <InputText
@@ -1015,23 +1012,8 @@ const Parking: React.FC = () => {
                       />
                     </div>
 
-                    <div className="flex flex-row gap-3 mt-3">
-                      {/* <Calendar
-                        name="MinimumBookingDuration"
-                        value={inputs.MinimumBookingDuration}
-                        onChange={handleInput}
-                        placeholder="Min Booking Duration"
-                        className="w-full"
-                        required
-                      /> */}
-                      {/* <Calendar
-                        name="MaximumBookingDuration"
-                        value={inputs.MaximumBookingDuration}
-                        onChange={handleInput}
-                        placeholder="Max Booking Duration"
-                        className="w-full"
-                        required
-                      /> */}
+                    {/* <div className="flex flex-row gap-3 mt-3">
+                      
                       <Calendar
                         name="MinimumBookingDuration"
                         value={inputs.MinimumBookingDuration}
@@ -1047,7 +1029,45 @@ const Parking: React.FC = () => {
                         onChange={handleValue}
                         minDate={inputs.MinimumBookingDuration || new Date()} // ensures max date starts from min date
                       />
+                    </div> */}
+                    <div className="flex flex-row gap-3 mt-3">
+                      <Calendar
+                        name="MinimumBookingDuration"
+                        value={inputs.MinimumBookingDuration}
+                        placeholder="Min Booking Duration"
+                        onChange={(e) => {
+                          const selectedDate = e.value as Date | null;
+                          setInputs((prev) => {
+                            const maxDate =
+                              prev.MaximumBookingDuration as Date | null;
+
+                            const shouldResetMax =
+                              maxDate &&
+                              selectedDate &&
+                              maxDate.getTime() < selectedDate.getTime();
+
+                            return {
+                              ...prev,
+                              MinimumBookingDuration: selectedDate,
+                              MaximumBookingDuration: shouldResetMax
+                                ? null
+                                : maxDate,
+                            };
+                          });
+                        }}
+                        minDate={new Date()} // disables past dates
+                      />
+
+                      <Calendar
+                        name="MaximumBookingDuration"
+                        value={inputs.MaximumBookingDuration}
+                        placeholder="Max Booking Duration"
+                        onChange={handleValue}
+                        minDate={inputs.MinimumBookingDuration || new Date()}
+                        disabled={!inputs.MinimumBookingDuration} // disables until Min is selected
+                      />
                     </div>
+
                     <div className="flex flex-row gap-3 mt-3">
                       <Dropdown
                         name="isCancellationAllowed"
@@ -1125,7 +1145,9 @@ const Parking: React.FC = () => {
                     {/* Parking Image upload */}
 
                     <div>
-                      <h2 className="mt-3">Upload Parking Image </h2>
+                      <h2 className="mt-3">
+                        {t("dashboard.Upload Parking Image")}{" "}
+                      </h2>
                       <FileUpload
                         name="logo"
                         customUpload
@@ -1134,15 +1156,13 @@ const Parking: React.FC = () => {
                         accept="image/*"
                         maxFileSize={10000000}
                         emptyTemplate={
-                          <p className="m-0">
-                            Drag and drop your image here to upload in Kb.
-                          </p>
+                          <p className="m-0">{t("dashboard.imagewarning")}</p>
                         }
                       />
                     </div>
 
                     <div className="mt-4 flex justify-end">
-                      <Button type="submit" label="Submit" />
+                      <Button type="submit" label={t("dashboard.Submit")} />
                     </div>
                   </form>
                 </div>

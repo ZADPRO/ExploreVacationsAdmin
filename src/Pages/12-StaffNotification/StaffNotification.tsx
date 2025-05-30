@@ -5,6 +5,8 @@ import { Column } from "primereact/column";
 import { TiTickOutline } from "react-icons/ti";
 import { decryptAPIResponse } from "../../utils";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
+
 
 interface Notification {
   refNotificationsId: number;
@@ -15,6 +17,7 @@ interface Notification {
 }
 
 const StaffNotification: React.FC = () => {
+  const { t } = useTranslation("global");
   const [_read, setRead] = useState<Notification[]>([]);
   const [readNotifications, setReadNotifications] = useState<Notification[]>(
     []
@@ -127,42 +130,44 @@ const StaffNotification: React.FC = () => {
 
   return (
     <div className="flex flex-col justify-between p-4">
-      <h2 className="text-2xl font-semibold">Staff Notification</h2>
+      <h2 className="text-2xl font-semibold">
+        {t("dashboard.Staff Notification")}
+      </h2>
       <div className="flex flex-col gap-4 mt-4">
         <DataTable
           value={[...unReadNotifications, ...readNotifications]}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={4}
+          rows={3}
         >
           <Column
-            header="S.No"
+            header={t("dashboard.SNo")}
             headerStyle={{ width: "3rem" }}
             body={(_, options) => options.rowIndex + 1}
           />
           <Column
             headerStyle={{ width: "15rem" }}
             field="refSubject"
-            header="Subject"
+            header={t("dashboard.Subject")}
           />
           {/* <Column
-            headerStyle={{ width: "15rem" }}
-            field="refUserType"
-            header="Employee Type"
-            body={(rowData) =>
-              Array.isArray(rowData.refUserType)
-                ? rowData.refUserType.join(", ")
-                : rowData.refUserType
-            }
-          /> */}
+    headerStyle={{ width: "15rem" }}
+    field="refUserType"
+    header={t("dashboard.Employee Type")}
+    body={(rowData) =>
+      Array.isArray(rowData.refUserType)
+        ? rowData.refUserType.join(", ")
+        : rowData.refUserType
+    }
+  /> */}
           <Column
             headerStyle={{ width: "15rem" }}
             field="refDescription"
-            header="Description"
+            header={t("dashboard.Description")}
           />
           <Column
             field="refNotes"
-            header="Notes"
+            header={t("dashboard.Notes")}
             headerStyle={{ width: "15rem" }}
             body={(rowData) => {
               const isLink =
@@ -183,7 +188,7 @@ const StaffNotification: React.FC = () => {
             }}
           />
           <Column
-            header="Read"
+            header={t("dashboard.Read")}
             body={(rowData: Notification) => {
               const isRead = readNotifications.some(
                 (item) => item.refNotificationsId === rowData.refNotificationsId
