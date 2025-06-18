@@ -15,7 +15,7 @@ import UpdatePatner from "../14-Patner/UpdatePatner";
 import PatnerOffer from "./PatnerOffer";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { useTranslation } from "react-i18next";
-
+import { Dialog } from "primereact/dialog";
 
 interface Patner {
   refFName: String;
@@ -41,6 +41,9 @@ const Patner: React.FC = () => {
   const [patnerupdatesidebar, setPatnerupdatesidebar] = useState(false);
   const [patnerupdateID, setPatnerupdateID] = useState("");
   const [selecteOffer, setSelectedOffer] = useState<any[]>([]);
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
+
   const closePaterupdatesidebar = () => {
     setPatnerupdatesidebar(false);
   };
@@ -231,6 +234,8 @@ const Patner: React.FC = () => {
       console.error("Error updating package:", e);
       setSubmitLoading(false);
       setEditPatnerId(null);
+        setVisibleDialog(false);
+      setSelectedBannerId(null);
     }
   };
 
@@ -241,7 +246,11 @@ const Patner: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deletePatner(rowData.refuserId)}
+        // onClick={() => deletePatner(rowData.refuserId)}
+        onClick={() => {
+          setSelectedBannerId(rowData.refuserId);
+          setVisibleDialog(true);
+           }}
       />
     );
   };
@@ -404,7 +413,9 @@ const Patner: React.FC = () => {
             value={patner}
             tableStyle={{ minWidth: "50rem" }}
             paginator
-            rows={3}
+            scrollable
+            scrollHeight="500px"
+            rows={7}
           >
             <Column
               header={t("dashboard.SNo")}
@@ -460,6 +471,36 @@ const Patner: React.FC = () => {
             />
             <Column body={actionDeletePatner} header={t("dashboard.Delete")} />
           </DataTable>
+             <Dialog
+        header="Confirm Deletion"
+        visible={visibleDialog}
+        style={{ width: "350px" }}
+        onHide={() => setVisibleDialog(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setVisibleDialog(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              // loading={submitLoading}
+              onClick={() => {
+                if (selectedBannerId !== null) {
+                  deletePatner(selectedBannerId);
+                }
+                setVisibleDialog(false)
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this banner?</p>
+      </Dialog>
         </div>
       </div>
       <Sidebar
@@ -469,11 +510,11 @@ const Patner: React.FC = () => {
         position="right"
       >
         <Toast ref={toast} />
-        <h2 className="text-xl font-bold mb-4">{t("dashboard.Add New Partner")}</h2>
+        <h2 className="text-xl font-bold mb-4">
+          {t("dashboard.Add New Partner")}
+        </h2>
 
-        <p className="text-sm text-[#f60000] mt-3">
-          {t("dashboard.warning")}
-        </p>
+        <p className="text-sm text-[#f60000] mt-3">{t("dashboard.warning")}</p>
 
         <TabView>
           <TabPanel header={t("dashboard.Add Partner")}>

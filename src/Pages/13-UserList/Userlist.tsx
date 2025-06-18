@@ -9,8 +9,6 @@ import axios from "axios";
 import { format, toZonedTime } from "date-fns-tz";
 import { useTranslation } from "react-i18next";
 
-
-
 const Userlist: React.FC = () => {
   const { t } = useTranslation("global");
   const [userlist, setUserlist] = useState<any[]>([]);
@@ -58,9 +56,9 @@ const Userlist: React.FC = () => {
 
         console.log("listUserData------", data);
       }
-    } catch (e: any) {
+     } catch (e: any) {
       console.log("Error fetching listdata:", e);
-    }
+     }
   };
 
   const fetchSinglelist = async (userId: string) => {
@@ -116,7 +114,9 @@ const Userlist: React.FC = () => {
             value={userlist}
             tableStyle={{ minWidth: "50rem" }}
             paginator
-            rows={3}
+            scrollable
+            scrollHeight="500px"
+            rows={5}
           >
             <Column
               header={t("dashboard.SNo")}
@@ -125,7 +125,9 @@ const Userlist: React.FC = () => {
             />
             <Column
               header={t("dashboard.CustomerID")}
-              headerStyle={{ width: "20rem" }}
+              // headerStyle={{ width: "20rem" }}
+ headerStyle={{ width: "40rem" }}
+  bodyStyle={{ width: "40rem" }}
               className="underline text-[#0a5c9c] cursor-pointer"
               field="refCustId"
               body={(rowData) => (
@@ -170,27 +172,47 @@ const Userlist: React.FC = () => {
             <Column
               header={t("dashboard.Address")}
               field="refUserAddress"
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "15rem", textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(rowData) =>
+                rowData.refUserAddress ? rowData.refUserAddress : "-"
+              }
             />
             <Column
               header={t("dashboard.City")}
               field="refUserCity"
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "15rem", textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(rowData) =>
+                rowData.refUserCity ? rowData.refUserCity : "-"
+              }
             />
             <Column
               header={t("dashboard.Country")}
               field="refUserCountry"
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "15rem", textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(rowData) =>
+                rowData.refUserCountry ? rowData.refUserCountry : "-"
+              }
             />
             <Column
               header={t("dashboard.State")}
               field="refUserState"
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "15rem", textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(rowData) =>
+                rowData.refUserState ? rowData.refUserState : "-"
+              }
             />
             <Column
               header={t("dashboard.ZipCode")}
               field="refUserZipCode"
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "15rem", textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              body={(rowData) =>
+                rowData.refUserZipCode ? rowData.refUserZipCode : "-"
+              }
             />
           </DataTable>
         </div>
@@ -213,6 +235,8 @@ const Userlist: React.FC = () => {
               value={tourBooking}
               tableStyle={{ minWidth: "50rem" }}
               paginator
+              scrollable
+              scrollHeight="500px"
               rows={5}
             >
               <Column
@@ -261,6 +285,8 @@ const Userlist: React.FC = () => {
               value={customBooking}
               tableStyle={{ minWidth: "50rem" }}
               paginator
+              scrollable
+              scrollHeight="500px"
               rows={5}
             >
               <Column
@@ -312,6 +338,8 @@ const Userlist: React.FC = () => {
               value={carBooking}
               tableStyle={{ minWidth: "50rem" }}
               paginator
+              scrollable
+              scrollHeight="500px"
               rows={5}
             >
               <Column
@@ -365,6 +393,8 @@ const Userlist: React.FC = () => {
               value={parkingBooking}
               tableStyle={{ minWidth: "50rem" }}
               paginator
+              scrollable
+              scrollHeight="500px"
               rows={5}
             >
               <Column

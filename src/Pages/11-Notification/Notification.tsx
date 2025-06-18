@@ -12,6 +12,7 @@ import { Sidebar } from "primereact/sidebar";
 import { Toast } from "primereact/toast";
 import UpdateNotification from "./UpdateNotification";
 import { useTranslation } from "react-i18next";
+import { Dialog } from "primereact/dialog";
 
 
 interface Notification {
@@ -78,7 +79,10 @@ const Notification: React.FC = () => {
       [e.target.name]: e.target.value,
     }));
   };
-
+const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedsettingsId, setSelectedsettingsId] = useState<number | null>(
+    null
+  );
   const toast = useRef<Toast>(null);
 
   const Addnotification = async () => {
@@ -207,7 +211,11 @@ const Notification: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteNotification(rowData.refNotificationsId)}
+        // onClick={() => deleteNotification(rowData.refNotificationsId)}
+         onClick={() => {
+            setSelectedsettingsId(rowData.refNotificationsId);
+            setVisibleDialog(true);
+          }}
       />
     );
   };
@@ -244,6 +252,8 @@ const Notification: React.FC = () => {
           detail: "Deleted Successfully",
           life: 3000,
         });
+                  setVisibleDialog(false);
+          setSelectedsettingsId(null);
       } else {
         console.error("API update failed:", data);
       }
@@ -383,7 +393,9 @@ const Notification: React.FC = () => {
                 value={notification}
                 tableStyle={{ minWidth: "50rem" }}
                 paginator
-                rows={3}
+                scrollable
+                  scrollHeight="500px"
+                rows={5}
               >
                 <Column
                   header={t("dashboard.SNo")}
@@ -449,6 +461,37 @@ const Notification: React.FC = () => {
                   header={t("dashboard.Delete")}
                 />
               </DataTable>
+                 <Dialog
+                        header="Confirm Deletion"
+                        visible={visibleDialog}
+                        style={{ width: "350px" }}
+                        modal
+                        onHide={() => setVisibleDialog(false)}
+                        footer={
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              label="No"
+                              icon="pi pi-times"
+                              className="p-button-text"
+                              onClick={() => setVisibleDialog(false)}
+                            />
+                            <Button
+                              label="Yes"
+                              icon="pi pi-check"
+                              className="p-button-danger"
+                              // loading={submitLoading}
+                              onClick={() => {
+                                if (selectedsettingsId) {
+                                  deleteNotification(selectedsettingsId);
+                                }
+                                setVisibleDialog(false);
+                              }}
+                            />
+                          </div>
+                        }
+                      >
+                        <p>Are you sure you want to delete this item?</p>
+                      </Dialog>
             </div>
           </TabPanel>
         </TabView>

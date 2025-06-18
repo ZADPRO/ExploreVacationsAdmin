@@ -12,6 +12,7 @@ import { InputText } from "primereact/inputtext";
 import UpdateBanner from "./UpdateBanner";
 import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { useTranslation } from "react-i18next";
+import { Dialog } from "primereact/dialog";
 
 interface ModuleOption {
   label: string;
@@ -35,7 +36,11 @@ const Banner: React.FC = () => {
   const [formDataImages, setFormdataImages] = useState<any>([]);
   const isFormSubmitting = false;
   const [_bannerSingle, setBannerSingle] = useState("");
-  const [_submitLoading, setSubmitLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  
+    const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
+
   const closeBanner = () => {
     setBannerSidebar(false);
   };
@@ -269,7 +274,11 @@ const Banner: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteBanner(rowData.refHomePageId)}
+        // onClick={() => deleteBanner(rowData.refHomePageId)}
+         onClick={() => {
+          setSelectedBannerId(rowData.refHomePageId);
+          setVisibleDialog(true);
+           }}
       />
     );
   };
@@ -319,6 +328,8 @@ const Banner: React.FC = () => {
       console.error("Error updating package:", e);
       setSubmitLoading(false);
       setEditBannerId(null);
+      setVisibleDialog(false);
+      setSelectedBannerId(null);
     }
   };
   useEffect(() => {
@@ -349,7 +360,9 @@ const Banner: React.FC = () => {
             value={banner}
             tableStyle={{ minWidth: "50rem" }}
             paginator
-            rows={3}
+            rows={8}
+            scrollable
+          scrollHeight="500px"
           >
             <Column
               header={t("dashboard.SNo")}
@@ -400,7 +413,38 @@ const Banner: React.FC = () => {
             />
 
             <Column body={actionDelete} header={t("dashboard.actionDelete")} />
+
           </DataTable>
+            <Dialog
+        header="Confirm Deletion"
+        visible={visibleDialog}
+        style={{ width: "350px" }}
+        onHide={() => setVisibleDialog(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setVisibleDialog(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              loading={submitLoading}
+              onClick={() => {
+                if (selectedBannerId !== null) {
+                  deleteBanner(selectedBannerId);
+                }
+                setVisibleDialog(false)
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this banner?</p>
+      </Dialog>
         </div>
 
         <Sidebar

@@ -11,8 +11,7 @@ import { fetchDestinations } from "../../services/DestinationService";
 import { Toast } from "primereact/toast";
 type DecryptResult = any;
 import { useTranslation } from "react-i18next";
-
-
+import { Dialog } from "primereact/dialog";
 
 interface Destination {
   refDestinationId: number;
@@ -49,6 +48,12 @@ const Destination: React.FC = () => {
   const [editDestinationId, setEditdestinationId] = useState<number | null>(
     null
   );
+
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedsettingsId, setSelectedsettingsId] = useState<number | null>(
+    null
+  );
+
   const [editDestinationValue, setEditDestinationValue] = useState("");
   const toast = useRef<Toast>(null);
   useEffect(() => {
@@ -193,12 +198,11 @@ const Destination: React.FC = () => {
         setEditDestinationValue("");
 
         fetchDestinations().then((result) => {
-          console.log("-------------",result)
+          console.log("-------------", result);
           setDestinations(result);
         });
         fetchDestinations();
-        console.log('fetchDestinations', fetchDestinations())
-
+        console.log("fetchDestinations", fetchDestinations());
 
         toast.current?.show({
           severity: "success",
@@ -256,6 +260,8 @@ const Destination: React.FC = () => {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchDestinations().then((result) => {
           setDestinations(result);
+          setVisibleDialog(false);
+          setSelectedsettingsId(null);
         });
         setDestinations(
           destinations.filter(
@@ -291,7 +297,11 @@ const Destination: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteDestination(rowData)}
+          // onClick={() => deleteDestination(rowData)}
+          onClick={() => {
+            setSelectedsettingsId(rowData);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -366,6 +376,37 @@ const Destination: React.FC = () => {
             header={t("dashboard.Actions")}
           />
         </DataTable>
+        <Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                loading={submitLoading}
+                onClick={() => {
+                  if (selectedsettingsId) {
+                    deleteDestination(selectedsettingsId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
       </div>
     </>
   );

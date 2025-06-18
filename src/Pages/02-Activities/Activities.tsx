@@ -7,6 +7,7 @@ import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
+import { Dialog } from "primereact/dialog";
 
 type DecryptResult = any;
 interface Activities {
@@ -48,7 +49,10 @@ const Activities: React.FC = () => {
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs({ ...inputs, [e.target.name]: e.target.value });
   };
-
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedsettingsId, setSelectedsettingsId] = useState<number | null>(
+    null
+  );
   const fetchActivities = async () => {
     try {
       const response = await axios.get(
@@ -203,8 +207,7 @@ const Activities: React.FC = () => {
           detail: "Successfully Updated",
           life: 3000,
         });
-      }
-      else {
+      } else {
         toast.current?.show({
           severity: "error",
           summary: data.error,
@@ -244,7 +247,7 @@ const Activities: React.FC = () => {
       setSubmitLoading(false);
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-         toast.current?.show({
+        toast.current?.show({
           severity: "error",
           summary: "Deleted",
           detail: " deleted successfully",
@@ -255,6 +258,8 @@ const Activities: React.FC = () => {
             (activity) => activity.refActivitiesId !== refActivitiesId
           )
         );
+        setVisibleDialog(false);
+          setSelectedsettingsId(null);
       }
     } catch (e) {
       console.error("Error deleting activity:", e);
@@ -281,7 +286,11 @@ const Activities: React.FC = () => {
       <Button
         icon="pi pi-trash"
         className="p-button-danger p-button-sm"
-        onClick={() => deleteActivity(rowData.refActivitiesId)}
+        // onClick={() => deleteActivity(rowData.refActivitiesId)}
+        onClick={() => {
+            setSelectedsettingsId(rowData.refActivitiesId);
+            setVisibleDialog(true);
+          }}
       />
     </div>
   );
@@ -295,12 +304,12 @@ const Activities: React.FC = () => {
 
   return (
     <>
-       <Toast ref={toast} />
+      <Toast ref={toast} />
       <h2 className="font-bold mb-3">Add New Activities</h2>
 
       <p className="text-sm text-[#f60000] mt-3 mb-3">
-          Please fill in the details below in English. *
-        </p>
+        Please fill in the details below in English. *
+      </p>
 
       <div className="flex flex-row gap-5">
         {" "}
@@ -335,6 +344,37 @@ const Activities: React.FC = () => {
         />
         <Column body={actionTemplate} header="Actions" />
       </DataTable>
+       <Dialog
+                header="Confirm Deletion"
+                visible={visibleDialog}
+                style={{ width: "350px" }}
+                modal
+                onHide={() => setVisibleDialog(false)}
+                footer={
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      label="No"
+                      icon="pi pi-times"
+                      className="p-button-text"
+                      onClick={() => setVisibleDialog(false)}
+                    />
+                    <Button
+                      label="Yes"
+                      icon="pi pi-check"
+                      className="p-button-danger"
+                      loading={submitLoading}
+                      onClick={() => {
+                        if (selectedsettingsId) {
+                          deleteActivity(selectedsettingsId);
+                        }
+                        setVisibleDialog(false);
+                      }}
+                    />
+                  </div>
+                }
+              >
+                <p>Are you sure you want to delete this item?</p>
+              </Dialog>
     </>
   );
 };

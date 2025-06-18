@@ -22,6 +22,7 @@ import { FileUpload } from "primereact/fileupload";
 import { EditorTextChangeEvent } from "primereact/editor";
 import { fetchNewcarservices } from "../../services/NewServices";
 import TourUpdate from "../../Pages/06-TourUpdate/TourUpdate";
+import { Dialog } from "primereact/dialog";
 
 import { Toast } from "primereact/toast";
 import { useTranslation } from "react-i18next";
@@ -122,6 +123,9 @@ function ToursNew() {
   const [_editTourData, _setEditTourData] = useState<any>({});
 
   const [coverImage, setCoverImage] = useState("");
+ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedIncludeId, setSelectedIncludeId] = useState<number | null>(null);
+  // const [selectedIncludeId, setSelectedIncludeId] = useState<number | null>(null);
 
   type DecryptResult = any;
 
@@ -548,7 +552,10 @@ function ToursNew() {
       setSubmitLoading(false);
     }
   };
-
+  const confirmDelete = (id: number) => {
+    setSelectedIncludeId(id);
+    setShowDeleteConfirm(true);
+  };
   // Action Buttons (Edit / Delete)
   const includeActionTemplateDelete = (rowData: any) => {
     return (
@@ -568,11 +575,47 @@ function ToursNew() {
           />
         )}
 
-        <Button
+        {/* <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
           onClick={() => deleteInclude(rowData.refTravalIncludeId)}
-        />
+        /> */}
+         <Button
+            icon="pi pi-trash"
+            className="p-button-danger p-button-sm"
+            onClick={() => confirmDelete(rowData.refTravalIncludeId)}
+          />
+        <Dialog
+        header="Confirm Deletion"
+        visible={showDeleteConfirm}
+        style={{ width: "350px" }}
+        modal
+        onHide={() => setShowDeleteConfirm(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              loading={submitLoading}
+              onClick={() => {
+                if (selectedIncludeId) {
+                  deleteInclude(selectedIncludeId);
+                }
+                setShowDeleteConfirm(false);
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this item?</p>
+      </Dialog>
       </div>
     );
   };
@@ -634,11 +677,47 @@ function ToursNew() {
           />
         )}
 
-        <Button
+        {/* <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
           onClick={() => deleteExclude(rowData.refTravalExcludeId)}
-        />
+        /> */}
+         <Button
+            icon="pi pi-trash"
+            className="p-button-danger p-button-sm"
+            onClick={() => confirmDelete(rowData.refTravalExcludeId)}
+          />
+<Dialog
+        header="Confirm Deletion"
+        visible={showDeleteConfirm}
+        style={{ width: "350px" }}
+        modal
+        onHide={() => setShowDeleteConfirm(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              loading={submitLoading}
+              onClick={() => {
+                if (selectedIncludeId) {
+                  deleteExclude(selectedIncludeId);
+                }
+                setShowDeleteConfirm(false);
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this item?</p>
+      </Dialog>
       </div>
     );
   };
@@ -986,18 +1065,27 @@ function ToursNew() {
     }
   };
 
-  const actionDeleteTour = (rowData: any) => {
-    console.log(rowData);
+  // const actionDeleteTour = (rowData: any) => {
+  //   console.log(rowData);
 
-    return (
-      <Button
-        icon="pi pi-trash"
-        severity="danger"
-        onClick={() => deleteTour(rowData.refPackageId)}
-      />
-    );
-  };
-
+  //   return (
+  //     <Button
+  //       icon="pi pi-trash"
+  //       severity="danger"
+  //       onClick={() => deleteTour(rowData.refPackageId)}
+  //     />
+  //   );
+  // };
+ const actionDeleteTour = (rowData: any) => (
+    <Button
+      icon="pi pi-trash"
+      severity="danger"
+      onClick={() => {
+        setSelectedIncludeId(rowData.refPackageId);
+        setShowDeleteConfirm(true);
+      }}
+    />
+  );
   return (
     <>
       <Toast ref={toast} />
@@ -1016,7 +1104,9 @@ function ToursNew() {
           value={tourDetails}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={1}
+          scrollable
+          scrollHeight="500px"
+          rows={7}
         >
           <Column
             header={t("dashboard.SNo")}
@@ -1222,6 +1312,38 @@ function ToursNew() {
           {/* <Column body={actionTemplate} header="Actions" /> */}
           <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
         </DataTable>
+          {/* Delete Confirmation Dialog */}
+      <Dialog
+        header="Confirm Deletion"
+        visible={showDeleteConfirm}
+        style={{ width: "350px" }}
+        modal
+        onHide={() => setShowDeleteConfirm(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setShowDeleteConfirm(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              loading={submitLoading}
+              onClick={() => {
+                if (selectedIncludeId) {
+                  deleteTour(selectedIncludeId);
+                }
+                setShowDeleteConfirm(false);
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this tour package?</p>
+      </Dialog>
       </div>
 
       <Sidebar

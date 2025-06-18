@@ -16,6 +16,9 @@ import { useState, useEffect } from "react";
 import moment from "moment-timezone";
 import PdfViewer from "../Pdf/PdfViewer";
 import { useTranslation } from "react-i18next";
+import { Dialog } from "primereact/dialog";
+
+
 
 type DecryptResult = any;
 
@@ -89,7 +92,12 @@ const UserDetails: React.FC = () => {
   const [_editCarId, setEditCarId] = useState<number | null>(null);
   const [_editParkingId, setEditParkingId] = useState<number | null>(null);
   //  const [visible, setVisible] = useState(false);
-
+ const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedIncludeId, setSelectedIncludeId] = useState<number | null>(null);
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedParkingId, setSelectedParkingId] = useState<number | null>(
+    null
+  );
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-GB"); // e.g., "21/05/2025"
 
@@ -1007,10 +1015,18 @@ const UserDetails: React.FC = () => {
     console.log(rowData);
 
     return (
-      <Button
-        icon="pi pi-trash"
-        severity="danger"
-        onClick={() => deleteCar(rowData.userCarBookingId)}
+      // <Button
+      //   icon="pi pi-trash"
+      //   severity="danger"
+      //   onClick={() => deleteCar(rowData.userCarBookingId)}
+      // />
+        <Button
+          icon="pi pi-trash"
+      severity="danger"
+      onClick={() => {
+        setSelectedIncludeId(rowData.userCarBookingId);
+        setShowDeleteConfirm(true);
+      }}
       />
     );
   };
@@ -1098,13 +1114,19 @@ const UserDetails: React.FC = () => {
 
     return (
       <Button
-        icon="pi pi-trash"
-        severity="danger"
-        onClick={() => deleteTour(rowData.userTourBookingId)}
+          icon="pi pi-trash"
+      severity="danger"
+      onClick={() => {
+        setSelectedIncludeId(rowData.userTourBookingId);
+        setShowDeleteConfirm(true);
+      }}
       />
     );
   };
-
+  // const confirmDelete = (id: number) => {
+  //   setSelectedIncludeId(id);
+  //   setShowDeleteConfirm(true);
+  // };
   const deleteTour = async (id: any) => {
     try {
       const response = await axios.post(
@@ -1695,18 +1717,29 @@ const UserDetails: React.FC = () => {
 
   //Parking
 
-  const actionDeleteParking = (rowData: any) => {
-    console.log(rowData);
+  // const actionDeleteParking = (rowData: any) => {
+  //   console.log(rowData);
 
+  //   return (
+  //     <Button
+  //       icon="pi pi-trash"
+  //       severity="danger"
+  //       onClick={() => deleteParking(rowData.carParkingBookingId)}
+  //     />
+  //   );
+  // };
+  const actionDeleteParking = (rowData: any) => {
     return (
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteParking(rowData.carParkingBookingId)}
+        onClick={() => {
+          setSelectedParkingId(rowData.carParkingBookingId);
+          setVisibleDialog(true);
+        }}
       />
     );
   };
-
   const deleteParking = async (id: any) => {
     try {
       const response = await axios.post(
@@ -1739,6 +1772,9 @@ const UserDetails: React.FC = () => {
       console.error("Error delete package:", e);
       setSubmitLoading(false);
       setEditParkingId(null);
+      setVisibleDialog(false);
+      setSelectedParkingId(null);
+
     }
   };
   //update Airport
@@ -3538,7 +3574,7 @@ const UserDetails: React.FC = () => {
         activeIndex={activeIndex}
         onTabChange={(e) => setActiveIndex(e.index)}
       >
-        <TabPanel header={t("dashboard.Customize Tour Details")}>
+        {/* <TabPanel header={t("dashboard.Customize Tour Details")}>
           <div className="mt-1 p-2 ">
             <h3 className="text-lg font-bold mb-4">
               {t("dashboard.Customize TourBookings")}
@@ -3546,7 +3582,7 @@ const UserDetails: React.FC = () => {
             <DataTable
               value={UserDetail}
               paginator
-              rows={2}
+              rows={8}
               tableStyle={{ minWidth: "50rem" }}
             >
               <Column
@@ -3638,7 +3674,8 @@ const UserDetails: React.FC = () => {
               />
             </DataTable>
           </div>
-        </TabPanel>
+        </TabPanel> */}
+
         <TabPanel header={t("dashboard.TourBookings")}>
           <div className=" ">
             <h3 className="text-lg font-bold">
@@ -3646,7 +3683,9 @@ const UserDetails: React.FC = () => {
             </h3>
             <DataTable
               paginator
-              rows={2}
+              rows={8}
+              scrollable
+          scrollHeight="500px"
               value={TourBooking}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -3767,6 +3806,37 @@ const UserDetails: React.FC = () => {
               <Column body={actionReadTour} header={t("dashboard.Approve")} />
               <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
             </DataTable>
+               <Dialog
+                    header="Confirm Deletion"
+                    visible={showDeleteConfirm}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setShowDeleteConfirm(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setShowDeleteConfirm(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          // loading={submitLoading}
+                          onClick={() => {
+                            if (selectedIncludeId) {
+                              deleteTour(selectedIncludeId);
+                            }
+                            setShowDeleteConfirm(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this tour package?</p>
+                  </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.CarBookings")}>
@@ -3776,7 +3846,9 @@ const UserDetails: React.FC = () => {
             </h3>
             <DataTable
               paginator
-              rows={2}
+              scrollable
+              scrollHeight="500px"
+              rows={4}
               value={CarBookings}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -3844,6 +3916,37 @@ const UserDetails: React.FC = () => {
               <Column body={actionReadCar} header={t("dashboard.Approve")} />
               <Column body={actionDeleteCar} header={t("dashboard.Delete")} />
             </DataTable>
+                 <Dialog
+                    header="Confirm Deletion"
+                    visible={showDeleteConfirm}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setShowDeleteConfirm(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setShowDeleteConfirm(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          // loading={submitLoading}
+                          onClick={() => {
+                            if (selectedIncludeId) {
+                              deleteTour(selectedIncludeId);
+                            }
+                            setShowDeleteConfirm(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this tour package?</p>
+                  </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.Booked Parking")}>
@@ -3853,7 +3956,9 @@ const UserDetails: React.FC = () => {
             </h3>
             <DataTable
               paginator
-              rows={2}
+              rows={8}
+              scrollable
+          scrollHeight="500px"
               value={parking}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -3940,6 +4045,35 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.Delete")}
               />
             </DataTable>
+             <Dialog
+        header="Confirm Deletion"
+        visible={visibleDialog}
+        style={{ width: "350px" }}
+        onHide={() => setVisibleDialog(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setVisibleDialog(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              // loading={submitLoading}
+              onClick={() => {
+                if (selectedParkingId !== null) {
+                  deleteParking(selectedParkingId);
+                }
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this car parking booking?</p>
+      </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.Flight Ticket Form")}>
@@ -3950,7 +4084,9 @@ const UserDetails: React.FC = () => {
             <DataTable
               value={airport}
               paginator
-              rows={2}
+              rows={8}
+              scrollable
+          scrollHeight="500px"
               tableStyle={{ minWidth: "50rem" }}
             >
               <Column
@@ -4015,7 +4151,9 @@ const UserDetails: React.FC = () => {
             <DataTable
               value={UserDetails}
               paginator
-              rows={2}
+              rows={8}
+              scrollable
+          scrollHeight="500px"
               tableStyle={{ minWidth: "50rem" }}
             >
               <Column

@@ -10,6 +10,7 @@ import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useTranslation } from "react-i18next";
+import { Dialog } from "primereact/dialog";
 
 
 interface Destination {
@@ -41,6 +42,11 @@ const Location: React.FC = () => {
     refDestinationId: "",
   });
     const toast = useRef<Toast>(null);
+
+   const [visibleDialog, setVisibleDialog] = useState(false);
+    const [selectedsettingsId, setSelectedsettingsId] = useState<number | null>(
+      null
+    );
   
 
   const decrypt = (
@@ -333,7 +339,8 @@ const Location: React.FC = () => {
             (locations) => locations.refDestinationId !== refDestinationId
           )
         );
-
+  setVisibleDialog(false);
+          setSelectedsettingsId(null);
         // setAllLocations((prevLocations) =>
         //   prevLocations.filter(
         //     (location) => location.refLocationId !== refLocationId
@@ -366,7 +373,11 @@ const Location: React.FC = () => {
       <Button
         icon="pi pi-trash"
         className="p-button-danger p-button-sm"
-        onClick={() => deleteLocation(rowData.refDestinationId)}
+        // onClick={() => deleteLocation(rowData.refDestinationId)}
+         onClick={() => {
+            setSelectedsettingsId(rowData);
+            setVisibleDialog(true);
+          }}
       />
     </div>
   );
@@ -546,7 +557,37 @@ const Location: React.FC = () => {
     style={{ minWidth: "150px", textAlign: "center" }}
   />
 </DataTable>
-
+<Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                loading={submitLoading}
+                onClick={() => {
+                  if (selectedsettingsId) {
+                    deleteLocation(selectedsettingsId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
     </div>
   );
 };

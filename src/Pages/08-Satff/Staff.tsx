@@ -7,6 +7,7 @@ import { Calendar } from "primereact/calendar";
 import CryptoJS from "crypto-js";
 import { Toast } from "primereact/toast";
 import { MultiSelect } from "primereact/multiselect";
+import { Dialog } from "primereact/dialog";
 
 import "./Staff.css";
 import { FileUpload } from "primereact/fileupload";
@@ -60,6 +61,10 @@ const Staff: React.FC = () => {
   const [selectedEmployeeType, setSelectedEmployeeType] = useState<any[]>([]);
   const [employeeType, setEmployeeType] = useState<any[]>([]);
 
+
+      const [visibleDialog, setVisibleDialog] = useState(false);
+    const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
+  
   const closeStaffupdatesidebar = () => {
     setStaffupdatesidebar(false);
   };
@@ -254,6 +259,8 @@ const Staff: React.FC = () => {
       console.error("Error updating package:", e);
       setSubmitLoading(false);
       setEditStaffId(null);
+          setVisibleDialog(false);
+      setSelectedBannerId(null);
     }
   };
 
@@ -264,7 +271,11 @@ const Staff: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteStaff(rowData.refuserId)}
+        // onClick={() => deleteStaff(rowData.refuserId)}
+         onClick={() => {
+          setSelectedBannerId(rowData.refuserId);
+          setVisibleDialog(true);
+           }}
       />
     );
   };
@@ -526,8 +537,10 @@ const Staff: React.FC = () => {
           <DataTable
             value={staff}
             tableStyle={{ minWidth: "50rem" }}
+            scrollable
+            scrollHeight="500px"  // Adjust height as needed
             paginator
-            rows={3}
+            rows={5}
           >
             <Column
               header={t("dashboard.SNo")}
@@ -536,7 +549,9 @@ const Staff: React.FC = () => {
             />
             <Column
               className="underline text-[#0a5c9c] cursor-pointer"
-              headerStyle={{ width: "25rem" }}
+              // headerStyle={{ width: "30rem" }}
+              headerStyle={{ width: "40rem" }}
+  bodyStyle={{ width: "40rem" }}
               field="refCustId"
               header={t("dashboard.StaffID")}
               body={(rowData) => (
@@ -565,6 +580,8 @@ const Staff: React.FC = () => {
               headerStyle={{ width: "15rem" }}
               field="refDOB"
               header={t("dashboard.DOB")}
+                body={(rowData) => rowData.refDOB?.split("T")[0]}
+
             />
             <Column
               headerStyle={{ width: "9rem" }}
@@ -582,7 +599,38 @@ const Staff: React.FC = () => {
               header={t("dashboard.Designation")}
             />
             <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
+         
           </DataTable>
+                <Dialog
+                  header="Confirm Deletion"
+                  visible={visibleDialog}
+                  style={{ width: "350px" }}
+                  onHide={() => setVisibleDialog(false)}
+                  footer={
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        label="No"
+                        icon="pi pi-times"
+                        className="p-button-text"
+                        onClick={() => setVisibleDialog(false)}
+                      />
+                      <Button
+                        label="Yes"
+                        icon="pi pi-check"
+                        className="p-button-danger"
+                        // loading={setLoading}
+                        onClick={() => {
+                          if (selectedBannerId !== null) {
+                            deleteStaff(selectedBannerId);
+                          }
+                          setVisibleDialog(false)
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <p>Are you sure you want to delete this banner?</p>
+                </Dialog>
         </div>
 
         <Sidebar

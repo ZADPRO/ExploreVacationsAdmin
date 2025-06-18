@@ -136,9 +136,11 @@ const StaffNotification: React.FC = () => {
       <div className="flex flex-col gap-4 mt-4">
         <DataTable
           value={[...unReadNotifications, ...readNotifications]}
-          tableStyle={{ minWidth: "50rem" }}
+          tableStyle={{ minWidth: "50rem", justifyItems:"center"}}
           paginator
-          rows={3}
+          scrollable
+          scrollHeight="500px"
+          rows={8}
         >
           <Column
             header={t("dashboard.SNo")}

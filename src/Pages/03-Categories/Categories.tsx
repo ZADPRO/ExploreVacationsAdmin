@@ -9,7 +9,7 @@ import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { useTranslation } from "react-i18next";
-
+import { Dialog } from "primereact/dialog";
 
 
 type DecryptResult = any;
@@ -49,7 +49,10 @@ const Categories: React.FC = () => {
   const [editCategoryId, setEditCategoryId] = useState<number | null>(null);
   const [editCategoryValue, setEditCategoryValue] = useState("");
   const toast = useRef<Toast>(null);
-
+ const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedsettingsId, setSelectedsettingsId] = useState<number | null>(
+    null
+  );
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputs((prevState: any) => ({
       ...prevState,
@@ -287,8 +290,12 @@ const Categories: React.FC = () => {
       <Button
         icon="pi pi-trash"
         className="p-button-danger p-button-sm"
-        onClick={() => deleteCategory(rowData.refCategoryId)}
-      />
+        // onClick={() => deleteCategory(rowData.refCategoryId)}
+ onClick={() => {
+            setSelectedsettingsId(rowData.refCategoryId);
+            setVisibleDialog(true);
+          }}
+/>
     </div>
   );
 
@@ -347,7 +354,37 @@ const Categories: React.FC = () => {
   />
   <Column body={actionTemplate} header={t("dashboard.Actions")} />
 </DataTable>
-
+   <Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                loading={submitLoading}
+                onClick={() => {
+                  if (selectedsettingsId) {
+                    deleteCategory(selectedsettingsId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
       </div>
     </>
   );

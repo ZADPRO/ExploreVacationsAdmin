@@ -19,7 +19,7 @@ import { MultiSelect } from "primereact/multiselect";
 import { FileUpload } from "primereact/fileupload";
 import { fetchNewcarservices } from "../../services/NewServices";
 import { useTranslation } from "react-i18next";
-
+import { Dialog } from "primereact/dialog";
 
 import CarUpdate from "../../Pages/07-CarUpdate/CarUpdate";
 import AddExtra from "./AddExtra";
@@ -133,6 +133,9 @@ const CarServices: React.FC = () => {
   const closeCarupdatesidebar = () => {
     setCarupdatesidebar(false);
   };
+
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
 
   const showupdatemodel = false;
   const [editingRowGroup, setEditingRowGroup] = useState(null);
@@ -465,13 +468,18 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchCarname(); // Refresh the list after deletion
+        setVisibleDialog(false);
+        setSelectedCarId(null);
       }
     } catch (e) {
       console.error("Error deleting car:", e);
       setSubmitLoading(false);
     }
   };
-
+  //  const confirmDelete = (id: number) => {
+  //     setSelectedCarId(id);
+  //     setVisibleDialog(true);
+  //   };
   // delete car group
 
   const deleteCargroup = async (refCarGroupId: number) => {
@@ -505,6 +513,8 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchCargroup(); // Refresh the list after deletion
+        setVisibleDialog(false);
+        setSelectedCarId(null);
       }
     } catch (e) {
       console.error("Error deleting car:", e);
@@ -536,7 +546,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteCarname(rowData.refVehicleTypeId)}
+          // onClick={() => deleteCarname(rowData.refVehicleTypeId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refVehicleTypeId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -568,7 +582,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteCargroup(rowData.refCarGroupId)}
+          // onClick={() => deleteCargroup(rowData.refCarGroupId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refCarGroupId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -1387,6 +1405,8 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchBenefits(); // Refresh the list after deletion
+        setVisibleDialog(false);
+        setSelectedCarId(null);
       }
     } catch (e) {
       console.error("Error deleting car:", e);
@@ -1418,7 +1438,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteBenefit(rowData.refBenifitsId)}
+          // onClick={() => deleteBenefit(rowData.refBenifitsId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refBenifitsId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -1460,6 +1484,8 @@ const CarServices: React.FC = () => {
     } catch (e) {
       console.error("Error deleting car:", e);
       setSubmitLoading(false);
+      setVisibleDialog(false);
+      setSelectedCarId(null);
     }
   };
 
@@ -1487,7 +1513,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteInclude(rowData.refIncludeId)}
+          // onClick={() => deleteInclude(rowData.refIncludeId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refIncludeId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -1526,6 +1556,8 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchExclude(); // Refresh the list after deletion
+        setVisibleDialog(false);
+        setSelectedCarId(null);
       }
     } catch (e) {
       console.error("Error deleting car:", e);
@@ -1557,7 +1589,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteExclude(rowData.refExcludeId)}
+          // onClick={() => deleteExclude(rowData.refExcludeId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refExcludeId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -1596,6 +1632,8 @@ const CarServices: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchExtra(); // Refresh the list after deletion
+        setVisibleDialog(false);
+        setSelectedCarId(null);
       }
     } catch (e) {
       console.error("Error deleting car:", e);
@@ -1626,7 +1664,11 @@ const CarServices: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
-          onClick={() => deleteExtra(rowData.refFormDetailsId)}
+          // onClick={() => deleteExtra(rowData.refFormDetailsId)}
+          onClick={() => {
+            setSelectedCarId(rowData.refFormDetailsId);
+            setVisibleDialog(true);
+          }}
         />
       </div>
     );
@@ -1775,7 +1817,8 @@ const CarServices: React.FC = () => {
 
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-
+        setVisibleDialog(false);
+        setSelectedCarId(null);
         fetchNewcarservices().then((result) => {
           setCabDetails(result);
         });
@@ -1789,6 +1832,21 @@ const CarServices: React.FC = () => {
       console.error("Error deleting car:", error);
       // toast.error("Failed to delete car.");
     }
+  };
+
+  const actionDelete = (rowData: any) => {
+    console.log(rowData);
+
+    return (
+      <Button
+        icon="pi pi-trash"
+        severity="danger"
+        onClick={() => {
+          setSelectedCarId(rowData.refCarsId);
+          setVisibleDialog(true);
+        }}
+      />
+    );
   };
 
   return (
@@ -1810,7 +1868,9 @@ const CarServices: React.FC = () => {
           value={cabDetils}
           tableStyle={{ minWidth: "50rem" }}
           paginator
-          rows={4}
+          scrollable
+          scrollHeight="500px"
+          rows={6}
         >
           <Column
             header={t("dashboard.SNo")}
@@ -1894,7 +1954,7 @@ const CarServices: React.FC = () => {
                 </button> */}
 
                 <button
-                  onClick={() => handleDeleteCar(rowData)}
+                  onClick={() => actionDelete(rowData.refCarsId)}
                   style={{
                     background: "#dc3545",
                     color: "#fff",
@@ -1911,6 +1971,37 @@ const CarServices: React.FC = () => {
             style={{ minWidth: "150px" }}
           />
         </DataTable>
+        <Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                loading={submitLoading}
+                onClick={() => {
+                  if (selectedCarId) {
+                    handleDeleteCar(selectedCarId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
       </div>
 
       <Sidebar
@@ -1976,6 +2067,36 @@ const CarServices: React.FC = () => {
                     header={t("dashboard.Actions")}
                   />
                 </DataTable>
+                <Dialog
+                  header="Confirm Deletion"
+                  visible={visibleDialog}
+                  style={{ width: "350px" }}
+                  onHide={() => setVisibleDialog(false)}
+                  footer={
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        label="No"
+                        icon="pi pi-times"
+                        className="p-button-text"
+                        onClick={() => setVisibleDialog(false)}
+                      />
+                      <Button
+                        label="Yes"
+                        icon="pi pi-check"
+                        className="p-button-danger"
+                        loading={submitLoading}
+                        onClick={() => {
+                          if (selectedCarId !== null) {
+                            deleteCarname(selectedCarId);
+                          }
+                          setVisibleDialog(false);
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <p>Are you sure you want to delete this banner?</p>
+                </Dialog>
               </div>
             </div>
 
@@ -2029,6 +2150,36 @@ const CarServices: React.FC = () => {
                     header={t("dashboard.Actions")}
                   />
                 </DataTable>
+                <Dialog
+                  header="Confirm Deletion"
+                  visible={visibleDialog}
+                  style={{ width: "350px" }}
+                  onHide={() => setVisibleDialog(false)}
+                  footer={
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        label="No"
+                        icon="pi pi-times"
+                        className="p-button-text"
+                        onClick={() => setVisibleDialog(false)}
+                      />
+                      <Button
+                        label="Yes"
+                        icon="pi pi-check"
+                        className="p-button-danger"
+                        loading={submitLoading}
+                        onClick={() => {
+                          if (selectedCarId !== null) {
+                            deleteCargroup(selectedCarId);
+                          }
+                          setVisibleDialog(false);
+                        }}
+                      />
+                    </div>
+                  }
+                >
+                  <p>Are you sure you want to delete this banner?</p>
+                </Dialog>
               </div>
             </div>
           </TabPanel>
@@ -2284,6 +2435,37 @@ const CarServices: React.FC = () => {
                       header={t("dashboard.Actions")}
                     />
                   </DataTable>
+                  <Dialog
+                    header="Confirm Deletion"
+                    visible={visibleDialog}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setVisibleDialog(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setVisibleDialog(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          loading={submitLoading}
+                          onClick={() => {
+                            if (selectedCarId) {
+                              deleteBenefit(selectedCarId);
+                            }
+                            setVisibleDialog(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this item?</p>
+                  </Dialog>
                 </div>
 
                 {/* Card 2 */}
@@ -2329,8 +2511,42 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={includeActionTemplate} header={t("dashboard.Actions")} />
+                    <Column
+                      body={includeActionTemplate}
+                      header={t("dashboard.Actions")}
+                    />
                   </DataTable>
+                  <Dialog
+                    header="Confirm Deletion"
+                    visible={visibleDialog}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setVisibleDialog(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setVisibleDialog(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          loading={submitLoading}
+                          onClick={() => {
+                            if (selectedCarId) {
+                              deleteInclude(selectedCarId);
+                            }
+                            setVisibleDialog(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this item?</p>
+                  </Dialog>
                 </div>
 
                 {/* Card 3 */}
@@ -2373,13 +2589,49 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={excludeActionTemplate} header={t("dashboard.Actions")} />
+                    <Column
+                      body={excludeActionTemplate}
+                      header={t("dashboard.Actions")}
+                    />
                   </DataTable>
+                  <Dialog
+                    header="Confirm Deletion"
+                    visible={visibleDialog}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setVisibleDialog(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setVisibleDialog(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          loading={submitLoading}
+                          onClick={() => {
+                            if (selectedCarId) {
+                              deleteExclude(selectedCarId);
+                            }
+                            setVisibleDialog(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this item?</p>
+                  </Dialog>
                 </div>
 
                 {/* Card 4 */}
                 <div className="bg-white shadow-md p-4 rounded-lg">
-                  <h4 className="font-semibold">{t("dashboard.Extra Charges")}</h4>
+                  <h4 className="font-semibold">
+                    {t("dashboard.Extra Charges")}
+                  </h4>
 
                   {/* <AddForm
                     submitCallback={(values) => {
@@ -2449,8 +2701,42 @@ const CarServices: React.FC = () => {
                       }
                     />
 
-                    <Column body={extraActionTemplate} header={t("dashboard.Actions")} />
+                    <Column
+                      body={extraActionTemplate}
+                      header={t("dashboard.Actions")}
+                    />
                   </DataTable>
+                  <Dialog
+                    header="Confirm Deletion"
+                    visible={visibleDialog}
+                    style={{ width: "350px" }}
+                    modal
+                    onHide={() => setVisibleDialog(false)}
+                    footer={
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          label="No"
+                          icon="pi pi-times"
+                          className="p-button-text"
+                          onClick={() => setVisibleDialog(false)}
+                        />
+                        <Button
+                          label="Yes"
+                          icon="pi pi-check"
+                          className="p-button-danger"
+                          loading={submitLoading}
+                          onClick={() => {
+                            if (selectedCarId) {
+                              deleteExtra(selectedCarId);
+                            }
+                            setVisibleDialog(false);
+                          }}
+                        />
+                      </div>
+                    }
+                  >
+                    <p>Are you sure you want to delete this item?</p>
+                  </Dialog>
                 </div>
 
                 {/* Card 5 
@@ -2475,7 +2761,9 @@ const CarServices: React.FC = () => {
 
           <TabPanel header={t("dashboard.Add New Services")}>
             <div>
-              <h2 className="text-xl font-bold">{t("dashboard.Add New Car Package")}</h2>
+              <h2 className="text-xl font-bold">
+                {t("dashboard.Add New Car Package")}
+              </h2>
               <form onSubmit={handleSubmit} method="post">
                 <div className="flex flex-row gap-3 mt-3">
                   <Dropdown
@@ -2486,7 +2774,6 @@ const CarServices: React.FC = () => {
                     }}
                     options={car}
                     optionValue="refVehicleTypeId"
-                    
                     optionLabel="refVehicleTypeName"
                     placeholder="Choose a Car Name"
                     className="w-full"
@@ -2747,9 +3034,7 @@ const CarServices: React.FC = () => {
                     accept="image/*"
                     maxFileSize={10000000}
                     emptyTemplate={
-                      <p className="m-0">
-                     {t("dashboard.imagewarning")}
-                      </p>
+                      <p className="m-0">{t("dashboard.imagewarning")}</p>
                     }
                   />
                   {" "}

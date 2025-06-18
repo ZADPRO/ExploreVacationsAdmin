@@ -99,13 +99,13 @@ const Dashboard: React.FC = () => {
       path: "/userdetails",
       roles: ["Admin", "Employee - Tours"],
     },
-    {
-      key: "customizeTourBookingCount",
-      title: t("dashboard.Customize Booked"),
-      tabIndex: 0,
-      path: "/userdetails",
-      roles: ["Admin", "Employee - Tours"],
-    },
+    // {
+    //   key: "customizeTourBookingCount",
+    //   title: t("dashboard.Customize Booked"),
+    //   tabIndex: 0,
+    //   path: "/userdetails",
+    //   roles: ["Admin", "Employee - Tours"],
+    // },
     {
       key: "carBookingCount",
       title: t("dashboard.Car Booked"),
@@ -148,9 +148,7 @@ const Dashboard: React.FC = () => {
       path: "/userlist",
       roles: [
         "Admin",
-        "Employee - Tours",
-        "Employee - Cars",
-        "Employee - Parking",
+      
       ],
     },
   ];
@@ -172,7 +170,6 @@ const Dashboard: React.FC = () => {
       </div>
     );
   };
-
   return (
     <div>
       <div>

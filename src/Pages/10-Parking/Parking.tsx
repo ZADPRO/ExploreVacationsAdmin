@@ -18,7 +18,7 @@ import { MultiSelect } from "primereact/multiselect";
 import Updateparking from "./Updateparking";
 import { Calendar } from "primereact/calendar";
 import { useTranslation } from "react-i18next";
-
+import { Dialog } from "primereact/dialog";
 
 interface Service {
   Feature: string;
@@ -51,6 +51,10 @@ const Parking: React.FC = () => {
   const [vechileType, setVechileType] = useState<any[]>([]);
   const [carType, setCarType] = useState<any[]>([]);
   const [parking, setParking] = useState<any[]>([]);
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedParkingId, setSelectedParkingId] = useState<number | null>(
+    null
+  );
 
   const [inputs, setInputs] = useState({
     refCarParkingTypeId: "",
@@ -304,9 +308,13 @@ const Parking: React.FC = () => {
         <Button
           icon="pi pi-trash"
           className="p-button-danger p-button-sm"
+          // onClick={() => {
+          //   deleteService(rowData.refServiceFeaturesId);
+          //   console.log("Deleting id:", rowData.refServiceFeaturesId);
+          // }}
           onClick={() => {
-            deleteService(rowData.refServiceFeaturesId);
-            console.log("Deleting id:", rowData.refServiceFeaturesId);
+            setSelectedParkingId(rowData.refServiceFeaturesId);
+            setVisibleDialog(true);
           }}
         />
       </div>
@@ -339,6 +347,8 @@ const Parking: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         await fetchService();
+        setVisibleDialog(false);
+        setSelectedParkingId(null);
       }
     } catch (e) {
       console.error("Error deleting service:", e);
@@ -597,6 +607,9 @@ const Parking: React.FC = () => {
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
         fetchParking();
+         setVisibleDialog(false);
+        setSelectedParkingId(null);
+
       } else {
         console.error("API update failed:", data);
       }
@@ -614,7 +627,11 @@ const Parking: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteParking(rowData.refCarParkingId)}
+        // onClick={() => deleteParking(rowData.refCarParkingId)}
+         onClick={() => {
+          setSelectedParkingId(rowData.refCarParkingId);
+          setVisibleDialog(true);
+           }}
       />
     );
   };
@@ -676,6 +693,8 @@ const Parking: React.FC = () => {
             value={parking}
             tableStyle={{ minWidth: "50rem" }}
             paginator
+            scrollable
+            scrollHeight="500px"
             rows={3}
           >
             <Column
@@ -701,7 +720,7 @@ const Parking: React.FC = () => {
               )}
             />
             <Column
-              headerStyle={{ width: "15rem" }}
+              headerStyle={{ width: "5rem" }}
               field="refParkingTypeName"
               header={t("dashboard.Parking Type")}
             />
@@ -710,13 +729,15 @@ const Parking: React.FC = () => {
               field="refCarParkingTypeName"
               header={t("dashboard.Vehicle Type")}
             />
-            <Column
+            {/* <Column
               headerStyle={{ width: "15rem" }}
               field="refServiceFeaturesList"
               header={t("dashboard.Service Features")}
-            />
+            /> */}
             <Column
-              headerStyle={{ width: "15rem" }}
+              // headerStyle={{ width: "15rem" }}
+               headerStyle={{ width: "40rem" }}
+  bodyStyle={{ width: "40rem" }}
               field="MaximumBookingDuration"
               header={t("dashboard.Maximum Booking Duration")}
               body={(rowData) => rowData.MaximumBookingDuration?.slice(0, 10)}
@@ -725,23 +746,23 @@ const Parking: React.FC = () => {
               headerStyle={{ width: "9rem" }}
               field="MinimumBookingDuration"
               header={t("dashboard.Minimum Booking Duration")}
-               body={(rowData) => rowData.MinimumBookingDuration?.slice(0, 10)}
+              body={(rowData) => rowData.MinimumBookingDuration?.slice(0, 10)}
             />
             <Column
               headerStyle={{ minWidth: "15rem" }}
               field="pricePerHourORday"
               header={t("dashboard.Price Per Hour OR Day")}
             />
-            <Column
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="refAvailability"
               header={t("dashboard.Availability")}
-            />
-            <Column
+            /> */}
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="refBookingType"
               header={t("dashboard.Booking Type")}
-            />
+            /> */}
             <Column
               headerStyle={{ width: "9rem" }}
               field="refExtraCharges"
@@ -752,17 +773,17 @@ const Parking: React.FC = () => {
               field="refLocation"
               header={t("dashboard.Location")}
             />
-            <Column
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="refOperatingHours"
               header={t("dashboard.Operating Hours")}
-            />
-            <Column
+            /> */}
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="refWeeklyDiscount"
               header={t("dashboard.Weekly Discount")}
-            />
-            <Column
+            /> */}
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="isCancellationAllowed"
               header={t("dashboard.Cancellation Allowed")}
@@ -773,29 +794,60 @@ const Parking: React.FC = () => {
               field="isRescheduleAllowed"
               header={t("dashboard.Reschedule Allowed")}
               body={(a) => (a.isRescheduleAllowed ? "Yes" : "No")}
-            />
-            <Column
+            /> */}
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="refStatus"
               header={t("dashboard.Status")}
-            />
+            /> */}
             <Column
               headerStyle={{ width: "15rem" }}
               field="refAssociatedAirport"
               header={t("dashboard.Associated Airport")}
             />
-            <Column
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="description"
               header={t("dashboard.Description")}
-            />
-            <Column
+            /> */}
+            {/* <Column
               headerStyle={{ width: "9rem" }}
               field="instructions"
               header={t("dashboard.Instructions")}
-            />
+            /> */}
             <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
           </DataTable>
+          <Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                // loading={submitLoading}
+                onClick={() => {
+                  if (selectedParkingId) {
+                    deleteParking(selectedParkingId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
         </div>
 
         <Sidebar
@@ -866,6 +918,36 @@ const Parking: React.FC = () => {
                       header={t("dashboard.Actions")}
                     />
                   </DataTable>
+                  <Dialog
+          header="Confirm Deletion"
+          visible={visibleDialog}
+          style={{ width: "350px" }}
+          modal
+          onHide={() => setVisibleDialog(false)}
+          footer={
+            <div className="flex justify-end gap-2">
+              <Button
+                label="No"
+                icon="pi pi-times"
+                className="p-button-text"
+                onClick={() => setVisibleDialog(false)}
+              />
+              <Button
+                label="Yes"
+                icon="pi pi-check"
+                className="p-button-danger"
+                onClick={() => {
+                  if (selectedParkingId) {
+                    deleteService(selectedParkingId);
+                  }
+                  setVisibleDialog(false);
+                }}
+              />
+            </div>
+          }
+        >
+          <p>Are you sure you want to delete this item?</p>
+        </Dialog>
                 </div>
               </div>
             </TabPanel>

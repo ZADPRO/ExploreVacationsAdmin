@@ -350,6 +350,7 @@ const PatnerOffer: React.FC = () => {
           scrollable
           style={{ width: "700px" }}
           paginator
+          scrollHeight="500px"
           rows={3}
         >
           <Column
