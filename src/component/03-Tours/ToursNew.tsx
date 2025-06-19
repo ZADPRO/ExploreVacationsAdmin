@@ -1106,7 +1106,7 @@ function ToursNew() {
           paginator
           scrollable
           scrollHeight="500px"
-          rows={7}
+          rows={4}
         >
           <Column
             header={t("dashboard.SNo")}

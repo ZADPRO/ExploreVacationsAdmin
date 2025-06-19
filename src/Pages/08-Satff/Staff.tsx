@@ -20,7 +20,6 @@ import { Nullable } from "primereact/ts-helpers";
 // import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
 import { useTranslation } from "react-i18next";
 
-
 interface StaffDetails {
   refFName: string;
   refLName: string;
@@ -61,10 +60,9 @@ const Staff: React.FC = () => {
   const [selectedEmployeeType, setSelectedEmployeeType] = useState<any[]>([]);
   const [employeeType, setEmployeeType] = useState<any[]>([]);
 
-
-      const [visibleDialog, setVisibleDialog] = useState(false);
-    const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
-  
+  const [visibleDialog, setVisibleDialog] = useState(false);
+  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
+  const [selectedAuditId, setSelectedAuditId] = useState<number | null>(null);
   const closeStaffupdatesidebar = () => {
     setStaffupdatesidebar(false);
   };
@@ -216,6 +214,7 @@ const Staff: React.FC = () => {
   };
 
   const deleteStaff = async (id: any) => {
+    console.log(id);
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/adminRoutes/deleteEmployee",
@@ -259,7 +258,7 @@ const Staff: React.FC = () => {
       console.error("Error updating package:", e);
       setSubmitLoading(false);
       setEditStaffId(null);
-          setVisibleDialog(false);
+      setVisibleDialog(false);
       setSelectedBannerId(null);
     }
   };
@@ -272,10 +271,77 @@ const Staff: React.FC = () => {
         icon="pi pi-trash"
         severity="danger"
         // onClick={() => deleteStaff(rowData.refuserId)}
-         onClick={() => {
+        onClick={() => {
           setSelectedBannerId(rowData.refuserId);
           setVisibleDialog(true);
-           }}
+        }}
+      />
+    );
+  };
+
+  //delete audit
+    const deleteAudit = async (id: any) => {
+      console.log("id------->",id);
+    try {
+      const response = await axios.post(
+        import.meta.env.VITE_API_URL + "/adminRoutes/deleteAudit",
+        {
+          transId : id,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = decrypt(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("API Response:", data);
+
+      if (data.success) {
+        localStorage.setItem("token", "Bearer " + data.token);
+          toast.current?.show({
+          severity: "success",
+          summary: "Success",
+          detail: "Successfully Deleted",
+          life: 3000,
+        });
+      } else {
+        console.error("API update failed:", data);
+        toast.current?.show({
+          severity: "error",
+          summary: data.error,
+          detail: "Error While Deleting Staff",
+          life: 3000,
+        });
+      }
+    } catch (e) {
+      console.error("Error updating package:", e);
+      setSubmitLoading(false);
+      setEditStaffId(null);
+      setVisibleDialog(false);
+      setSelectedAuditId(null);
+    }
+  };
+
+  const actionDeleteAudit = (rowData: any) => {
+    console.log("refuserId----",rowData.transId);
+
+    return (
+      <Button
+        icon="pi pi-trash"
+        severity="danger"
+        // onClick={() => deleteStaff(rowData.refuserId)}
+        onClick={() => {
+          console.log("rowData.refuserId", rowData.transId)
+          setSelectedAuditId(rowData.transId);
+          setVisibleDialog(true);
+        }}
       />
     );
   };
@@ -321,6 +387,7 @@ const Staff: React.FC = () => {
     fetchStaff();
     fetchhistory();
     fetchEmployeeType();
+    fetchFilteredAudit();
   }, []);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -472,22 +539,75 @@ const Staff: React.FC = () => {
 
   //send transction
 
+  // const fetchFilteredAudit = async () => {
+  //   console.log("fetchFilteredAudit");
+  //   if (!date || selectedHistory.length === 0) {
+  //     console.warn("Please select both date and transaction types.");
+  //     return;
+  //   }
+
+  //   const formattedDate = date
+  //     ? new Intl.DateTimeFormat("en-GB").format(date) // dd/mm/yyyy
+  //     : "";
+
+  //   const payload = {
+  //     TransactionType: selectedHistory?.map((item) =>
+  //       typeof item === "object" ? item.value : item
+  //     ),
+  //     updatedAt: formattedDate,
+  //   };
+
+  //   try {
+  //     const response = await axios.post(
+  //       import.meta.env.VITE_API_URL + "/adminRoutes/listAuditPage",
+  //       payload,
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+  //     console.log("Audit Data:----", data);
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       console.log("Filtered Audit Data:", data.result);
+  //       setStaffhistory(data.result); // Assuming this is your audit table state
+  //     }
+  //   } catch (err) {
+  //     console.error("Error fetching filtered audit data:", err);
+  //   }
+  // };
   const fetchFilteredAudit = async () => {
-    if (!date || selectedHistory.length === 0) {
-      console.warn("Please select both date and transaction types.");
-      return;
+    console.log("fetchFilteredAudit");
+
+    let payload: any = {};
+
+    // If no filters selected, send empty payload to fetch all data
+    if (!date && selectedHistory.length === 0) {
+      console.log("Fetching all audit data — no filters applied.");
+      payload = {};
+    } else {
+      // Format date if provided
+      const formattedDate = date
+        ? new Intl.DateTimeFormat("en-GB").format(date) // dd/mm/yyyy
+        : "";
+
+      payload = {
+        TransactionType: selectedHistory?.map((item: any) =>
+          typeof item === "object" ? item.value : item
+        ),
+        updatedAt: formattedDate,
+      };
     }
 
-    const formattedDate = date
-      ? new Intl.DateTimeFormat("en-GB").format(date) // dd/mm/yyyy
-      : "";
-
-    const payload = {
-      TransactionType: selectedHistory?.map((item) =>
-        typeof item === "object" ? item.value : item
-      ),
-      updatedAt: formattedDate,
-    };
+    console.log("Sending payload:", payload); // Debug the payload
 
     try {
       const response = await axios.post(
@@ -495,7 +615,7 @@ const Staff: React.FC = () => {
         payload,
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization: localStorage.getItem("token") || "",
             "Content-Type": "application/json",
           },
         }
@@ -507,13 +627,30 @@ const Staff: React.FC = () => {
         import.meta.env.VITE_ENCRYPTION_KEY
       );
 
+      console.log("Audit Data (decrypted):", data);
+
       if (data.success) {
         localStorage.setItem("token", "Bearer " + data.token);
-        console.log("Filtered Audit Data:", data.result);
-        setStaffhistory(data.result); // Assuming this is your audit table state
+        setStaffhistory(data.result); // Update the DataTable with result
+      } else {
+        console.warn("Data fetch was unsuccessful:", data.message);
       }
-    } catch (err) {
-      console.error("Error fetching filtered audit data:", err);
+    } catch (err: unknown) {
+      console.error("❌ Error fetching audit data");
+
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          console.error("🚨 Server responded with error:", err.response.data);
+        } else if (err.request) {
+          console.error("⚠️ No response received:", err.request);
+        } else {
+          console.error("❗ Axios error message:", err.message);
+        }
+      } else if (err instanceof Error) {
+        console.error("❗ General error:", err.message);
+      } else {
+        console.error("❗ Unknown error:", err);
+      }
     }
   };
 
@@ -538,9 +675,9 @@ const Staff: React.FC = () => {
             value={staff}
             tableStyle={{ minWidth: "50rem" }}
             scrollable
-            scrollHeight="500px"  // Adjust height as needed
+            scrollHeight="500px" // Adjust height as needed
             paginator
-            rows={5}
+            rows={4}
           >
             <Column
               header={t("dashboard.SNo")}
@@ -551,7 +688,7 @@ const Staff: React.FC = () => {
               className="underline text-[#0a5c9c] cursor-pointer"
               // headerStyle={{ width: "30rem" }}
               headerStyle={{ width: "40rem" }}
-  bodyStyle={{ width: "40rem" }}
+              bodyStyle={{ width: "40rem" }}
               field="refCustId"
               header={t("dashboard.StaffID")}
               body={(rowData) => (
@@ -580,8 +717,7 @@ const Staff: React.FC = () => {
               headerStyle={{ width: "15rem" }}
               field="refDOB"
               header={t("dashboard.DOB")}
-                body={(rowData) => rowData.refDOB?.split("T")[0]}
-
+              body={(rowData) => rowData.refDOB?.split("T")[0]}
             />
             <Column
               headerStyle={{ width: "9rem" }}
@@ -599,38 +735,37 @@ const Staff: React.FC = () => {
               header={t("dashboard.Designation")}
             />
             <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
-         
           </DataTable>
-                <Dialog
-                  header="Confirm Deletion"
-                  visible={visibleDialog}
-                  style={{ width: "350px" }}
-                  onHide={() => setVisibleDialog(false)}
-                  footer={
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        label="No"
-                        icon="pi pi-times"
-                        className="p-button-text"
-                        onClick={() => setVisibleDialog(false)}
-                      />
-                      <Button
-                        label="Yes"
-                        icon="pi pi-check"
-                        className="p-button-danger"
-                        // loading={setLoading}
-                        onClick={() => {
-                          if (selectedBannerId !== null) {
-                            deleteStaff(selectedBannerId);
-                          }
-                          setVisibleDialog(false)
-                        }}
-                      />
-                    </div>
-                  }
-                >
-                  <p>Are you sure you want to delete this banner?</p>
-                </Dialog>
+          <Dialog
+            header="Confirm Deletion"
+            visible={visibleDialog}
+            style={{ width: "350px" }}
+            onHide={() => setVisibleDialog(false)}
+            footer={
+              <div className="flex justify-end gap-2">
+                <Button
+                  label="No"
+                  icon="pi pi-times"
+                  className="p-button-text"
+                  onClick={() => setVisibleDialog(false)}
+                />
+                <Button
+                  label="Yes"
+                  icon="pi pi-check"
+                  className="p-button-danger"
+                  // loading={setLoading}
+                  onClick={() => {
+                    if (selectedBannerId !== null) {
+                      deleteStaff(selectedBannerId);
+                    }
+                    setVisibleDialog(false);
+                  }}
+                />
+              </div>
+            }
+          >
+            <p>Are you sure you want to delete this banner?</p>
+          </Dialog>
         </div>
 
         <Sidebar
@@ -760,7 +895,7 @@ const Staff: React.FC = () => {
                         maxFileSize={10000000}
                         emptyTemplate={
                           <p className="m-0">
-                            Drag and drop your image here to upload in MB.
+                            Drag and drop your image here to upload in 10 MB(Max).
                           </p>
                         }
                       />
@@ -819,8 +954,43 @@ const Staff: React.FC = () => {
                   header="Transaction Type"
                 />
                 <Column field="updatedAt" header="Updated At" />
+                <Column
+                  body={actionDeleteAudit}
+                  header={t("dashboard.Delete")}
+                />
                 {/* Add other columns as needed */}
               </DataTable>
+              <Dialog
+                header="Confirm Deletion"
+                visible={visibleDialog}
+                style={{ width: "350px" }}
+                onHide={() => setVisibleDialog(false)}
+                footer={
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      label="No"
+                      icon="pi pi-times"
+                      className="p-button-text"
+                      onClick={() => setVisibleDialog(false)}
+                    />
+                    <Button
+                      label="Yes"
+                      icon="pi pi-check"
+                      className="p-button-danger"
+                      // loading={setLoading}
+                      onClick={() => {
+                        console.log("selectedAuditId", selectedAuditId);
+                        if (selectedAuditId !== null) {
+                          deleteAudit(selectedAuditId);
+                        }
+                        setVisibleDialog(false);
+                      }}
+                    />
+                  </div>
+                }
+              >
+                <p>Are you sure you want to delete this banner?</p>
+              </Dialog>
             </TabPanel>
           </TabView>
         </Sidebar>

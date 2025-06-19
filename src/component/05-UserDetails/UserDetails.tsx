@@ -13,12 +13,10 @@ import logo from "../../assets/images/logo.png";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 // import ViewPDFAction from "../Pdf/viewPDFAction ";
-import moment from "moment-timezone";
+// import moment from "moment-timezone";
 import PdfViewer from "../Pdf/PdfViewer";
 import { useTranslation } from "react-i18next";
 import { Dialog } from "primereact/dialog";
-
-
 
 type DecryptResult = any;
 
@@ -76,8 +74,9 @@ const UserDetails: React.FC = () => {
     return JSON.parse(decrypted.toString(CryptoJS.enc.Utf8));
   };
 
+  const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
   const [UserDetails, setUserDetails] = useState<any[]>([]);
-  const [UserDetail, setTourDetail] = useState<any[]>([]);
+  const [_UserDetail, setTourDetail] = useState<any[]>([]);
   const [TourBooking, setTourBooking] = useState<any[]>([]);
   const [CarBookings, setCarBookings] = useState<any[]>([]);
   // const [viewAgreement, setAgreement] = useState("");
@@ -85,17 +84,22 @@ const UserDetails: React.FC = () => {
   const [parking, setParking] = useState<any[]>([]);
   const [airport, setAirport] = useState<any[]>([]);
   const [_submitLoading, setSubmitLoading] = useState(false);
-  const [_editCustomizeId, setEditCustomizeId] = useState<number | null>(null);
+  const [_editCustomizeId, _setEditCustomizeId] = useState<number | null>(null);
   const [_editAirportId, setEditAirportId] = useState<number | null>(null);
   const [_editTourId, setEditTourId] = useState<number | null>(null);
 
   const [_editCarId, setEditCarId] = useState<number | null>(null);
   const [_editParkingId, setEditParkingId] = useState<number | null>(null);
   //  const [visible, setVisible] = useState(false);
- const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedIncludeId, setSelectedIncludeId] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedIncludeId, setSelectedIncludeId] = useState<number | null>(
+    null
+  );
   const [visibleDialog, setVisibleDialog] = useState(false);
   const [selectedParkingId, setSelectedParkingId] = useState<number | null>(
+    null
+  );
+  const [selectedAirportId, setSelectedAirportId] = useState<number | null>(
     null
   );
   const today = new Date();
@@ -329,6 +333,8 @@ const UserDetails: React.FC = () => {
       console.error("Error delete package:", e);
       setSubmitLoading(false);
       setEditAirportId(null);
+      setSelectedAirportId(null);
+      setVisibleDialog(false);
     }
   };
   const actionDeleteAirport = (rowData: any) => {
@@ -338,7 +344,11 @@ const UserDetails: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteAirport(rowData.flightBookingId)}
+        // onClick={() => deleteAirport(rowData.flightBookingId)}
+        onClick={() => {
+          setSelectedAirportId(rowData.flightBookingId);
+          setVisibleDialog(true);
+        }}
       />
     );
   };
@@ -377,6 +387,8 @@ const UserDetails: React.FC = () => {
       console.error("Error delete package:", e);
       setSubmitLoading(false);
       setEditAirportId(null);
+      setSelectedBannerId(null);
+      setVisibleDialog(false);
     }
   };
   const actionDeleteUser = (rowData: any) => {
@@ -386,7 +398,11 @@ const UserDetails: React.FC = () => {
       <Button
         icon="pi pi-trash"
         severity="danger"
-        onClick={() => deleteUSer(rowData.offlineCarBookingId)}
+        // onClick={() => deleteUSer(rowData.offlineCarBookingId)}
+        onClick={() => {
+          setSelectedBannerId(rowData.offlineCarBookingId);
+          setVisibleDialog(true);
+        }}
       />
     );
   };
@@ -402,570 +418,499 @@ const UserDetails: React.FC = () => {
     fetchUserDetails();
   }, []);
 
-  // customize
-  const actionDeleteCustomize = (rowData: any) => {
-    console.log(rowData);
 
-    return (
-      <Button
-        icon="pi pi-trash"
-        severity="danger"
-        onClick={() => deleteCustomize(rowData.customizeTourBookingId)}
-      />
-    );
-  };
 
-  const deleteCustomize = async (id: any) => {
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL +
-          "/adminRoutes/deleteCustomizeTourBookings",
-        {
-          customizeTourBookingId: id,
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-      console.log("API Response:", data);
-
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-        fetchCarBookings();
-      } else {
-        console.error("API update failed:", data);
-      }
-    } catch (e) {
-      console.error("Error delete package:", e);
-      setSubmitLoading(false);
-      setEditCustomizeId(null);
-    }
-  };
-  // aprove
-
-  const actionReadCustomize = (rowData: any) => {
-    const isApproved = rowData.refStatus === "Approved"; // Check if it's already approved
-
-    return (
-      <div className="flex items-center gap-2 cursor-pointer">
-        <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded cursor-pointer`}
-          onClick={() => {
-            if (!isApproved) {
-              readCustomizr(rowData); // Call readTour to approve it
-              console.log("id-------------->", rowData);
-            }
-          }}
-          disabled={isApproved} // Disable the button if already approved
-        >
-          {isApproved ? "Approved" : "Approve"}{" "}
-          {/* Show "Approved" if already approved */}
-        </button>
-      </div>
-    );
-  };
 
   // Customize
-  const readCustomizr = async (booking: any) => {
-    console.log("bookingid--------", booking);
-    const {
-      refFName,
-      refuserId,
-      refTourCustID,
-      refAdultCount,
-      refChildrenCount,
-      refArrivalDate,
-      refPackageName,
-      refTourPrice,
-      refInfants,
-    } = booking;
+  // const readCustomizr = async (booking: any) => {
+  //   console.log("bookingid--------", booking);
+  //   const {
+  //     refFName,
+  //     refuserId,
+  //     refTourCustID,
+  //     refAdultCount,
+  //     refChildrenCount,
+  //     refArrivalDate,
+  //     refPackageName,
+  //     refTourPrice,
+  //     refInfants,
+  //   } = booking;
 
-    const doc = (
-      <Document>
-        <Page size="A4">
-          <View style={{ width: "100%", height: "100%", padding: "40px" }}>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                width: "100%",
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "50%",
-                }}
-              >
-                {
-                  <Image
-                    src={logo}
-                    style={{
-                      width: "90%", // Adjust as needed
-                      marginLeft: 15,
-                      marginTop: 10,
-                    }}
-                  />
-                }
+  //   const doc = (
+  //     <Document>
+  //       <Page size="A4">
+  //         <View style={{ width: "100%", height: "100%", padding: "40px" }}>
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "column",
+  //               width: "100%",
+  //             }}
+  //           >
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "50%",
+  //               }}
+  //             >
+  //               {
+  //                 <Image
+  //                   src={logo}
+  //                   style={{
+  //                     width: "90%", // Adjust as needed
+  //                     marginLeft: 15,
+  //                     marginTop: 10,
+  //                   }}
+  //                 />
+  //               }
 
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Oberfeldstarsse10 CH-8302 Kloten
-                </Text>
-              </View>
-            </View>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Oberfeldstarsse10 CH-8302 Kloten
+  //               </Text>
+  //             </View>
+  //           </View>
 
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                marginTop: "10px",
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                  }}
-                >
-                  Name : {refFName}
-                </Text>
-                {/* <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                    marginTop: "10px",
-                  }}
-                >
-                  Address :
-                </Text> */}
-              </View>
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "row",
+  //               width: "100%",
+  //               marginTop: "10px",
+  //             }}
+  //           >
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                 }}
+  //               >
+  //                 Name : {refFName}
+  //               </Text>
+  //               {/* <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                   marginTop: "10px",
+  //                 }}
+  //               >
+  //                 Address :
+  //               </Text> */}
+  //             </View>
 
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  width: "100%",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Date : {formattedDate}
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                marginTop: "10px",
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Invoice / Travel Confirmation
-                </Text>
-              </View>
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "row",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Date : {formattedDate}
+  //               </Text>
+  //             </View>
+  //           </View>
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "row",
+  //               width: "100%",
+  //               marginTop: "10px",
+  //             }}
+  //           >
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Invoice / Travel Confirmation
+  //               </Text>
+  //             </View>
 
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                  gap: "10",
-                }}
-              >
-                {/* <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Invoice No :
-                </Text> */}
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Booking No : {refTourCustID}
-                </Text>
-              </View>
-            </View>
-            {/* Horizontal Line */}
-            <View
-              style={{
-                marginTop: 20,
-                borderBottomWidth: 1,
-                borderBottomColor: "#000",
-                width: "100%",
-              }}
-            />
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "100%",
+  //                 gap: "10",
+  //               }}
+  //             >
+  //               {/* <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Invoice No :
+  //               </Text> */}
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Booking No : {refTourCustID}
+  //               </Text>
+  //             </View>
+  //           </View>
+  //           {/* Horizontal Line */}
+  //           <View
+  //             style={{
+  //               marginTop: 20,
+  //               borderBottomWidth: 1,
+  //               borderBottomColor: "#000",
+  //               width: "100%",
+  //             }}
+  //           />
 
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                marginTop: "10px",
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                  gap: "10",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Travel Count
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                  }}
-                >
-                  Adults Count : {refAdultCount}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                  }}
-                >
-                  Children Count : {refChildrenCount}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                  }}
-                >
-                  Infants Count :{refInfants}
-                </Text>
-              </View>
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "row",
+  //               width: "100%",
+  //               marginTop: "10px",
+  //             }}
+  //           >
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "100%",
+  //                 gap: "10",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Travel Count
+  //               </Text>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                 }}
+  //               >
+  //                 Adults Count : {refAdultCount}
+  //               </Text>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                 }}
+  //               >
+  //                 Children Count : {refChildrenCount}
+  //               </Text>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                 }}
+  //               >
+  //                 Infants Count :{refInfants}
+  //               </Text>
+  //             </View>
 
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  width: "100%",
-                  gap: "10",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                  }}
-                >
-                  Please always state these numbers when making inquiries!
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                width: "100%",
-                marginTop: "10px",
-              }}
-            >
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  width: "100%",
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Booked Travel Services:
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                    marginTop: "10px",
-                  }}
-                >
-                  Dates : {refArrivalDate}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 12,
-                    marginLeft: 18,
-                    color: "#000",
-                    fontWeight: "normal",
-                    marginTop: "10px",
-                  }}
-                >
-                  Tour Name : {refPackageName}
-                </Text>
-              </View>
-            </View>
-            {/* Horizontal Line */}
-            <View
-              style={{
-                marginTop: 20,
-                borderBottomWidth: 1,
-                borderBottomColor: "#000",
-                width: "100%",
-              }}
-            />
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                width: "80%",
-                marginTop: "20px",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 12,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "bold",
-                }}
-              >
-                Total Travel Price
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "normal",
-                }}
-              >
-                CHF : {refTourPrice}
-              </Text>
-            </View>
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "row",
+  //                 width: "100%",
+  //                 gap: "10",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                 }}
+  //               >
+  //                 Please always state these numbers when making inquiries!
+  //               </Text>
+  //             </View>
+  //           </View>
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "row",
+  //               width: "100%",
+  //               marginTop: "10px",
+  //             }}
+  //           >
+  //             <View
+  //               style={{
+  //                 display: "flex",
+  //                 flexDirection: "column",
+  //                 width: "100%",
+  //               }}
+  //             >
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "bold",
+  //                 }}
+  //               >
+  //                 Booked Travel Services:
+  //               </Text>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                   marginTop: "10px",
+  //                 }}
+  //               >
+  //                 Dates : {refArrivalDate}
+  //               </Text>
+  //               <Text
+  //                 style={{
+  //                   fontSize: 12,
+  //                   marginLeft: 18,
+  //                   color: "#000",
+  //                   fontWeight: "normal",
+  //                   marginTop: "10px",
+  //                 }}
+  //               >
+  //                 Tour Name : {refPackageName}
+  //               </Text>
+  //             </View>
+  //           </View>
+  //           {/* Horizontal Line */}
+  //           <View
+  //             style={{
+  //               marginTop: 20,
+  //               borderBottomWidth: 1,
+  //               borderBottomColor: "#000",
+  //               width: "100%",
+  //             }}
+  //           />
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "row",
+  //               justifyContent: "space-between",
+  //               width: "80%",
+  //               marginTop: "20px",
+  //             }}
+  //           >
+  //             <Text
+  //               style={{
+  //                 fontSize: 12,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "bold",
+  //               }}
+  //             >
+  //               Total Travel Price
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 12,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "normal",
+  //               }}
+  //             >
+  //               CHF : {refTourPrice}
+  //             </Text>
+  //           </View>
 
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "column",
+  //           <View
+  //             style={{
+  //               display: "flex",
+  //               flexDirection: "column",
 
-                width: "100%",
-                marginTop: "20px",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 15,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "normal",
-                  marginTop: "10px",
-                }}
-              >
-                he booking is binding and has been successfully confirmed.
-                Please refer to the attached general terms and conditions as
-                well as your travel documents.
-              </Text>
-              <Text
-                style={{
-                  fontSize: 15,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "normal",
-                  marginTop: "20px",
-                }}
-              >
-                If you have any questions, please do not hesitate to contact us.
-              </Text>
-              <Text
-                style={{
-                  fontSize: 15,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "normal",
-                  marginTop: "20px",
-                }}
-              >
-                We wish you a pleasant journey!
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "bold",
-                  marginTop: "20px",
-                }}
-              >
-                Thank you for your booking.
-              </Text>
-              <Text
-                style={{
-                  fontSize: 12,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "bold",
-                  marginTop: "20px",
-                }}
-              >
-                The general terms and conditions of Explore Vacations AG apply.
-              </Text>
-              <Text
-                style={{
-                  fontSize: 10,
-                  marginLeft: 18,
-                  color: "#000",
-                  fontWeight: "normal",
-                  marginTop: "20px",
-                }}
-              >
-                Please note that you are personally responsible for obtaining
-                any required visas in due time and for complying with the
-                applicable entry, transit, and health regulations of the
-                destination and any transit countries. Swiss citizens can find
-                up-to-date information on entry requirements on the website of
-                the Swiss Federal Department of Foreign Affairs (FDFA):
-                https://www.eda.admin.ch. Travellers of other nationalities are
-                advised to contact the relevant embassy, consulate, or their
-                travel agency for information on applicable requirements. In the
-                event of cancellations or changes to names or travel dates,
-                cancellation or processing fees may apply. Please refer to our
-                General Terms and Conditions (GTC) (AGB ) for further details.
-              </Text>
-            </View>
-          </View>
-        </Page>
-      </Document>
-    );
+  //               width: "100%",
+  //               marginTop: "20px",
+  //             }}
+  //           >
+  //             <Text
+  //               style={{
+  //                 fontSize: 15,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "normal",
+  //                 marginTop: "10px",
+  //               }}
+  //             >
+  //               he booking is binding and has been successfully confirmed.
+  //               Please refer to the attached general terms and conditions as
+  //               well as your travel documents.
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 15,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "normal",
+  //                 marginTop: "20px",
+  //               }}
+  //             >
+  //               If you have any questions, please do not hesitate to contact us.
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 15,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "normal",
+  //                 marginTop: "20px",
+  //               }}
+  //             >
+  //               We wish you a pleasant journey!
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 12,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "bold",
+  //                 marginTop: "20px",
+  //               }}
+  //             >
+  //               Thank you for your booking.
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 12,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "bold",
+  //                 marginTop: "20px",
+  //               }}
+  //             >
+  //               The general terms and conditions of Explore Vacations AG apply.
+  //             </Text>
+  //             <Text
+  //               style={{
+  //                 fontSize: 10,
+  //                 marginLeft: 18,
+  //                 color: "#000",
+  //                 fontWeight: "normal",
+  //                 marginTop: "20px",
+  //               }}
+  //             >
+  //               Please note that you are personally responsible for obtaining
+  //               any required visas in due time and for complying with the
+  //               applicable entry, transit, and health regulations of the
+  //               destination and any transit countries. Swiss citizens can find
+  //               up-to-date information on entry requirements on the website of
+  //               the Swiss Federal Department of Foreign Affairs (FDFA):
+  //               https://www.eda.admin.ch. Travellers of other nationalities are
+  //               advised to contact the relevant embassy, consulate, or their
+  //               travel agency for information on applicable requirements. In the
+  //               event of cancellations or changes to names or travel dates,
+  //               cancellation or processing fees may apply. Please refer to our
+  //               General Terms and Conditions (GTC) (AGB ) for further details.
+  //             </Text>
+  //           </View>
+  //         </View>
+  //       </Page>
+  //     </Document>
+  //   );
 
-    const pdfBlob = await pdf(doc).toBlob();
-    const reader = new FileReader();
-    reader.readAsDataURL(pdfBlob);
+  //   const pdfBlob = await pdf(doc).toBlob();
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(pdfBlob);
 
-    reader.onloadend = async () => {
-      if (reader.result && typeof reader.result === "string") {
-        const base64data = reader.result.split(",")[1];
-        try {
-          const response = await axios.post(
-            import.meta.env.VITE_API_URL +
-              "/bookingRoutes/approveCustomizeTourBooking",
-            {
-              userId: refuserId,
-              pdfBase64: base64data,
-            },
-            {
-              headers: {
-                Authorization: localStorage.getItem("token"),
-                "Content-Type": "application/json",
-              },
-            }
-          );
+  //   reader.onloadend = async () => {
+  //     if (reader.result && typeof reader.result === "string") {
+  //       const base64data = reader.result.split(",")[1];
+  //       try {
+  //         const response = await axios.post(
+  //           import.meta.env.VITE_API_URL +
+  //             "/bookingRoutes/approveCustomizeTourBooking",
+  //           {
+  //             userId: refuserId,
+  //             pdfBase64: base64data,
+  //           },
+  //           {
+  //             headers: {
+  //               Authorization: localStorage.getItem("token"),
+  //               "Content-Type": "application/json",
+  //             },
+  //           }
+  //         );
 
-          const data = decrypt(
-            response.data[1],
-            response.data[0],
-            import.meta.env.VITE_ENCRYPTION_KEY
-          );
+  //         const data = decrypt(
+  //           response.data[1],
+  //           response.data[0],
+  //           import.meta.env.VITE_ENCRYPTION_KEY
+  //         );
 
-          if (data.success) {
-            localStorage.setItem("token", "Bearer " + data.token);
-            fetchCustomize();
+  //         if (data.success) {
+  //           localStorage.setItem("token", "Bearer " + data.token);
+  //           fetchCustomize();
 
-            const updatedTourCustomize = UserDetail.map((tour) =>
-              tour.refuserId === refuserId
-                ? { ...tour, refStatus: "Approved" }
-                : tour
-            );
-            setTourDetail(updatedTourCustomize);
-          } else {
-            console.error("API update failed:", data);
-          }
-        } catch (e) {
-          console.error("Error approving booking:", e);
-        }
-      }
-    };
-  };
+  //           const updatedTourCustomize = UserDetail.map((tour) =>
+  //             tour.refuserId === refuserId
+  //               ? { ...tour, refStatus: "Approved" }
+  //               : tour
+  //           );
+  //           setTourDetail(updatedTourCustomize);
+  //         } else {
+  //           console.error("API update failed:", data);
+  //         }
+  //       } catch (e) {
+  //         console.error("Error approving booking:", e);
+  //       }
+  //     }
+  //   };
+  // };
 
   // const readCustomizr = async (refuserId: any) => {
   //   console.log("Approving booking with ID:", refuserId);
@@ -1020,13 +965,13 @@ const UserDetails: React.FC = () => {
       //   severity="danger"
       //   onClick={() => deleteCar(rowData.userCarBookingId)}
       // />
-        <Button
-          icon="pi pi-trash"
-      severity="danger"
-      onClick={() => {
-        setSelectedIncludeId(rowData.userCarBookingId);
-        setShowDeleteConfirm(true);
-      }}
+      <Button
+        icon="pi pi-trash"
+        severity="danger"
+        onClick={() => {
+          setSelectedIncludeId(rowData.userCarBookingId);
+          setShowDeleteConfirm(true);
+        }}
       />
     );
   };
@@ -1063,6 +1008,7 @@ const UserDetails: React.FC = () => {
       console.error("Error delete package:", e);
       setSubmitLoading(false);
       setEditCarId(null);
+      setVisibleDialog(false);
     }
   };
 
@@ -1114,19 +1060,16 @@ const UserDetails: React.FC = () => {
 
     return (
       <Button
-          icon="pi pi-trash"
-      severity="danger"
-      onClick={() => {
-        setSelectedIncludeId(rowData.userTourBookingId);
-        setShowDeleteConfirm(true);
-      }}
+        icon="pi pi-trash"
+        severity="danger"
+        onClick={() => {
+          setSelectedIncludeId(rowData.userTourBookingId);
+          setShowDeleteConfirm(true);
+        }}
       />
     );
   };
-  // const confirmDelete = (id: number) => {
-  //   setSelectedIncludeId(id);
-  //   setShowDeleteConfirm(true);
-  // };
+
   const deleteTour = async (id: any) => {
     try {
       const response = await axios.post(
@@ -1168,6 +1111,7 @@ const UserDetails: React.FC = () => {
     console.log("bookingid--------", booking);
     const {
       refFName,
+      userTourBookingId,
       refuserId,
       refTourCustID,
       refAdultCount,
@@ -1616,7 +1560,7 @@ const UserDetails: React.FC = () => {
           const response = await axios.post(
             import.meta.env.VITE_API_URL + "/bookingRoutes/approveTourBooking",
             {
-              userId: booking,
+              userTourBookingId: userTourBookingId,
               pdfBase64: base64data,
             },
             {
@@ -1735,7 +1679,7 @@ const UserDetails: React.FC = () => {
         severity="danger"
         onClick={() => {
           setSelectedParkingId(rowData.carParkingBookingId);
-          setVisibleDialog(true);
+          setShowDeleteConfirm(true);
         }}
       />
     );
@@ -1774,7 +1718,6 @@ const UserDetails: React.FC = () => {
       setEditParkingId(null);
       setVisibleDialog(false);
       setSelectedParkingId(null);
-
     }
   };
   //update Airport
@@ -1922,7 +1865,7 @@ const UserDetails: React.FC = () => {
     console.log("Approving booking with ID:", booking);
 
     const {
-      refuserId,
+      userCarBookingId,
       refFName,
       refCarCustId,
       refPickupDate,
@@ -3256,13 +3199,13 @@ const UserDetails: React.FC = () => {
         const base64data = reader.result.split(",")[1];
         console.log(
           "----------------------------------refuserId 2147",
-          refuserId
+          userCarBookingId
         );
         try {
           const response = await axios.post(
             import.meta.env.VITE_API_URL + "/bookingRoutes/approveCarBooking",
             {
-              userId: refuserId,
+              userCarBookingId: userCarBookingId,
               pdfBase64: base64data,
             },
             {
@@ -3506,9 +3449,9 @@ const UserDetails: React.FC = () => {
     }).format(date);
   };
 
-  const formatToSwissTime = (dateString: any) => {
-    return moment(dateString).tz("Europe/Zurich").format("DD.MM.YYYY HH:mm");
-  };
+  // const formatToSwissTime = (dateString: any) => {
+  //   return moment(dateString).tz("Europe/Zurich").format("DD.MM.YYYY HH:mm");
+  // };
 
   // const ViewCar = async (userId: any) => {
   //   console.log("Approving booking with ID:", userId);
@@ -3574,139 +3517,45 @@ const UserDetails: React.FC = () => {
         activeIndex={activeIndex}
         onTabChange={(e) => setActiveIndex(e.index)}
       >
-        {/* <TabPanel header={t("dashboard.Customize Tour Details")}>
-          <div className="mt-1 p-2 ">
-            <h3 className="text-lg font-bold mb-4">
-              {t("dashboard.Customize TourBookings")}
-            </h3>
-            <DataTable
-              value={UserDetail}
-              paginator
-              rows={8}
-              tableStyle={{ minWidth: "50rem" }}
-            >
-              <Column
-                header={t("dashboard.SNo")}
-                headerStyle={{ width: "3rem" }}
-                body={(_, options) => options.rowIndex + 1}
-              />
-
-              <Column
-                field="refCustId"
-                header={t("dashboard.User CustID")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refUserName"
-                header={t("dashboard.User Name")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refUserMail"
-                header={t("dashboard.User Email")}
-                style={{ minWidth: "250px" }}
-              />
-
-              <Column
-                field="refTourCustID"
-                header={t("dashboard.TourCustID")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refPackageName"
-                header={t("dashboard.Package Name")}
-                style={{ minWidth: "150px" }}
-              />
-
-              <Column
-                field="refUserMobile"
-                header={t("dashboard.User Mobile")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refArrivalDate"
-                header={t("dashboard.Arrival Date")}
-                style={{ minWidth: "200px" }}
-                body={(rowData) => formatToSwissTime(rowData.refArrivalDate)}
-              />
-              <Column
-                field="refSingleRoom"
-                header={t("dashboard.Single Room")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refTwinRoom"
-                header={t("dashboard.Twin Room")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refTripleRoom"
-                header={t("dashboard.Triple Room")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refAdultCount"
-                header={t("dashboard.Adult Count")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refChildrenCount"
-                header={t("dashboard.Children Count")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refVaccinationType"
-                header={t("dashboard.Vaccination Type")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refOtherRequirements"
-                header={t("dashboard.Other Requirements")}
-                style={{ minWidth: "300px" }}
-              />
-              <Column
-                body={actionReadCustomize}
-                header={t("dashboard.Approve")}
-              />
-              <Column
-                body={actionDeleteCustomize}
-                header={t("dashboard.Delete")}
-              />
-            </DataTable>
-          </div>
-        </TabPanel> */}
-
         <TabPanel header={t("dashboard.TourBookings")}>
           <div className=" ">
             <h3 className="text-lg font-bold">
               {t("dashboard.Added TourBookings")}
             </h3>
+            <div style={{ maxHeight: "600px", overflow: "auto" }}>
             <DataTable
               paginator
-              rows={8}
+              rows={5}
               scrollable
-          scrollHeight="500px"
+              scrollHeight="500px"
               value={TourBooking}
               tableStyle={{ minWidth: "50rem" }}
             >
               <Column
                 header={t("dashboard.S.No")}
                 headerStyle={{ width: "3rem" }}
+                className="min-w-[3rem]"
                 body={(_, options) => options.rowIndex + 1}
               />
               <Column
                 field="refCustId"
                 header={t("dashboard.User CustID")}
+                 className="min-w-[3rem]"
                 style={{ minWidth: "200px" }}
               />
               <Column
-                field="refUserName"
-                header={t("dashboard.User Name")}
+                field="refUserFname"
+                header={t("dashboard.First Name")}
+                style={{ minWidth: "200px" }}
+              />
+              <Column
+                field="refUserLname"
+                header={t("dashboard.LastName")}
                 style={{ minWidth: "200px" }}
               />
               <Column
                 field="refUserMail"
-                header={t("dashboard.User Email")}
+                header={t("dashboard.Email")}
                 style={{ minWidth: "200px" }}
               />
               <Column
@@ -3717,7 +3566,7 @@ const UserDetails: React.FC = () => {
               <Column
                 field="refPackageName"
                 header={t("dashboard.Package Name")}
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "300px" }}
               />
               <Column
                 field="refDurationIday"
@@ -3750,23 +3599,23 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.Seasonal Price")}
                 style={{ minWidth: "250px" }}
               />
-              <Column
+              {/* <Column
                 field="refLocationName"
                 header={t("dashboard.Location")}
                 style={{ minWidth: "200px" }}
                 body={(rowData) => rowData.refLocationName?.join(", ")}
-              />
+              /> */}
               <Column
                 field="Activity"
                 header={t("dashboard.Activity")}
                 style={{ minWidth: "250px" }}
                 body={(rowData) => rowData.Activity?.join(", ")}
               />
-              <Column
+              {/* <Column
                 field="refUserName"
                 header={t("dashboard.Booked By")}
                 style={{ minWidth: "200px" }}
-              />
+              /> */}
               <Column
                 field="refUserMail"
                 header={t("dashboard.User Email")}
@@ -3806,37 +3655,38 @@ const UserDetails: React.FC = () => {
               <Column body={actionReadTour} header={t("dashboard.Approve")} />
               <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
             </DataTable>
-               <Dialog
-                    header="Confirm Deletion"
-                    visible={showDeleteConfirm}
-                    style={{ width: "350px" }}
-                    modal
-                    onHide={() => setShowDeleteConfirm(false)}
-                    footer={
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          label="No"
-                          icon="pi pi-times"
-                          className="p-button-text"
-                          onClick={() => setShowDeleteConfirm(false)}
-                        />
-                        <Button
-                          label="Yes"
-                          icon="pi pi-check"
-                          className="p-button-danger"
-                          // loading={submitLoading}
-                          onClick={() => {
-                            if (selectedIncludeId) {
-                              deleteTour(selectedIncludeId);
-                            }
-                            setShowDeleteConfirm(false);
-                          }}
-                        />
-                      </div>
-                    }
-                  >
-                    <p>Are you sure you want to delete this tour package?</p>
-                  </Dialog>
+            </div>
+            <Dialog
+              header="Confirm Deletion"
+              visible={showDeleteConfirm}
+              style={{ width: "350px" }}
+              modal
+              onHide={() => setShowDeleteConfirm(false)}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    label="No"
+                    icon="pi pi-times"
+                    className="p-button-text"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  />
+                  <Button
+                    label="Yes"
+                    icon="pi pi-check"
+                    className="p-button-danger"
+                    // loading={submitLoading}
+                    onClick={() => {
+                      if (selectedIncludeId) {
+                        deleteTour(selectedIncludeId);
+                      }
+                      setShowDeleteConfirm(false);
+                    }}
+                  />
+                </div>
+              }
+            >
+              <p>Are you sure you want to delete this tour package?</p>
+            </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.CarBookings")}>
@@ -3848,7 +3698,7 @@ const UserDetails: React.FC = () => {
               paginator
               scrollable
               scrollHeight="500px"
-              rows={4}
+              rows={3}
               value={CarBookings}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -3862,12 +3712,12 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.User CustID")}
                 style={{ minWidth: "150px" }}
               />
-              <Column
-                field="refUserName"
-                header={t("dashboard.User Name")}
+                <Column
+                field="refUserFname"
+                header={t("dashboard.First Name")}
                 style={{ minWidth: "200px" }}
               />
-              <Column
+                         <Column
                 field="refUserMail"
                 header={t("dashboard.User Email")}
                 style={{ minWidth: "250px" }}
@@ -3877,7 +3727,7 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.Mobile")}
                 style={{ minWidth: "200px" }}
               />
-              <Column
+              {/* <Column
                 field="refPickupAddress"
                 header={t("dashboard.Pickup Address")}
                 style={{ minWidth: "300px" }}
@@ -3886,7 +3736,7 @@ const UserDetails: React.FC = () => {
                 field="refSubmissionAddress"
                 header={t("dashboard.Submission Address")}
                 style={{ minWidth: "300px" }}
-              />
+              /> */}
               <Column
                 field="refPickupDate"
                 header={t("dashboard.Pickup Date")}
@@ -3916,49 +3766,49 @@ const UserDetails: React.FC = () => {
               <Column body={actionReadCar} header={t("dashboard.Approve")} />
               <Column body={actionDeleteCar} header={t("dashboard.Delete")} />
             </DataTable>
-                 <Dialog
-                    header="Confirm Deletion"
-                    visible={showDeleteConfirm}
-                    style={{ width: "350px" }}
-                    modal
-                    onHide={() => setShowDeleteConfirm(false)}
-                    footer={
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          label="No"
-                          icon="pi pi-times"
-                          className="p-button-text"
-                          onClick={() => setShowDeleteConfirm(false)}
-                        />
-                        <Button
-                          label="Yes"
-                          icon="pi pi-check"
-                          className="p-button-danger"
-                          // loading={submitLoading}
-                          onClick={() => {
-                            if (selectedIncludeId) {
-                              deleteTour(selectedIncludeId);
-                            }
-                            setShowDeleteConfirm(false);
-                          }}
-                        />
-                      </div>
-                    }
-                  >
-                    <p>Are you sure you want to delete this tour package?</p>
-                  </Dialog>
+            <Dialog
+              header="Confirm Deletion"
+              visible={showDeleteConfirm}
+              style={{ width: "350px" }}
+              modal
+              onHide={() => setShowDeleteConfirm(false)}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    label="No"
+                    icon="pi pi-times"
+                    className="p-button-text"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  />
+                  <Button
+                    label="Yes"
+                    icon="pi pi-check"
+                    className="p-button-danger"
+                    // loading={submitLoading}
+                    onClick={() => {
+                      if (selectedIncludeId) {
+                        deleteCar(selectedIncludeId);
+                      }
+                      setShowDeleteConfirm(false);
+                    }}
+                  />
+                </div>
+              }
+            >
+              <p>Are you sure you want to delete this tour package?</p>
+            </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.Booked Parking")}>
-          <div className="mt-2 p-1  ">
+          <div className="">
             <h3 className="text-lg font-bold mb-4">
               {t("dashboard.Added Parking")}
             </h3>
             <DataTable
               paginator
-              rows={8}
+              rows={2}
               scrollable
-          scrollHeight="500px"
+              scrollHeight="500px"
               value={parking}
               tableStyle={{ minWidth: "50rem" }}
             >
@@ -3974,12 +3824,12 @@ const UserDetails: React.FC = () => {
               />
               <Column
                 field="refFName"
-                header={t("dashboard.User Name")}
+                  header={t("dashboard.First Name")}
                 style={{ minWidth: "200px" }}
               />
               <Column
                 field="refUserEmail"
-                header={t("dashboard.User Email")}
+                header={t("dashboard.Email")}
                 style={{ minWidth: "250px" }}
               />
               <Column
@@ -4025,16 +3875,19 @@ const UserDetails: React.FC = () => {
                 field="HandoverPersonEmail"
                 header={t("dashboard.Handover PersonEmail")}
                 style={{ minWidth: "300px" }}
+                  body={(rowData) => rowData.HandoverPersonEmail || "-"}
               />
               <Column
                 field="HandoverPersonName"
                 header={t("dashboard.Handover PersonName")}
                 style={{ minWidth: "200px" }}
+                body={(rowData) => rowData.HandoverPersonName || "-"}
               />
               <Column
                 field="HandoverPersonPhone"
                 header={t("dashboard.Handover PersonPhone")}
                 style={{ minWidth: "100px" }}
+                body={(rowData) => rowData.HandoverPersonPhone || "-"}
               />
               <Column
                 body={actionReadParking}
@@ -4045,35 +3898,36 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.Delete")}
               />
             </DataTable>
-             <Dialog
-        header="Confirm Deletion"
-        visible={visibleDialog}
-        style={{ width: "350px" }}
-        onHide={() => setVisibleDialog(false)}
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              label="No"
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => setVisibleDialog(false)}
-            />
-            <Button
-              label="Yes"
-              icon="pi pi-check"
-              className="p-button-danger"
-              // loading={submitLoading}
-              onClick={() => {
-                if (selectedParkingId !== null) {
-                  deleteParking(selectedParkingId);
-                }
-              }}
-            />
-          </div>
-        }
-      >
-        <p>Are you sure you want to delete this car parking booking?</p>
-      </Dialog>
+            <Dialog
+              header="Confirm Deletion"
+              visible={showDeleteConfirm}
+              style={{ width: "350px" }}
+              onHide={() => setShowDeleteConfirm(false)}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    label="No"
+                    icon="pi pi-times"
+                    className="p-button-text"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  />
+                  <Button
+                    label="Yes"
+                    icon="pi pi-check"
+                    className="p-button-danger"
+                    // loading={submitLoading}
+                    onClick={() => {
+                      if (selectedParkingId !== null) {
+                        deleteParking(selectedParkingId);
+                      }
+                      setShowDeleteConfirm(false);
+                    }}
+                  />
+                </div>
+              }
+            >
+              <p>Are you sure you want to delete this car parking booking?</p>
+            </Dialog>
           </div>
         </TabPanel>
         <TabPanel header={t("dashboard.Flight Ticket Form")}>
@@ -4084,10 +3938,10 @@ const UserDetails: React.FC = () => {
             <DataTable
               value={airport}
               paginator
-              rows={8}
+              rows={3}
               scrollable
-          scrollHeight="500px"
-              tableStyle={{ minWidth: "50rem" }}
+              scrollHeight="500px"
+              tableStyle={{ minWidth: "1200px" }}
             >
               <Column
                 header={t("dashboard.SNo")}
@@ -4120,7 +3974,7 @@ const UserDetails: React.FC = () => {
               <Column
                 field="refPickup"
                 header={t("dashboard.Pickup")}
-                style={{ minWidth: "150px" }}
+                style={{ minWidth: "300px" }}
               />
 
               <Column
@@ -4131,7 +3985,7 @@ const UserDetails: React.FC = () => {
               <Column
                 field="refRequirements"
                 header={t("dashboard.Requirement")}
-                style={{ minWidth: "200px" }}
+                style={{ minWidth: "300px" }}
               />
 
               {/* <Column body={actionReadAirport} header={t("dashboard.Approve")} /> */}
@@ -4141,8 +3995,39 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.Delete")}
               />
             </DataTable>
+            <Dialog
+              header="Confirm Deletion"
+              visible={showDeleteConfirm}
+              style={{ width: "350px" }}
+              onHide={() => setShowDeleteConfirm(false)}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    label="No"
+                    icon="pi pi-times"
+                    className="p-button-text"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  />
+                  <Button
+                    label="Yes"
+                    icon="pi pi-check"
+                    className="p-button-danger"
+                    // loading={submitLoading}
+                    onClick={() => {
+                      if (selectedAirportId !== null) {
+                        deleteAirport(selectedAirportId);
+                      }
+                      setShowDeleteConfirm(false);
+                    }}
+                  />
+                </div>
+              }
+            >
+              <p>Are you sure you want to delete this car parking booking?</p>
+            </Dialog>
           </div>
         </TabPanel>
+
         <TabPanel header={t("dashboard.User Form Details")}>
           <div className="mt-1 p-2 ">
             <h3 className="text-lg font-bold mb-4">
@@ -4151,9 +4036,9 @@ const UserDetails: React.FC = () => {
             <DataTable
               value={UserDetails}
               paginator
-              rows={8}
+              rows={3}
               scrollable
-          scrollHeight="500px"
+              scrollHeight="500px"
               tableStyle={{ minWidth: "50rem" }}
             >
               <Column
@@ -4214,6 +4099,36 @@ const UserDetails: React.FC = () => {
 
               <Column body={actionDeleteUser} header={t("dashboard.Delete")} />
             </DataTable>
+            <Dialog
+              header="Confirm Deletion"
+              visible={visibleDialog}
+              style={{ width: "350px" }}
+              onHide={() => setVisibleDialog(false)}
+              footer={
+                <div className="flex justify-end gap-2">
+                  <Button
+                    label="No"
+                    icon="pi pi-times"
+                    className="p-button-text"
+                    onClick={() => setVisibleDialog(false)}
+                  />
+                  <Button
+                    label="Yes"
+                    icon="pi pi-check"
+                    className="p-button-danger"
+                    // loading={setLoading}
+                    onClick={() => {
+                      if (selectedBannerId !== null) {
+                        deleteUSer(selectedBannerId);
+                      }
+                      setVisibleDialog(false);
+                    }}
+                  />
+                </div>
+              }
+            >
+              <p>Are you sure you want to delete this banner?</p>
+            </Dialog>
           </div>
         </TabPanel>
       </TabView>

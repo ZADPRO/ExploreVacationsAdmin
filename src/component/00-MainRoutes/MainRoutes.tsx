@@ -20,6 +20,7 @@ import Userlist from "../../Pages/13-UserList/Userlist";
 import Banner from "../14-ImageModule/Banner";
 import Patner from "../../Pages/14-Patner/Patner";
 import TourAgreement from "../Pdf/TourAgreement";
+import SingleStaff from "../../Pages/09-UpdateStaff/SingleStaff";
 // import Staff from "../../Pages/08-Satff/Staff";
 
 const MainRoutes: React.FC = () => {
@@ -40,6 +41,8 @@ const MainRoutes: React.FC = () => {
             <Route path="/userdetails" element={<UserDetails />} />
             <Route path="/staffnotification" element={<StaffNotification />} />
             <Route path="/parking" element={<Parking />} />
+            <Route path="/singlestaff" element={<SingleStaff />} />
+
             <Route path="/staff" element={<Staff />} />
             <Route path="/patner" element={<Patner />} />
             <Route path="/touragreement" element={<TourAgreement />} />

@@ -135,6 +135,7 @@ const CarServices: React.FC = () => {
   };
 
   const [visibleDialog, setVisibleDialog] = useState(false);
+
   const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
 
   const showupdatemodel = false;
@@ -1793,12 +1794,12 @@ const CarServices: React.FC = () => {
   //   }
   // };
 
-  const handleDeleteCar = async (rowdata: any) => {
-    console.log(rowdata.refCarsId);
+  const handleDeleteCar = async (refCarsId: any) => {
+    console.log("id------->",refCarsId);
     try {
       const response = await axios.post(
         import.meta.env.VITE_API_URL + "/carsRoutes/deleteCars",
-        { refCarsId: rowdata.refCarsId }, // Send the car ID to delete
+        { refCarsId:refCarsId }, // Send the car ID to delete
         {
           headers: {
             Authorization: localStorage.getItem("token"),
@@ -1830,6 +1831,9 @@ const CarServices: React.FC = () => {
       }
     } catch (error) {
       console.error("Error deleting car:", error);
+      setVisibleDialog(false);
+      setSelectedCarId(null);
+
       // toast.error("Failed to delete car.");
     }
   };
@@ -1842,6 +1846,7 @@ const CarServices: React.FC = () => {
         icon="pi pi-trash"
         severity="danger"
         onClick={() => {
+          console.log(rowData.refCarsId);
           setSelectedCarId(rowData.refCarsId);
           setVisibleDialog(true);
         }}
@@ -1870,7 +1875,7 @@ const CarServices: React.FC = () => {
           paginator
           scrollable
           scrollHeight="500px"
-          rows={6}
+          rows={4}
         >
           <Column
             header={t("dashboard.SNo")}
@@ -1937,37 +1942,26 @@ const CarServices: React.FC = () => {
           {/* Action Buttons Column */}
           <Column
             header={t("dashboard.Actions")}
-            body={(rowData) => (
-              <div style={{ display: "flex", gap: "8px" }}>
-                {/* <button
-                  onClick={() => handleUpdateCar(rowData.refCarsId, rowData)}
-                  style={{
-                    background: "#007bff",
-                    color: "#fff",
-                    border: "none",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                  }}
-                >
-                  Update
-                </button> */}
+            body={actionDelete}
+            // body={(rowData) => (
+            //   <div style={{ display: "flex", gap: "8px" }}>
+                
+            //     <button
+            //       // onClick={() => actionDelete(rowData.refCarsId)}
+            //       style={{
+            //         background: "#dc3545",
+            //         color: "#fff",
+            //         border: "none",
+            //         padding: "5px 10px",
+            //         cursor: "pointer",
+            //         borderRadius: "4px",
+            //       }}
 
-                <button
-                  onClick={() => actionDelete(rowData.refCarsId)}
-                  style={{
-                    background: "#dc3545",
-                    color: "#fff",
-                    border: "none",
-                    padding: "5px 10px",
-                    cursor: "pointer",
-                    borderRadius: "4px",
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
-            )}
+            //     >
+            //       Delete
+            //     </button>
+            //   </div>
+            // )}
             style={{ minWidth: "150px" }}
           />
         </DataTable>
@@ -1989,9 +1983,10 @@ const CarServices: React.FC = () => {
                 label="Yes"
                 icon="pi pi-check"
                 className="p-button-danger"
-                loading={submitLoading}
+                // loading={submitLoading}
                 onClick={() => {
-                  if (selectedCarId) {
+                  if (selectedCarId !== null) {
+                    console.log(selectedCarId);
                     handleDeleteCar(selectedCarId);
                   }
                   setVisibleDialog(false);

@@ -8,8 +8,6 @@ import { decryptAPIResponse } from "../../utils";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-
-
 const Dashboard: React.FC = () => {
   const { t } = useTranslation("global");
 
@@ -95,7 +93,7 @@ const Dashboard: React.FC = () => {
     {
       key: "tourBookingCount",
       title: t("dashboard.Tour Booked"),
-      tabIndex: 1,
+      tabIndex: 0,
       path: "/userdetails",
       roles: ["Admin", "Employee - Tours"],
     },
@@ -109,14 +107,14 @@ const Dashboard: React.FC = () => {
     {
       key: "carBookingCount",
       title: t("dashboard.Car Booked"),
-      tabIndex: 2,
+      tabIndex: 1,
       path: "/userdetails",
       roles: ["Admin", "Employee - Cars"],
     },
     {
       key: "carParkingBookingCount",
       title: t("dashboard.Parking Booked"),
-      tabIndex: 3,
+      tabIndex: 2,
       path: "/userdetails",
       roles: ["Admin", "Employee - Parking"],
     },
@@ -146,10 +144,7 @@ const Dashboard: React.FC = () => {
       tabIndex: 0,
       title: t("dashboard.Customer Login"),
       path: "/userlist",
-      roles: [
-        "Admin",
-      
-      ],
+      roles: ["Admin"],
     },
   ];
 
@@ -180,7 +175,7 @@ const Dashboard: React.FC = () => {
           <div
             className="flex items-center w-[10%] justify-end cursor-pointer"
             onClick={() => navigate("/staffnotification")}
-            title={t("dashboard.Customer Login")}
+            // title={t("dashboard.Customer Login")}
           >
             <NotificationIconWithBadge
               count={staffnote?.unReadNotifications || 0}

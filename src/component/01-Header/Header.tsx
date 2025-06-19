@@ -17,9 +17,7 @@ import { FaUsers } from "react-icons/fa";
 import { FaImages } from "react-icons/fa";
 import "./Header.css";
 import { useTranslation } from "react-i18next";
-
-
-
+import { FaUserCheck } from "react-icons/fa6";
 
 interface HeaderProps {
   children: ReactNode; // Type children prop explicitly as ReactNode
@@ -95,6 +93,12 @@ export default function Header({ children }: HeaderProps) {
       label: t("dashboard.settings"),
       icon: <IoSettingsSharp />,
       roles: [1, 2],
+    },
+    {
+      path: "/singlestaff",
+      label: t("dashboard.settings"),
+      icon: <FaUserCheck />,
+      roles: [2, 3, 4, 5],
     },
     {
       path: "/",

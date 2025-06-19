@@ -234,7 +234,7 @@ const Patner: React.FC = () => {
       console.error("Error updating package:", e);
       setSubmitLoading(false);
       setEditPatnerId(null);
-        setVisibleDialog(false);
+      setVisibleDialog(false);
       setSelectedBannerId(null);
     }
   };
@@ -250,7 +250,7 @@ const Patner: React.FC = () => {
         onClick={() => {
           setSelectedBannerId(rowData.refuserId);
           setVisibleDialog(true);
-           }}
+        }}
       />
     );
   };
@@ -415,7 +415,7 @@ const Patner: React.FC = () => {
             paginator
             scrollable
             scrollHeight="500px"
-            rows={7}
+            rows={5}
           >
             <Column
               header={t("dashboard.SNo")}
@@ -424,7 +424,8 @@ const Patner: React.FC = () => {
             />
             <Column
               className="underline text-[#0a5c9c] cursor-pointer"
-              headerStyle={{ width: "25rem" }}
+              headerStyle={{ maxWidth: "20rem" }}
+              style={{ minWidth: "200px" }}
               field="refCustId"
               header={t("dashboard.StaffID")}
               body={(rowData) => (
@@ -471,36 +472,36 @@ const Patner: React.FC = () => {
             />
             <Column body={actionDeletePatner} header={t("dashboard.Delete")} />
           </DataTable>
-             <Dialog
-        header="Confirm Deletion"
-        visible={visibleDialog}
-        style={{ width: "350px" }}
-        onHide={() => setVisibleDialog(false)}
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              label="No"
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => setVisibleDialog(false)}
-            />
-            <Button
-              label="Yes"
-              icon="pi pi-check"
-              className="p-button-danger"
-              // loading={submitLoading}
-              onClick={() => {
-                if (selectedBannerId !== null) {
-                  deletePatner(selectedBannerId);
-                }
-                setVisibleDialog(false)
-              }}
-            />
-          </div>
-        }
-      >
-        <p>Are you sure you want to delete this banner?</p>
-      </Dialog>
+          <Dialog
+            header="Confirm Deletion"
+            visible={visibleDialog}
+            style={{ width: "350px" }}
+            onHide={() => setVisibleDialog(false)}
+            footer={
+              <div className="flex justify-end gap-2">
+                <Button
+                  label="No"
+                  icon="pi pi-times"
+                  className="p-button-text"
+                  onClick={() => setVisibleDialog(false)}
+                />
+                <Button
+                  label="Yes"
+                  icon="pi pi-check"
+                  className="p-button-danger"
+                  // loading={submitLoading}
+                  onClick={() => {
+                    if (selectedBannerId !== null) {
+                      deletePatner(selectedBannerId);
+                    }
+                    setVisibleDialog(false);
+                  }}
+                />
+              </div>
+            }
+          >
+            <p>Are you sure you want to delete this banner?</p>
+          </Dialog>
         </div>
       </div>
       <Sidebar

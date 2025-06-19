@@ -1,6 +1,7 @@
 {
   "dashboard": {
     "Dashboard": "Dashboard",
+    "profile": "Profile",
     "Tour Booked": "Tour Booked",
     "Customize Booked": "Customize Booked",
     "Car Booked": "Car Booked",
@@ -100,7 +101,7 @@
     "Cancel": "Cancel",
     "warning": "Please fill in the details below in English. *",
     "Add new Banner": "Add new Banner",
-    "imagewarning": "Drag and drop your Banner image here to upload in Kb.",
+    "imagewarning": "Drag and drop your Banner image here to upload in 10 mb (Max).",
     "Enter Banner heading": "Enter Banner heading",
     "Enter homepage heading": "Enter homepage heading",
     "Select Module": "Select Module",

@@ -8,7 +8,7 @@ import Activities from "../../Pages/02-Activities/Activities";
 import Categories from "../../Pages/03-Categories/Categories";
 import Notification from "../../Pages/11-Notification/Notification";
 import { useTranslation } from "react-i18next";
-import { FaArrowRight } from "react-icons/fa";
+// import { FaArrowRight } from "react-icons/fa";
 
 const Settings: React.FC = () => {
   const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
@@ -65,12 +65,23 @@ const Settings: React.FC = () => {
 
           {/* Activities */}
           <div className="flex-1">
-                        <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Activities")}>
+            {/* <Card style={{ color: "#0a5c9c" }} title={t("dashboard.Activities")}>
               <div className="w-[100%] flex justify-end ">
                                 <FaArrowRight className="cursor-pointer" onClick={() => setVisibleSidebar("activities")} />
                 </div>
-              </Card>
+              </Card> */}
             {/* </div> */}
+            <div
+              onClick={() => setVisibleSidebar("activities")}
+              className="cursor-pointer"
+            >
+              <Card
+                style={{ color: "#0a5c9c" }}
+                title={t("dashboard.Activities")}
+              >
+                <div className="w-full flex justify-end"></div>
+              </Card>
+            </div>
           </div>
 
           {/* Categories */}

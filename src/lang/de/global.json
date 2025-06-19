@@ -1,6 +1,7 @@
 {
   "dashboard": {
     "Dashboard": "Armaturenbrett",
+    "profile": "Profil",
     "Tour Booked": "Tour gebucht",
     "Customize Booked": "Anpassung gebucht",
     "Car Booked": "Auto gebucht",
@@ -255,6 +256,5 @@
     "staffNotification": "benachrichtigung",
     "settings": "Einstellungen",
     "logout": "Abmelden"
-   
   }
 }
