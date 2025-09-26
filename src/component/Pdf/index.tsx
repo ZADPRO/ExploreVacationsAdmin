@@ -78,11 +78,11 @@ const index: React.FC<BookingPDFProps> = ({
     <Document>
       <Page size="A4" style={styles.page}>
         <View>
-          <Text style={styles.header}>Explore Vacations AG</Text>
+          <Text style={styles.header}>ZüriCar GmbHs AG</Text>
           <Text style={styles.paragraph}>
             Oberfeldstrasse 10, 8302 Kloten, Switzerland{"\n"}
-            +41 44 442 30 35 | ✉️ info@explorevacations.ch{"\n"}
-            www.explorevacations.ch
+            +41 44 442 30 35 | ✉️ info@ZüriCar GmbHs.ch{"\n"}
+            www.ZüriCar GmbHs.ch
           </Text>
 
           <Text style={styles.subHeader}>
@@ -91,7 +91,7 @@ const index: React.FC<BookingPDFProps> = ({
 
           <Text style={styles.paragraph}>
             Dear Mr./Ms. [{customerName}],{"\n"}
-            Thank you for your online booking with Explore Vacations AG. We
+            Thank you for your online booking with ZüriCar GmbHs AG. We
             hereby confirm your parking reservation at {nearbylocation} Airport.
           </Text>
 
@@ -142,7 +142,7 @@ const index: React.FC<BookingPDFProps> = ({
           </View>
           <Text style={styles.paragraph}>
             If you have any questions or need to make changes, please contact us
-            at +41 44 442 30 35 or info@explorevacations.ch.
+            at +41 44 442 30 35 or info@ZüriCar GmbHs.ch.
           </Text>
 
           <Text style={styles.paragraph}>
@@ -150,7 +150,7 @@ const index: React.FC<BookingPDFProps> = ({
           </Text>
 
           <Text style={{ marginTop: 20 }}>
-            Best regards,{"\n"}Your Explore Vacations AG Team
+            Best regards,{"\n"}Your ZüriCar GmbHs AG Team
           </Text>
         </View>
       </Page>

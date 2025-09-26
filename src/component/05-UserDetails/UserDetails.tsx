@@ -833,7 +833,7 @@ const UserDetails: React.FC = () => {
   //                 marginTop: "20px",
   //               }}
   //             >
-  //               The general terms and conditions of Explore Vacations AG apply.
+  //               The general terms and conditions of ZüriCar GmbHs AG apply.
   //             </Text>
   //             <Text
   //               style={{
@@ -1519,7 +1519,7 @@ const UserDetails: React.FC = () => {
                   marginTop: "20px",
                 }}
               >
-                The general terms and conditions of Explore Vacations AG apply.
+                The general terms and conditions of ZüriCar GmbHs AG apply.
               </Text>
               <Text
                 style={{
@@ -1729,11 +1729,11 @@ const UserDetails: React.FC = () => {
   //     <Document>
   //     <Page size="A4" style={styles.page}>
   //       <View>
-  //         <Text style={styles.header}>Explore Vacations AG</Text>
+  //         <Text style={styles.header}>ZüriCar GmbHs AG</Text>
   //         <Text style={styles.paragraph}>
   //           Oberfeldstrasse 10, 8302 Kloten, Switzerland{"\n"}
-  //           +41 44 442 30 35 | ✉️ info@explorevacations.ch{"\n"}
-  //           www.explorevacations.ch
+  //           +41 44 442 30 35 | ✉️ info@ZüriCar GmbHs.ch{"\n"}
+  //           www.ZüriCar GmbHs.ch
   //         </Text>
 
   //         <Text style={styles.subHeader}>
@@ -1742,7 +1742,7 @@ const UserDetails: React.FC = () => {
 
   //         <Text style={styles.paragraph}>
   //           Dear Mr./Ms. [{refFName}],{"\n"}
-  //           Thank you for your online booking with Explore Vacations AG. We
+  //           Thank you for your online booking with ZüriCar GmbHs AG. We
   //           hereby confirm your parking reservation at {nearbylocation} Airport.
   //         </Text>
 
@@ -1793,7 +1793,7 @@ const UserDetails: React.FC = () => {
   //         </View>
   //         <Text style={styles.paragraph}>
   //           If you have any questions or need to make changes, please contact us
-  //           at +41 44 442 30 35 or info@explorevacations.ch.
+  //           at +41 44 442 30 35 or info@ZüriCar GmbHs.ch.
   //         </Text>
 
   //         <Text style={styles.paragraph}>
@@ -1801,7 +1801,7 @@ const UserDetails: React.FC = () => {
   //         </Text>
 
   //         <Text style={{ marginTop: 20 }}>
-  //           Best regards,{"\n"}Your Explore Vacations AG Team
+  //           Best regards,{"\n"}Your ZüriCar GmbHs AG Team
   //         </Text>
   //       </View>
   //     </Page>
@@ -2058,7 +2058,7 @@ const UserDetails: React.FC = () => {
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Kind regards,
                   <br />
-                  Explorevacations.ch
+                  ZüriCar GmbHs.ch
                 </Text>
               </View>
 
@@ -2076,7 +2076,7 @@ const UserDetails: React.FC = () => {
                 </Text>
 
                 {[
-                  ["Priceless reservation", "Explore Vacations"],
+                  ["Priceless reservation", "ZüriCar GmbHs"],
                   ["Reservation date", refPickupDate],
                   ["Driver name", refDriverName],
                   ["Car group", refCarGroupName],
@@ -2151,7 +2151,7 @@ const UserDetails: React.FC = () => {
                   {refPickupAddress}
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
-                  Explore Vacations AG Shuttle bus *
+                  ZüriCar GmbHs AG Shuttle bus *
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Opening hours: 06:00 - 20:00
@@ -2184,7 +2184,7 @@ const UserDetails: React.FC = () => {
                   {refSubmissionAddress}
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
-                  Explore Vacations AG Shuttle bus *
+                  ZüriCar GmbHs AG Shuttle bus *
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Opening hours: 06:00 - 20:00
@@ -3183,7 +3183,7 @@ const UserDetails: React.FC = () => {
               payments at pick-up are subject to local currency.
             </Text>
             <Text style={{ fontSize: 9, marginBottom: 4, marginTop: 300 }}>
-              For more information, please visit www.explorevacations.ch
+              For more information, please visit www.ZüriCar GmbHs.ch
             </Text>
           </View>
         </Page>
@@ -3289,18 +3289,18 @@ const UserDetails: React.FC = () => {
       <Document>
         <Page size="A4" style={styles.page}>
           <View>
-            <Text style={styles.header}>Explore Vacations AG</Text>
+            <Text style={styles.header}>ZüriCar GmbHs AG</Text>
             <Text style={styles.paragraph}>
               Oberfeldstrasse 10, 8302 Kloten, Switzerland{"\n"}
-              +41 44 442 30 35 | ✉️ info@explorevacations.ch{"\n"}
-              www.explorevacations.ch
+              +41 44 442 30 35 | ✉️ info@ZüriCar GmbHs.ch{"\n"}
+              www.ZüriCar GmbHs.ch
             </Text>
 
             <Text style={styles.subHeader}>Booking Confirmation – Parking</Text>
 
             <Text style={styles.paragraph}>
               Dear Mr./Ms. {refFName} {refLName},{"\n"}
-              Thank you for your online booking with Explore Vacations AG. We
+              Thank you for your online booking with ZüriCar GmbHs AG. We
               hereby confirm your parking reservation at {refParkingName},{" "}
               {refLocation}.
             </Text>
@@ -3353,7 +3353,7 @@ const UserDetails: React.FC = () => {
 
             <Text style={styles.paragraph}>
               If you have any questions, please contact us at +41 44 442 30 35
-              or info@explorevacations.ch.
+              or info@ZüriCar GmbHs.ch.
             </Text>
 
             <Text style={styles.paragraph}>
@@ -3361,7 +3361,7 @@ const UserDetails: React.FC = () => {
             </Text>
 
             <Text style={{ marginTop: 20 }}>
-              Best regards,{"\n"}Your Explore Vacations AG Team
+              Best regards,{"\n"}Your ZüriCar GmbHs AG Team
             </Text>
           </View>
         </Page>
@@ -3495,8 +3495,8 @@ const UserDetails: React.FC = () => {
 
   const actinViewCar = (rowData: any) => {
     console.log("Row Data:-------->", rowData);
-    // https://explorevacations.max-idigital.ch/src/assets/carAgreement/17466163716824287.pdf
-    const pdfUrl = `https://explorevacations.max-idigital.ch/src/assets/carAgreement/${rowData.refAgreementPath?.filename}`;
+    // https://ZüriCar GmbHs.max-idigital.ch/src/assets/carAgreement/17466163716824287.pdf
+    const pdfUrl = `https://ZüriCar GmbHs.max-idigital.ch/src/assets/carAgreement/${rowData.refAgreementPath?.filename}`;
     console.log("PDF URL:", pdfUrl);
     return <PdfViewer pdfUrl={pdfUrl} />;
   };

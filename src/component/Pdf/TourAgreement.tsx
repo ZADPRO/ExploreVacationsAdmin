@@ -416,7 +416,7 @@ const TourAgreement: React.FC = ({}) => {
                     marginTop: "20px",
                   }}
                 >
-                  The general terms and conditions of Explore Vacations AG
+                  The general terms and conditions of ZüriCar GmbHs AG
                   apply.
                 </Text>
                 <Text

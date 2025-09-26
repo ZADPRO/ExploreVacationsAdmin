@@ -229,7 +229,7 @@ const CarAgreement: React.FC<CarDetails> = ({
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Kind regards,
                   <br />
-                  Explorevacations.ch
+                  ZüriCar GmbHs.ch
                 </Text>
               </View>
 
@@ -247,7 +247,7 @@ const CarAgreement: React.FC<CarDetails> = ({
                 </Text>
 
                 {[
-                  ["Priceless reservation", "Explore Vacations"],
+                  ["Priceless reservation", "ZüriCar GmbHs"],
                   ["Reservation date", reservationDate],
                   ["Driver name", driverName],
                   ["Car group", cargroup],
@@ -322,7 +322,7 @@ const CarAgreement: React.FC<CarDetails> = ({
                   {pickupAddress}
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
-                  Explore Vacations AG Shuttle bus *
+                  ZüriCar GmbHs AG Shuttle bus *
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Opening hours: 06:00 - 20:00
@@ -355,7 +355,7 @@ const CarAgreement: React.FC<CarDetails> = ({
                   {submissionAddress}
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
-                  Explore Vacations AG Shuttle bus *
+                  ZüriCar GmbHs AG Shuttle bus *
                 </Text>
                 <Text style={{ fontSize: 9, marginBottom: 8, color: "#000" }}>
                   Opening hours: 06:00 - 20:00
@@ -1354,7 +1354,7 @@ const CarAgreement: React.FC<CarDetails> = ({
               payments at pick-up are subject to local currency.
             </Text>
             <Text style={{ fontSize: 9, marginBottom: 4, marginTop: 300 }}>
-              For more information, please visit www.explorevacations.ch
+              For more information, please visit www.ZüriCar GmbHs.ch
             </Text>
           </View>
         </Page>
