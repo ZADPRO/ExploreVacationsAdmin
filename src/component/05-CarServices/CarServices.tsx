@@ -271,56 +271,64 @@ const CarServices: React.FC = () => {
     }
   };
 
-  const AddCarname = async () => {
-    setSubmitLoading(true);
+const AddCarname = async () => {
+  setSubmitLoading(true);
 
-    try {
-      const response = await axios.post(
-        import.meta.env.VITE_API_URL + "/carsRoutes/addVehicle",
-        { refVehicleTypeName: inputs.refVehicleTypeName },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      const data = decrypt(
-        response.data[1],
-        response.data[0],
-        import.meta.env.VITE_ENCRYPTION_KEY
-      );
-
-      setSubmitLoading(false);
-
-      if (data.success) {
-        localStorage.setItem("token", "Bearer " + data.token);
-        fetchCarname(); // Refresh list
-        toast.current?.show({
-          severity: "success",
-          summary: "Success",
-          detail: "Successfully Added",
-          life: 3000,
-        });
-        // **Clear only the input field**
-        setInputs((prevState) => ({
-          ...prevState,
-          refVehicleTypeName: "", // Reset this field only
-        }));
-      } else {
-        toast.current?.show({
-          severity: "error",
-          summary: data.error,
-          detail: "Error While Adding",
-          life: 3000,
-        });
-      }
-    } catch (e) {
-      console.log("Error adding car:", e);
-      setSubmitLoading(false);
+  try {
+    // ✅ Trim and ensure “or similar” is appended once
+    let carName = inputs.refVehicleTypeName.trim();
+    if (!carName.toLowerCase().endsWith("or similar")) {
+      carName = `${carName} or similar`;
     }
-  };
+
+    const response = await axios.post(
+      import.meta.env.VITE_API_URL + "/carsRoutes/addVehicle",
+      { refVehicleTypeName: carName },
+      {
+        headers: {
+          Authorization: localStorage.getItem("token"),
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const data = decrypt(
+      response.data[1],
+      response.data[0],
+      import.meta.env.VITE_ENCRYPTION_KEY
+    );
+
+    setSubmitLoading(false);
+
+    if (data.success) {
+      localStorage.setItem("token", "Bearer " + data.token);
+      fetchCarname(); // Refresh list
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Successfully Added",
+        life: 3000,
+      });
+
+      // ✅ Reset only the input field
+      setInputs((prevState) => ({
+        ...prevState,
+        refVehicleTypeName: "",
+      }));
+    } else {
+      toast.current?.show({
+        severity: "error",
+        summary: data.error,
+        detail: "Error While Adding",
+        life: 3000,
+      });
+    }
+  } catch (e) {
+    console.log("Error adding car:", e);
+    setSubmitLoading(false);
+  }
+};
+
 
   //cargroup
 
@@ -2018,13 +2026,16 @@ const CarServices: React.FC = () => {
                   {t("dashboard.Add Car Name")}:
                 </h2>
                 <div className=" flex flex-row gap-5 justify-between">
-                  <InputText
-                    name="refVehicleTypeName"
-                    value={inputs.refVehicleTypeName}
-                    onChange={handleInput}
-                    placeholder={t("dashboard.Enter Car Name")}
-                    className="p-inputtext-sm w-[50%]"
-                  />
+                 <div className="flex flex-row gap-2 items-center">
+  <InputText
+    name="refVehicleTypeName"
+    value={inputs.refVehicleTypeName}
+    onChange={handleInput}
+    placeholder={t("dashboard.Enter Car Name")}
+    className="p-inputtext-sm w-[50%]"
+  />
+  <span className="text-gray-600 text-sm font-medium">or similar</span>
+</div>
                   <div>
                     <Button
                       label={

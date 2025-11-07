@@ -243,66 +243,7 @@ const Location: React.FC = () => {
     const updatedLocations = locations.filter((_, i) => i !== index);
     setLocations(updatedLocations);
   };
-
-  //update Location
-
-  // Handle Edit Button Click
-  // const handleEditIncludeClick = (rowData: any) => {
-  //   setEditLocationId(rowData.refDestinationId);
-  //   setEditLocationValue({ ...rowData });
-  // };
-
-  // Handle Input Change
-  // const handleDestinationInputChange = (
-  //   e: React.ChangeEvent<HTMLInputElement>
-  // ) => {
-  //   setEditLocationValue((prevData) => ({
-  //     ...prevData,
-  //     refDestinationId: e.target.value,
-  //   }));
-  // };
-
-  // Update API Call
-  // const UpdateDestination = async () => {
-  //   setSubmitLoading(true);
-
-  //   try {
-  //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL + "/settingRoutes/UpdateDestination",
-  //       editLocationId,
-  //       {
-  //         headers: {
-  //           Authorization: localStorage.getItem("token"),
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     const data = decrypt(
-  //       response.data[1],
-  //       response.data[0],
-  //       import.meta.env.VITE_ENCRYPTION_KEY
-  //     );
-
-  //     setSubmitLoading(false);
-  //     if (data.success) {
-  //       localStorage.setItem("token", "Bearer " + data.token);
-  //       setEditLocationId(null);
-  //       fetchData();
-  //     }
-  //   } catch (e) {
-  //     console.error("Error updating include:", e);
-  //     setSubmitLoading(false);
-  //     setEditLocationId(null);
-  //   }
-  // };
-
-  // const handleUpdate = (rowData: any) => {
-  //   console.log("Updating:", rowData);
-  //   // Add logic to open an edit modal or update state
-  // };
-
-  const deleteLocation = async (refDestinationId: any) => {
+const deleteLocation = async (refDestinationId: any) => {
     setSubmitLoading(true);
     console.log("refDestinationId", refDestinationId);
 
@@ -382,68 +323,7 @@ const Location: React.FC = () => {
     </div>
   );
 
-  // Delete Location
-
-  // const deleteDestination = async (refDestinationId: number) => {
-
-  //   setSubmitLoading(true);
-
-  //   try {
-  //     const response = await axios.post(
-  //       import.meta.env.VITE_API_URL + "/settingRoutes/DeleteDestination",
-  //       { refDestinationId }, // Send only the required payload
-  //       {
-  //         headers: {
-  //           Authorization: localStorage.getItem("token"),
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-
-  //     const data = decrypt(response.data[1], response.data[0], import.meta.env.VITE_ENCRYPTION_KEY);
-  //     console.log('deleted-->', data)
-  //     setSubmitLoading(false);
-  //     if (data.success) {
-
-  //       localStorage.setItem("token", "Bearer " + data.token);
-  //       fetchDestinations().then(result => {
-  //         setDestinations(result);
-  //       })
-  //     }
-  //   } catch (e) {
-  //     console.error("Error deleting include:", e);
-  //     setSubmitLoading(false);
-  //   }
-  // };
-
-  // Action Buttons (Edit / Delete)
-  // const DeleteActionTemplateDelete = (rowData: any) => {
-  //   return (
-  //     <div className="flex gap-2">
-  //       {editDestinationId === rowData.refDestinationId ? (
-  //         <Button
-  //           label="Update"
-  //           icon="pi pi-check"
-  //           className="p-button-success p-button-sm"
-  //           onClick={UpdateDestination}
-  //         />
-  //       ) : (
-  //         <Button
-  //           icon="pi pi-pencil"
-  //           className="p-button-warning p-button-sm"
-  //           onClick={() => handleEditIncludeClick(rowData)}
-  //         />
-  //       )}
-
-  //       <Button
-  //         icon="pi pi-trash"
-  //         className="p-button-danger p-button-sm"
-  //         onClick={() => deleteDestination(rowData.refDestinationId)}
-  //       />
-  //     </div>
-  //   );
-  // };
-
+  
   return (
     <div>
        <Toast ref={toast} />

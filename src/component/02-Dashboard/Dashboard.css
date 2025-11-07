@@ -1,0 +1,399 @@
+/* ==================== Dashboard Container ==================== */
+.dashboard-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+/* ==================== Dashboard Header ==================== */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 0 0.5rem;
+}
+
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.notification-button {
+  cursor: pointer;
+  transition: transform 0.2s;
+  padding: 0.5rem;
+  border-radius: 8px;
+}
+
+.notification-button:hover {
+  transform: scale(1.05);
+  background: rgba(10, 92, 156, 0.1);
+}
+
+.notification-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
+.notification-icon {
+  font-size: 2rem;
+  color: #0a5c9c;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #0a5c9c;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ==================== Dashboard Cards Grid ==================== */
+.dashboard-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 0 0.5rem;
+}
+
+.dashboard-card-wrapper {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dashboard-card-wrapper:hover {
+  transform: translateY(-4px);
+}
+
+.dashboard-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s;
+  height: 100%;
+}
+
+.dashboard-card-wrapper:hover .dashboard-card {
+  box-shadow: 0 8px 24px rgba(10, 92, 156, 0.15);
+}
+
+/* Override PrimeReact Card styles */
+.dashboard-card .p-card-title {
+  color: #0a5c9c;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.dashboard-card .p-card-body {
+  padding: 1.5rem;
+}
+
+.dashboard-card .p-card-content {
+  padding: 0;
+}
+
+/* ==================== Card Content ==================== */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card-count-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.count-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin: 0;
+}
+
+.count-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0a5c9c;
+  margin: 0;
+}
+
+.card-arrow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  font-size: 1.5rem;
+  color: #0a5c9c;
+  margin-top: auto;
+}
+
+/* ==================== RESPONSIVE STYLES ==================== */
+
+/* Large Desktop (1440px and above) */
+@media screen and (min-width: 1440px) {
+  .dashboard-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  .dashboard-container {
+    padding: 2rem 3rem;
+  }
+}
+
+/* Desktop (1024px - 1439px) */
+@media screen and (max-width: 1439px) and (min-width: 1024px) {
+  .dashboard-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .dashboard-container {
+    padding: 1.5rem 2rem;
+  }
+}
+
+/* Tablet View (768px - 1023px) */
+@media screen and (max-width: 1023px) and (min-width: 768px) {
+  .dashboard-container {
+    padding: 1.25rem;
+  }
+
+  .dashboard-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.75rem;
+  }
+
+  .notification-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .notification-icon {
+    font-size: 1.75rem;
+  }
+
+  .notification-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .dashboard-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .dashboard-card .p-card-title {
+    font-size: 1rem;
+  }
+
+  .count-label {
+    font-size: 0.95rem;
+  }
+
+  .count-value {
+    font-size: 1.35rem;
+  }
+}
+
+/* Mobile View (480px - 767px) */
+@media screen and (max-width: 767px) and (min-width: 480px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
+    margin-bottom: 1.25rem;
+    padding: 0;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .notification-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .notification-icon {
+    font-size: 1.5rem;
+  }
+
+  .notification-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+  }
+
+  .dashboard-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .dashboard-card .p-card-body {
+    padding: 1.25rem;
+  }
+
+  .dashboard-card .p-card-title {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .count-label {
+    font-size: 0.9rem;
+  }
+
+  .count-value {
+    font-size: 1.25rem;
+  }
+
+  .card-arrow {
+    font-size: 1.35rem;
+  }
+}
+
+/* Extra Small Mobile (< 480px) */
+@media screen and (max-width: 479px) {
+  .dashboard-container {
+    padding: 0.75rem;
+  }
+
+  .dashboard-header {
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.35rem;
+    flex: 1;
+  }
+
+  .notification-wrapper {
+    width: 36px;
+    height: 36px;
+  }
+
+  .notification-icon {
+    font-size: 1.35rem;
+  }
+
+  .notification-badge {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.3rem;
+    min-width: 18px;
+  }
+
+  .dashboard-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+    padding: 0;
+  }
+
+  .dashboard-card .p-card-body {
+    padding: 1rem;
+  }
+
+  .dashboard-card .p-card-title {
+    font-size: 0.9rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .card-content {
+    gap: 0.75rem;
+  }
+
+  .card-count-section {
+    gap: 0.75rem;
+  }
+
+  .count-label {
+    font-size: 0.85rem;
+  }
+
+  .count-value {
+    font-size: 1.15rem;
+  }
+
+  .card-arrow {
+    font-size: 1.25rem;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Ultra Small Mobile (< 360px) */
+@media screen and (max-width: 359px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.25rem;
+  }
+
+  .dashboard-cards-grid {
+    gap: 0.75rem;
+  }
+
+  .dashboard-card .p-card-body {
+    padding: 0.875rem;
+  }
+
+  .dashboard-card .p-card-title {
+    font-size: 0.85rem;
+  }
+
+  .count-label {
+    font-size: 0.8rem;
+  }
+
+  .count-value {
+    font-size: 1.1rem;
+  }
+}
+
+/* ==================== Print Styles ==================== */
+@media print {
+  .dashboard-container {
+    padding: 0;
+    background: white;
+  }
+
+  .notification-button {
+    display: none;
+  }
+
+  .dashboard-card {
+    box-shadow: none;
+    border: 1px solid #e2e8f0;
+    page-break-inside: avoid;
+  }
+
+  .dashboard-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .card-arrow {
+    display: none;
+  }
+}

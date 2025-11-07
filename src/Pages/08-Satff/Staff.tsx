@@ -530,7 +530,7 @@ const Staff: React.FC = () => {
           value: item.refTransactionHistoryId,
         }));
 
-        setHistoryOptions(formatted); // Set this to historyOptions state
+        setHistoryOptions(formatted); //Set this to historyOptions state
       }
     } catch (e: any) {
       console.log("Error fetching destinations:", e);

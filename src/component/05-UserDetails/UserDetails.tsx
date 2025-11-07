@@ -12,7 +12,8 @@ import car from "../../assets/images/image.png";
 import logo from "../../assets/images/logo.png";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-// import ViewPDFAction from "../Pdf/viewPDFAction ";
+import UserFormDetailsTab from "../05-UserDetails/UserFormDetailsTab";
+import ViewPDFAction from "../Pdf/viewPDFAction ";
 // import moment from "moment-timezone";
 import PdfViewer from "../Pdf/PdfViewer";
 import { useTranslation } from "react-i18next";
@@ -1642,9 +1643,8 @@ const UserDetails: React.FC = () => {
     return (
       <div className="flex items-center gap-2">
         <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
+          className={`${isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+            } text-white py-1 px-2 rounded`}
           onClick={() => {
             if (!isApproved) {
               readTours(rowData); // Call readTour to approve it
@@ -3247,9 +3247,8 @@ const UserDetails: React.FC = () => {
     return (
       <div className="flex items-center gap-2">
         <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
+          className={`${isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+            } text-white py-1 px-2 rounded`}
           onClick={() => {
             if (!isApproved) {
               readCarAgreement(rowData); // Call readTour to approve it
@@ -3378,7 +3377,7 @@ const UserDetails: React.FC = () => {
         try {
           const response = await axios.post(
             import.meta.env.VITE_API_URL +
-              "/bookingRoutes/approveParkingBooking",
+            "/bookingRoutes/approveParkingBooking",
             {
               userId: refuserId,
               pdfBase64: base64data,
@@ -3421,9 +3420,8 @@ const UserDetails: React.FC = () => {
     return (
       <div className="flex items-center gap-2">
         <button
-          className={`${
-            isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
-          } text-white py-1 px-2 rounded`}
+          className={`${isApproved ? "bg-[#1da750]" : "bg-[#ffcb28] hover:bg-[#ffc928b9]"
+            } text-white py-1 px-2 rounded`}
           onClick={() => {
             if (!isApproved) {
               // readParking(rowData.refuserId); // Call readTour to approve it
@@ -3523,138 +3521,138 @@ const UserDetails: React.FC = () => {
               {t("dashboard.Added TourBookings")}
             </h3>
             <div style={{ maxHeight: "600px", overflow: "auto" }}>
-            <DataTable
-              paginator
-              rows={5}
-              scrollable
-              scrollHeight="500px"
-              value={TourBooking}
-              tableStyle={{ minWidth: "50rem" }}
-            >
-              <Column
-                header={t("dashboard.S.No")}
-                headerStyle={{ width: "3rem" }}
-                className="min-w-[3rem]"
-                body={(_, options) => options.rowIndex + 1}
-              />
-              <Column
-                field="refCustId"
-                header={t("dashboard.User CustID")}
-                 className="min-w-[3rem]"
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refUserFname"
-                header={t("dashboard.First Name")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refUserLname"
-                header={t("dashboard.LastName")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refUserMail"
-                header={t("dashboard.Email")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refTourCustID"
-                header={t("dashboard.TourCustID")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refPackageName"
-                header={t("dashboard.Package Name")}
-                style={{ minWidth: "300px" }}
-              />
-              <Column
-                field="refDurationIday"
-                header={t("dashboard.No of Days")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refDurationINight"
-                header={t("dashboard.No of Nights")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refGroupSize"
-                header={t("dashboard.Group Size")}
-                style={{ minWidth: "150px" }}
-                body={(rowData) => {
-                  const adultCount = Number(rowData.refAdultCount) || 0;
-                  const childrenCount = Number(rowData.refChildrenCount) || 0;
-                  const infantCount = Number(rowData.refInfants) || 0;
-                  return <>{adultCount + childrenCount + infantCount}</>;
-                }}
-              />
-              <Column
-                field="refTourPrice"
-                header={t("dashboard.Tour Price")}
-                style={{ minWidth: "150px" }}
-              />
-              <Column
-                field="refSeasonalPrice"
-                header={t("dashboard.Seasonal Price")}
-                style={{ minWidth: "250px" }}
-              />
-              {/* <Column
+              <DataTable
+                paginator
+                rows={5}
+                scrollable
+                scrollHeight="500px"
+                value={TourBooking}
+                tableStyle={{ minWidth: "50rem" }}
+              >
+                <Column
+                  header={t("dashboard.S.No")}
+                  headerStyle={{ width: "3rem" }}
+                  className="min-w-[3rem]"
+                  body={(_, options) => options.rowIndex + 1}
+                />
+                <Column
+                  field="refCustId"
+                  header={t("dashboard.User CustID")}
+                  className="min-w-[3rem]"
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refUserFname"
+                  header={t("dashboard.First Name")}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refUserLname"
+                  header={t("dashboard.LastName")}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refUserMail"
+                  header={t("dashboard.Email")}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refTourCustID"
+                  header={t("dashboard.TourCustID")}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refPackageName"
+                  header={t("dashboard.Package Name")}
+                  style={{ minWidth: "300px" }}
+                />
+                <Column
+                  field="refDurationIday"
+                  header={t("dashboard.No of Days")}
+                  style={{ minWidth: "150px" }}
+                />
+                <Column
+                  field="refDurationINight"
+                  header={t("dashboard.No of Nights")}
+                  style={{ minWidth: "150px" }}
+                />
+                <Column
+                  field="refGroupSize"
+                  header={t("dashboard.Group Size")}
+                  style={{ minWidth: "150px" }}
+                  body={(rowData) => {
+                    const adultCount = Number(rowData.refAdultCount) || 0;
+                    const childrenCount = Number(rowData.refChildrenCount) || 0;
+                    const infantCount = Number(rowData.refInfants) || 0;
+                    return <>{adultCount + childrenCount + infantCount}</>;
+                  }}
+                />
+                <Column
+                  field="refTourPrice"
+                  header={t("dashboard.Tour Price")}
+                  style={{ minWidth: "150px" }}
+                />
+                <Column
+                  field="refSeasonalPrice"
+                  header={t("dashboard.Seasonal Price")}
+                  style={{ minWidth: "250px" }}
+                />
+                {/* <Column
                 field="refLocationName"
                 header={t("dashboard.Location")}
                 style={{ minWidth: "200px" }}
                 body={(rowData) => rowData.refLocationName?.join(", ")}
               /> */}
-              <Column
-                field="Activity"
-                header={t("dashboard.Activity")}
-                style={{ minWidth: "250px" }}
-                body={(rowData) => rowData.Activity?.join(", ")}
-              />
-              {/* <Column
+                <Column
+                  field="Activity"
+                  header={t("dashboard.Activity")}
+                  style={{ minWidth: "250px" }}
+                  body={(rowData) => rowData.Activity?.join(", ")}
+                />
+                {/* <Column
                 field="refUserName"
                 header={t("dashboard.Booked By")}
                 style={{ minWidth: "200px" }}
               /> */}
-              <Column
-                field="refUserMail"
-                header={t("dashboard.User Email")}
-                style={{ minWidth: "250px" }}
-              />
-              <Column
-                field="refUserMobile"
-                header={t("dashboard.Mobile")}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refPickupDate"
-                header={t("dashboard.Pickup Date")}
-                body={formatDate}
-                style={{ minWidth: "200px" }}
-              />
-              <Column
-                field="refAdultCount"
-                header={t("dashboard.Adults")}
-                style={{ minWidth: "100px" }}
-              />
-              <Column
-                field="refChildrenCount"
-                header={t("dashboard.Children")}
-                style={{ minWidth: "100px" }}
-              />
-              <Column
-                field="refInfants"
-                header={t("dashboard.Infants")}
-                style={{ minWidth: "100px" }}
-              />
-              <Column
-                field="refOtherRequirements"
-                header={t("dashboard.Other Requirements")}
-                style={{ minWidth: "300px" }}
-              />
-              <Column body={actionReadTour} header={t("dashboard.Approve")} />
-              <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
-            </DataTable>
+                <Column
+                  field="refUserMail"
+                  header={t("dashboard.User Email")}
+                  style={{ minWidth: "250px" }}
+                />
+                <Column
+                  field="refUserMobile"
+                  header={t("dashboard.Mobile")}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refPickupDate"
+                  header={t("dashboard.Pickup Date")}
+                  body={formatDate}
+                  style={{ minWidth: "200px" }}
+                />
+                <Column
+                  field="refAdultCount"
+                  header={t("dashboard.Adults")}
+                  style={{ minWidth: "100px" }}
+                />
+                <Column
+                  field="refChildrenCount"
+                  header={t("dashboard.Children")}
+                  style={{ minWidth: "100px" }}
+                />
+                <Column
+                  field="refInfants"
+                  header={t("dashboard.Infants")}
+                  style={{ minWidth: "100px" }}
+                />
+                <Column
+                  field="refOtherRequirements"
+                  header={t("dashboard.Other Requirements")}
+                  style={{ minWidth: "300px" }}
+                />
+                <Column body={actionReadTour} header={t("dashboard.Approve")} />
+                <Column body={actionDeleteTour} header={t("dashboard.Delete")} />
+              </DataTable>
             </div>
             <Dialog
               header="Confirm Deletion"
@@ -3712,12 +3710,12 @@ const UserDetails: React.FC = () => {
                 header={t("dashboard.User CustID")}
                 style={{ minWidth: "150px" }}
               />
-                <Column
+              <Column
                 field="refUserFname"
                 header={t("dashboard.First Name")}
                 style={{ minWidth: "200px" }}
               />
-                         <Column
+              <Column
                 field="refUserMail"
                 header={t("dashboard.User Email")}
                 style={{ minWidth: "250px" }}
@@ -3824,7 +3822,7 @@ const UserDetails: React.FC = () => {
               />
               <Column
                 field="refFName"
-                  header={t("dashboard.First Name")}
+                header={t("dashboard.First Name")}
                 style={{ minWidth: "200px" }}
               />
               <Column
@@ -3849,8 +3847,8 @@ const UserDetails: React.FC = () => {
                 body={(rowData) =>
                   rowData.travelStartDate
                     ? new Date(rowData.travelStartDate)
-                        .toISOString()
-                        .split("T")[0]
+                      .toISOString()
+                      .split("T")[0]
                     : ""
                 }
               />
@@ -3861,8 +3859,8 @@ const UserDetails: React.FC = () => {
                 body={(rowData) =>
                   rowData.travelEndDate
                     ? new Date(rowData.travelEndDate)
-                        .toISOString()
-                        .split("T")[0]
+                      .toISOString()
+                      .split("T")[0]
                     : ""
                 }
               />
@@ -3875,7 +3873,7 @@ const UserDetails: React.FC = () => {
                 field="HandoverPersonEmail"
                 header={t("dashboard.Handover PersonEmail")}
                 style={{ minWidth: "300px" }}
-                  body={(rowData) => rowData.HandoverPersonEmail || "-"}
+                body={(rowData) => rowData.HandoverPersonEmail || "-"}
               />
               <Column
                 field="HandoverPersonName"
@@ -4028,109 +4026,17 @@ const UserDetails: React.FC = () => {
           </div>
         </TabPanel>
 
-        <TabPanel header={t("dashboard.User Form Details")}>
-          <div className="mt-1 p-2 ">
-            <h3 className="text-lg font-bold mb-4">
-              {t("dashboard.User Form Details")}
-            </h3>
-            <DataTable
-              value={UserDetails}
-              paginator
-              rows={3}
-              scrollable
-              scrollHeight="500px"
-              tableStyle={{ minWidth: "50rem" }}
-            >
-              <Column
-                header={t("dashboard.SNo")}
-                headerStyle={{ width: "3rem" }}
-                body={(_, options) => options.rowIndex + 1}
-              />
-
-              {/* <Column
-    field="refCustId"
-    header={t("dashboard.UserCustId")}
-    style={{ minWidth: "150px" }}
-  /> */}
-
-              <Column
-                field="refUserName"
-                header={t("dashboard.User Name")}
-                style={{ minWidth: "200px" }}
-              />
-
-              <Column
-                field="refUserMobile"
-                header={t("dashboard.Mobile")}
-                style={{ minWidth: "150px" }}
-              />
-
-              <Column
-                field="refUserMail"
-                header={t("dashboard.Email")}
-                style={{ minWidth: "150px" }}
-              />
-
-              <Column
-                field="refDoorNumber"
-                header={t("dashboard.Door Number")}
-                style={{ minWidth: "150px" }}
-              />
-
-              <Column
-                field="refStreet"
-                header={t("dashboard.Street")}
-                style={{ minWidth: "250px" }}
-              />
-
-              <Column
-                field="refArea"
-                header={t("dashboard.Area")}
-                style={{ minWidth: "200px" }}
-              />
-
-              <Column
-                field="refcountry"
-                header={t("dashboard.Country")}
-                style={{ minWidth: "200px" }}
-              />
-
-              {/* <Column body={actionReadAirport} header={t("dashboard.Approve")} /> */}
-
-              <Column body={actionDeleteUser} header={t("dashboard.Delete")} />
-            </DataTable>
-            <Dialog
-              header="Confirm Deletion"
-              visible={visibleDialog}
-              style={{ width: "350px" }}
-              onHide={() => setVisibleDialog(false)}
-              footer={
-                <div className="flex justify-end gap-2">
-                  <Button
-                    label="No"
-                    icon="pi pi-times"
-                    className="p-button-text"
-                    onClick={() => setVisibleDialog(false)}
-                  />
-                  <Button
-                    label="Yes"
-                    icon="pi pi-check"
-                    className="p-button-danger"
-                    // loading={setLoading}
-                    onClick={() => {
-                      if (selectedBannerId !== null) {
-                        deleteUSer(selectedBannerId);
-                      }
-                      setVisibleDialog(false);
-                    }}
-                  />
-                </div>
-              }
-            >
-              <p>Are you sure you want to delete this banner?</p>
-            </Dialog>
-          </div>
-        </TabPanel>
+      <TabPanel header={t("dashboard.User Form Details")}>
+  <UserFormDetailsTab
+    UserDetails={UserDetails}
+    deleteUSer={deleteUSer}
+    selectedBannerId={selectedBannerId}
+    setSelectedBannerId={setSelectedBannerId}
+    visibleDialog={visibleDialog}
+    setVisibleDialog={setVisibleDialog}
+    fetchUserDetails={fetchUserDetails}
+  />
+</TabPanel>
       </TabView>
     </div>
   );

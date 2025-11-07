@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -10,7 +12,7 @@ import CarRentals from "../04-CarRentals/CarRentals";
 // import Torus from "../03-Tours/Tours";
 import Settings from "../06-Settings/Settings";
 import Login from "../../Pages/04-Loginpage/Login";
-import ToursNew from "../03-Tours/ToursNew";
+// import ToursNew from "../03-Tours/ToursNew";
 import UserDetails from "../05-UserDetails/UserDetails";
 import Staff from "../../Pages/08-Satff/Staff";
 import Parking from "../../Pages/10-Parking/Parking";
@@ -20,6 +22,9 @@ import Userlist from "../../Pages/13-UserList/Userlist";
 import Banner from "../14-ImageModule/Banner";
 import Patner from "../../Pages/14-Patner/Patner";
 import TourAgreement from "../Pdf/TourAgreement";
+
+import DriverDashboard from "../07-DTransfer/DTransfer";
+import Transfer from '../../Pages/15-Transfer/transfer'
 import SingleStaff from "../../Pages/09-UpdateStaff/SingleStaff";
 // import Staff from "../../Pages/08-Satff/Staff";
 
@@ -31,7 +36,9 @@ const MainRoutes: React.FC = () => {
         <Header>
           <Routes>
             <Route index path="/" element={<Login />} />
-            <Route path="/tour" element={<ToursNew />} />
+            {/* <Route path="/tour" element={<ToursNew />} / */}
+            
+            <Route path="/tour" element={<DriverDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/carservices" element={<CarServices />} />
             <Route path="/carrental" element={<CarRentals />} />
@@ -42,7 +49,7 @@ const MainRoutes: React.FC = () => {
             <Route path="/staffnotification" element={<StaffNotification />} />
             <Route path="/parking" element={<Parking />} />
             <Route path="/singlestaff" element={<SingleStaff />} />
-
+ <Route path="/transfer" element={<Transfer />} />
             <Route path="/staff" element={<Staff />} />
             <Route path="/patner" element={<Patner />} />
             <Route path="/touragreement" element={<TourAgreement />} />
@@ -54,3 +61,8 @@ const MainRoutes: React.FC = () => {
 };
 
 export default MainRoutes;
+
+
+
+
+

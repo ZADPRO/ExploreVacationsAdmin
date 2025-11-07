@@ -9,7 +9,7 @@ import Categories from "../../Pages/03-Categories/Categories";
 import Notification from "../../Pages/11-Notification/Notification";
 import { useTranslation } from "react-i18next";
 // import { FaArrowRight } from "react-icons/fa";
-
+import { FromToLocations, CarSelection } from "../../Pages/16-CarSelection/CarSelection";
 const Settings: React.FC = () => {
   const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
   const { t } = useTranslation("global");
@@ -58,6 +58,34 @@ const Settings: React.FC = () => {
               >
                 <div className="w-full flex justify-end ">
                   {/* <FaArrowRight /> */}
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* From and to  */}
+          {/* <div className="flex-1">
+            <div onClick={() => setVisibleSidebar("Fromtolocations")}
+              style={{ cursor: "pointer" }}
+            >
+              <Card style={{ color: "#0a5c9c" }} title="From/To Locations">
+
+                <div className="w-full flex justify-end ">
+                
+                </div>
+              </Card>
+            </div>
+          </div> */}
+
+
+          <div className="flex-1">
+            <div onClick={() => setVisibleSidebar("cars")}
+              style={{ cursor: "pointer" }}
+            >
+              <Card style={{ color: "#0a5c9c" }} title="Cars">
+
+                <div className="w-full flex justify-end ">
+                  {/* <CarSelection /> */}
                 </div>
               </Card>
             </div>
@@ -135,57 +163,77 @@ const Settings: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div >
 
       {/* Destination Sidebar */}
-      <Sidebar
-        style={{ width: "50vw" }}
+      < Sidebar
+        style={{ width: "50vw" }
+        }
         visible={visibleSidebar === "destination"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
       >
         <Destination />
-      </Sidebar>
+      </Sidebar >
 
       {/* Location Sidebar */}
-      <Sidebar
+      < Sidebar
         style={{ width: "50vw" }}
         visible={visibleSidebar === "location"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
       >
         <Location />
-      </Sidebar>
+      </Sidebar >
 
       {/* Activities Sidebar */}
-      <Sidebar
+      < Sidebar
         style={{ width: "50vw" }}
         visible={visibleSidebar === "activities"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
       >
         <Activities />
-      </Sidebar>
+      </Sidebar >
+
+{/* From TO  */}
+       < Sidebar
+        style={{ width: "50vw" }}
+        visible={visibleSidebar === "Fromtolocations"}
+        onHide={() => setVisibleSidebar(null)}
+        position="right"
+      >
+        <FromToLocations />
+      </Sidebar >
+      {/* cars */}
+       < Sidebar
+        style={{ width: "50vw" }}
+        visible={visibleSidebar === "cars"}
+        onHide={() => setVisibleSidebar(null)}
+        position="right"
+      >
+        <CarSelection />
+      </Sidebar >
 
       {/* Categories Sidebar */}
-      <Sidebar
+      < Sidebar
         style={{ width: "50vw" }}
         visible={visibleSidebar === "categories"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
       >
         <Categories />
-      </Sidebar>
+      </Sidebar >
 
       {/* Notification Sidebar */}
-      <Sidebar
+      < Sidebar
         style={{ width: "70vw" }}
         visible={visibleSidebar === "notification"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
       >
         <Notification />
-      </Sidebar>
+      </Sidebar >
     </>
   );
 };
