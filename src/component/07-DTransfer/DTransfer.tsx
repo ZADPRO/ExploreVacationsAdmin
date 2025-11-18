@@ -405,8 +405,8 @@ const DriverDashboard = () => {
             <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
               <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Journey Details</h3>
               <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                <div><strong>📍 From:</strong> {selectedBooking.fromLocation}</div>
-                <div><strong>📍 To:</strong> {selectedBooking.toLocation}</div>
+                <div><strong>From:</strong> {selectedBooking.fromLocation}</div>
+                <div><strong>To:</strong> {selectedBooking.toLocation}</div>
               </div>
             </div>
 
@@ -414,8 +414,8 @@ const DriverDashboard = () => {
             <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
               <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Pickup Details</h3>
               <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                <div><strong>📅 Date:</strong> {selectedBooking.pickupDate}</div>
-                <div><strong>🕐 Time:</strong> {selectedBooking.pickupTime}</div>
+                <div><strong> Date:</strong> {selectedBooking.pickupDate}</div>
+                <div><strong> Time:</strong> {selectedBooking.pickupTime}</div>
               </div>
             </div>
 
@@ -424,8 +424,8 @@ const DriverDashboard = () => {
               <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
                 <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Return Details</h3>
                 <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                  <div><strong>📅 Date:</strong> {selectedBooking.returnDate}</div>
-                  <div><strong>🕐 Time:</strong> {selectedBooking.returnTime}</div>
+                  <div><strong> Date:</strong> {selectedBooking.returnDate}</div>
+                  <div><strong> Time:</strong> {selectedBooking.returnTime}</div>
                 </div>
               </div>
             )}

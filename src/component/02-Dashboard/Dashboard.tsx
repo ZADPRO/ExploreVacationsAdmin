@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+// import "./Dashboard.css";
 import { Card } from "primereact/card";
 import axios from "axios";
 import { BsBell } from "react-icons/bs";
@@ -6,16 +7,20 @@ import { FiArrowRight } from "react-icons/fi";
 import { decryptAPIResponse } from "../../utils";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import "./Dashboard.css";
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation("global");
+
+  // language, flagEN, flagDE are not defined in your original snippet, so removed getFlag and handleChangeLang
+
   const [dashboard, setDashboard] = useState<any>({});
   const [staffnote, setStaffnote] = useState<any>({});
   const navigate = useNavigate();
 
+  // Assuming 'roleId' is stored in localStorage
   const roleId = parseInt(localStorage.getItem("roleId") || "0", 10);
 
+  // Map roleId to label
   const roleLabels: Record<number, string> = {
     1: "Admin",
     2: "Employee - Tours",
@@ -92,6 +97,13 @@ const Dashboard: React.FC = () => {
       path: "/userdetails",
       roles: ["Admin", "Employee - Tours"],
     },
+    // {
+    //   key: "customizeTourBookingCount",
+    //   title: t("dashboard.Customize Booked"),
+    //   tabIndex: 0,
+    //   path: "/userdetails",
+    //   roles: ["Admin", "Employee - Tours"],
+    // },
     {
       key: "carBookingCount",
       title: t("dashboard.Car Booked"),
@@ -136,64 +148,62 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  // Filter cards visible to current user role
   const visibleCards = cardConfigs.filter((card) =>
     card.roles.includes(userRole)
   );
 
   const NotificationIconWithBadge = ({ count }: { count: number }) => {
     return (
-      <div className="notification-wrapper">
-        <BsBell className="notification-icon" />
+      <div className="relative w-12 h-12 flex items-center justify-center">
+        <BsBell className="text-4xl text-[#002f4fe0]" />
         {count > 0 && (
-          <span className="notification-badge">
+          <span className="absolute -top-1 right-15 bg-[#00375b] text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
             {count}
           </span>
         )}
       </div>
     );
   };
-
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <h1 className="dashboard-title">
+    <div>
+      <div>
+        <div className="text-2xl font-semibold p-3">
           {t("dashboard.Dashboard")}
-        </h1>
-        <div
-          className="notification-button"
-          onClick={() => navigate("/staffnotification")}
-          role="button"
-          tabIndex={0}
-          aria-label="View notifications"
-        >
-          <NotificationIconWithBadge
-            count={staffnote?.unReadNotifications || 0}
-          />
         </div>
-      </div>
-
-      <div className="dashboard-cards-grid">
-        {visibleCards.map((card) => (
+        <div className="flex flex-row justify-end">
           <div
-            key={card.key}
-            onClick={() =>
-              navigate(card.path, { state: { tabIndex: card.tabIndex } })
-            }
-            className="dashboard-card-wrapper"
+            className="flex items-center w-[10%] justify-end cursor-pointer"
+            onClick={() => navigate("/staffnotification")}
+            // title={t("dashboard.Customer Login")}
           >
-            <Card className="dashboard-card" title={card.title}>
-              <div className="card-content">
-                <div className="card-count-section">
-                  <p className="count-label">{t("dashboard.Count")}:</p>
-                  <p className="count-value">{dashboard[card.key] || 0}</p>
-                </div>
-                <div className="card-arrow">
-                  <FiArrowRight />
-                </div>
-              </div>
-            </Card>
+            <NotificationIconWithBadge
+              count={staffnote?.unReadNotifications || 0}
+            />
           </div>
-        ))}
+        </div>
+
+        <div className="flex flex-row gap-10 px-5 justify-evenly flex-wrap">
+          {visibleCards.map((card) => (
+            <div
+              key={card.key}
+              onClick={() =>
+                navigate(card.path, { state: { tabIndex: card.tabIndex } })
+              }
+              className="text-[#0a5c9c] cursor-pointer flex-1 min-w-[250px] max-w-[300px]"
+            >
+              <Card style={{ color: "#0a5c9c" }} title={card.title}>
+                <div className="flex flex-row justify-between text-lg font-bold w-[50%]">
+                  <p className="font-bold">{t("dashboard.Count")}:</p>
+                  {dashboard[card.key]}
+                </div>
+                <div className="flex w-full justify-end text-2xl font-bold cursor-pointer">
+                  <FiArrowRight onClick={() => navigate(card.path)} />
+                </div>
+              </Card>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

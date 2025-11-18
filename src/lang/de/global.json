@@ -1,5 +1,6 @@
 {
   "dashboard": {
+    "Driver transfer": "Fahrerübertragung",
     "Dashboard": "Armaturenbrett",
     "profile": "Profil",
     "Tour Booked": "Tour gebucht",
@@ -12,6 +13,7 @@
     "Customer Login": "Kundenlogin",
     "Count": "Anzahl",
     "transfer": "Überweisung",
+    
     "User Details": "Benutzerdetails",
     "Customize TourBookings": "Tourbuchungen anpassen",
     "Customize Tour Details": "Tourdetails anpassen",

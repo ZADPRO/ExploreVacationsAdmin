@@ -18,6 +18,7 @@ const Mainheader: React.FC = () => {
     2: "Employee - Tours",
     4: "Employee - Cars",
     5: "Employee - Parking",
+    6: "Employee - Transfer",
   };
   const userRole = roleLabels[roleId] || "Guest";
 

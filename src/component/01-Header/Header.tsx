@@ -1,9 +1,10 @@
 import { FaBars } from "react-icons/fa";
-import { useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { IoSettingsSharp } from "react-icons/io5";
 import { MdOutlineTravelExplore } from "react-icons/md";
-import { FaUserTie, FaRetweet } from "react-icons/fa";
+// import { FaCarOn } from "react-icons/fa6";
+import { FaUserTie,FaRetweet } from "react-icons/fa";
 import { RiParkingFill } from "react-icons/ri";
 import { FaCar } from "react-icons/fa6";
 import { NavLink, useLocation } from "react-router-dom";
@@ -14,50 +15,21 @@ import { MdSpaceDashboard } from "react-icons/md";
 import { IoMdNotifications } from "react-icons/io";
 import { FaUsers } from "react-icons/fa";
 import { FaImages } from "react-icons/fa";
-import { FaUserCheck } from "react-icons/fa6";
-import { FaExchangeAlt } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 import "./Header.css";
 import { useTranslation } from "react-i18next";
+import { FaUserCheck } from "react-icons/fa6";
+import { FaExchangeAlt } from "react-icons/fa";
+import { FaCarSide } from "react-icons/fa";
 
 interface HeaderProps {
-  sidebarOpen?: boolean;
-  setSidebarOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  children?: React.ReactNode;
+  children: ReactNode; // Type children prop explicitly as ReactNode
 }
 
-export default function Header({ children, sidebarOpen, setSidebarOpen }: HeaderProps) {
+export default function Header({ children }: HeaderProps) {
   const { t } = useTranslation("global");
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
-  const location = useLocation();
-
-  // Detect screen size
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsMobile(width < 768);
-      setIsTablet(width >= 768 && width < 1024);
-      
-      // Auto-close sidebar on mobile when route changes
-      if (width < 768) {
-        setIsOpen(false);
-      }
-      // Auto-open on desktop
-      if (width >= 1024) {
-        setIsOpen(true);
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [location]);
-
   const toggle = () => setIsOpen(!isOpen);
-
-  const routes = [
+  const routes: any = [
     {
       path: "/dashboard",
       label: t("dashboard.dashboard"),
@@ -88,10 +60,10 @@ export default function Header({ children, sidebarOpen, setSidebarOpen }: Header
       icon: <FaUserTie />,
       roles: [1],
     },
-    {
+      {
       path: "/StaffTranfer",
       label: t("dashboard.StaffTranfer"),
-      icon: <FaRetweet />,
+       icon: <FaRetweet />,
       roles: [1],
     },
     {
@@ -101,10 +73,16 @@ export default function Header({ children, sidebarOpen, setSidebarOpen }: Header
       roles: [1],
     },
     {
-      path: "/transfer",
-      label: t("dashboard.transfer"),
-      icon: <FaExchangeAlt />,
-      roles: [1],
+  path: "/transfer",
+  label: t("dashboard.transfer"),
+  icon: <FaExchangeAlt />,
+  roles: [1], // or whichever roles should see it
+},
+ {
+      path: "/Dtransfer",
+      label: t("dashboard.Driver transfer"),
+      icon: <FaCarSide />,
+      roles: [1, 2, 4],
     },
     {
       path: "/tour",
@@ -168,126 +146,120 @@ export default function Header({ children, sidebarOpen, setSidebarOpen }: Header
   };
 
   const hideSidebarPaths = ["/"];
+
+  const location = useLocation();
+
   const roleId = parseInt(localStorage.getItem("roleId") || "0", 10);
-  const filteredRoutes = routes.filter((route) =>
+
+  console.log("Role ID from localStorage:", roleId);
+
+  const filteredRoutes = routes.filter((route: any) =>
     route.roles.includes(roleId)
   );
 
-  // Get sidebar width based on screen size
-  const getSidebarWidth = () => {
-    if (isMobile) {
-      return isOpen ? "280px" : "0px";
-    }
-    if (isTablet) {
-      return isOpen ? "220px" : "70px";
-    }
-    return isOpen ? "240px" : "80px";
-  };
-
-  // Get main content margin based on screen size
-  const getMainContentMargin = () => {
-    if (isMobile) return "0";
-    if (isTablet) return isOpen ? "220px" : "70px";
-    return isOpen ? "240px" : "80px";
-  };
-
   return (
-    <div className="layout-wrapper">
-      {!hideSidebarPaths.includes(location.pathname) && (
-        <>
-          {/* Mobile Overlay */}
-          {isMobile && isOpen && (
-            <div className="sidebar-overlay" onClick={toggle}></div>
-          )}
-
-          {/* Sidebar */}
-          <motion.div
-            animate={{
-              width: getSidebarWidth(),
-              transition: {
-                duration: 0.3,
-                type: "spring",
-                damping: 12,
-              },
-            }}
-            className={`sidebar ${isMobile ? "sidebar-mobile" : ""} ${
-              isOpen ? "sidebar-open" : ""
-            }`}
-          >
-            <div className="top_section">
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.h1
-                    className="logo"
-                    variants={showAnimation}
-                    initial="hidden"
-                    animate="show"
-                    exit="hidden"
-                  >
-                    Admin Panel
-                  </motion.h1>
-                )}
-              </AnimatePresence>
-              <div className="bars">
-                {isMobile && isOpen ? (
-                  <IoClose onClick={toggle} size={24} />
-                ) : (
-                  <FaBars onClick={toggle} />
-                )}
-              </div>
-            </div>
-
-            <section className="routes">
-              {filteredRoutes.map((route) => (
-                <NavLink
-                  to={route.path}
-                  key={route.label}
-                  className="link"
-                  onClick={() => {
-                    if (route.label === "Logout") {
-                      localStorage.clear();
-                      window.location.href = "/";
-                    }
-                    // Close sidebar on mobile after navigation
-                    if (isMobile) {
-                      setIsOpen(false);
-                    }
-                  }}
+   <div>
+  <div className="main_container">
+    {!hideSidebarPaths.includes(location.pathname) && (
+      <>
+        <motion.div
+          animate={{
+            width: isOpen
+              ? window.innerWidth <= 768
+                ? "60vw" // mobile
+                : window.innerWidth <= 1024
+                ? "25vw" // tablet
+                : "15vw" // desktop
+              : window.innerWidth <= 768
+              ? "14vw" // mobile collapsed
+              : window.innerWidth <= 1024
+              ? "8vw" // tablet collapsed
+              : "5vw", // desktop collapsed
+            transition: {
+              duration: 0.3,
+              type: "spring",
+              damping: 12,
+            },
+          }}
+          className="sidebar"
+        >
+          <div className="top_section">
+            <AnimatePresence>
+              {isOpen && (
+                <motion.h1
+                  className="logo"
+                  variants={showAnimation}
+                  initial="hidden"
+                  animate="show"
+                  exit="hidden"
                 >
-                  <div className="icon">{route.icon}</div>
-                  <AnimatePresence>
-                    {isOpen && (
-                      <motion.div
-                        className="link_text"
-                        variants={showAnimation}
-                        initial="hidden"
-                        animate="show"
-                        exit="hidden"
-                      >
-                        {route.label}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </NavLink>
-              ))}
-            </section>
-          </motion.div>
+                  Admin Panel
+                </motion.h1>
+              )}
+            </AnimatePresence>
+            <div className="bars">
+              <FaBars onClick={toggle} />
+            </div>
+          </div>
 
-          {/* Main Content */}
-          <main
-            className="main-content"
-            style={{
-              marginLeft: getMainContentMargin(),
-            }}
-          >
-            {children}
-          </main>
-        </>
-      )}
+          <section className="routes">
+            {filteredRoutes.map((route: any) => (
+              <NavLink
+                to={route.path}
+                key={route.label}
+                className="link"
+                onClick={() => {
+                  if (route.label === "Logout") {
+                    localStorage.clear();
+                    window.location.href = "/";
+                  }
+                }}
+              >
+                <div className="icon">{route.icon}</div>
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      className="link_text"
+                      variants={showAnimation}
+                      initial="hidden"
+                      animate="show"
+                      exit="hidden"
+                    >
+                      {route.label}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </NavLink>
+            ))}
+          </section>
+        </motion.div>
 
-      {hideSidebarPaths.includes(location.pathname) && (
-        <main className="main-content-full">{children}</main>
-      )}
-    </div>
+        <main
+          className="main_content"
+          style={{
+            width: isOpen
+              ? window.innerWidth <= 768
+                ? "40vw"
+                : window.innerWidth <= 1024
+                ? "75vw"
+                : "85vw"
+              : window.innerWidth <= 768
+              ? "86vw"
+              : window.innerWidth <= 1024
+              ? "92vw"
+              : "95vw",
+          }}
+        >
+          {children}
+        </main>
+      </>
+    )}
+
+    {hideSidebarPaths.includes(location.pathname) && (
+      <main style={{ width: "100vw" }}>{children}</main>
+    )}
+  </div>
+</div>
+
   );
 }

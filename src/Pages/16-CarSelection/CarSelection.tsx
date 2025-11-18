@@ -23,9 +23,14 @@ export const FromToLocations: React.FC = () => {
   const [visibleDialog, setVisibleDialog] = useState(false);
   const [selectedLocationDelete, setSelectedLocationDelete] = useState<any>(null);
   const [deleteType, setDeleteType] = useState<'from' | 'to'>('from');
-
+  
   const [suggestions, setSuggestions] = useState<any[]>([]);
-
+const staticCarBadges = [
+  { refBadgeId: 1, refBadgeName: "BEST VALUE", refBadgeColor: "#10b981" },
+  { refBadgeId: 2, refBadgeName: "MOST POPULAR", refBadgeColor: "#fbbf24" },
+  { refBadgeId: 3, refBadgeName: "TOP CLASS", refBadgeColor: "#8b5cf6" },
+  { refBadgeId: 4, refBadgeName: "PREMIUM", refBadgeColor: "#ef4444" },
+];
   const [inputs, setInputs] = useState({
     refLocation: "",
     refArea: "",
@@ -34,6 +39,7 @@ export const FromToLocations: React.FC = () => {
     refState: "",
     refCountry: "",
     refPincode: "",
+    
   });
 
   const toast = useRef<Toast>(null);
@@ -127,6 +133,33 @@ export const FromToLocations: React.FC = () => {
       refPincode: '',
     });
   };
+  // Fetch Car Badges
+  // const fetchCarBadges = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       import.meta.env.VITE_API_URL + "/carsRoutes/listCarBadges",
+  //       {
+  //         headers: {
+  //           Authorization: localStorage.getItem("token"),
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+
+  //     const data = decrypt(
+  //       response.data[1],
+  //       response.data[0],
+  //       import.meta.env.VITE_ENCRYPTION_KEY
+  //     );
+
+  //     if (data.success) {
+  //       localStorage.setItem("token", "Bearer " + data.token);
+  //       setCarBadges(data.result);
+  //     }
+  //   } catch (e) {
+  //     console.error("Error fetching badges:", e);
+  //   }
+  // };
 
   const addNewLocation = async (type: 'from' | 'to') => {
     if (!inputs.refLocation) {
@@ -1117,7 +1150,7 @@ export const CarSelection: React.FC = () => {
             </div>
 
             {/* <div className="grid grid-cols-2 gap-4"> */}
-              {/* <div>
+            {/* <div>
                 <label className="font-medium block mb-2">Passengers *</label>
                 <InputText
                   type="number"
@@ -1128,16 +1161,16 @@ export const CarSelection: React.FC = () => {
                 />
               </div> */}
 
-              <div>
-                <label className="font-medium block mb-2">Luggage *</label>
-                <InputText
-                  type="number"
-                  value={newCar.luggage}
-                  onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
-                  placeholder="e.g., 3"
-                  className="p-inputtext-sm w-full"
-                />
-              </div>
+            <div>
+              <label className="font-medium block mb-2">Luggage *</label>
+              <InputText
+                type="number"
+                value={newCar.luggage}
+                onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
+                placeholder="e.g., 3"
+                className="p-inputtext-sm w-full"
+              />
+            </div>
             {/* </div> */}
 
             <div>
@@ -1151,28 +1184,27 @@ export const CarSelection: React.FC = () => {
             </div>
 
             {/* <div className="grid grid-cols-2 gap-4"> */}
-              <div>
-                <label className="font-medium block mb-2">Passengers *</label>
-                <InputText
-                  type="number"
-                  value={newCar.passengers}
-                  onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
-                  placeholder="e.g., 3"
-                  className="p-inputtext-sm w-full"
-                />
-              </div>
+            <div>
+              <label className="font-medium block mb-2">Passengers *</label>
+              <InputText
+                type="number"
+                value={newCar.passengers}
+                onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
+                placeholder="e.g., 3"
+                className="p-inputtext-sm w-full"
+              />
+            </div>
 
-              <div>
-                <label className="font-medium block mb-2">Description</label>
-                <InputText
+            <div>
+              <label className="font-medium block mb-2">Description</label>
+              <InputText
 
-                  value={newCar.description}
-                  onChange={(e) => setNewCar({ ...newCar, description: e.target.value })}
-                  placeholder="similar to this car "
-                  className="p-inputtext-sm w-full"
-                />
-              </div>
-            
+                value={newCar.description}
+                onChange={(e) => setNewCar({ ...newCar, description: e.target.value })}
+                placeholder="similar to this car "
+                className="p-inputtext-sm w-full"
+              />
+            </div>
 
             <div className="flex gap-2 justify-end mt-6">
               <Button
@@ -1249,13 +1281,13 @@ export const CarSelection: React.FC = () => {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="font-medium block mb-2">Passengers *</label>
+              <label className="font-medium block mb-2 ml-2">Passengers *</label>
               <InputText
                 type="number"
                 value={newCar.passengers}
                 onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
                 placeholder="e.g., 3"
-                className="p-inputtext-sm w-full"
+                className="p-inputtext-sm w-full ml-2"
               />
             </div>
 
@@ -1295,13 +1327,13 @@ export const CarSelection: React.FC = () => {
             </div> */}
 
             <div>
-              <label className="font-medium block mb-2">Description</label>
+              <label className="font-medium block mb-2 ml-2">Description</label>
               <InputText
 
                 value={newCar.description}
                 onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
                 placeholder="similar to the car"
-                className="p-inputtext-sm w-full"
+                className="p-inputtext-sm w-full ml-2"
               />
             </div>
           </div>
