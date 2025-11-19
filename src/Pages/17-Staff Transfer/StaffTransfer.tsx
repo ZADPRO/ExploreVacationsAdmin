@@ -352,7 +352,7 @@ const StaffTransfer: React.FC = () => {
       <Toast ref={toast} />
       <div className="p-4 mt-2">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold"> </h2>
+          <h2 className="text-2xl font-semibold">Driver Management</h2>
           <Button
             label="Add New Driver"
             severity="success"
@@ -509,9 +509,10 @@ const StaffTransfer: React.FC = () => {
               {/* Date of Birth */}
               <Calendar
                 value={inputs.refDOB}
-                onChange={(e) =>
-                  setInputs((prev) => ({ ...prev, refDOB: e.value }))
-                }
+                onChange={(e) => {
+                  const selectedDate = e.value as Date | null;
+                  setInputs({ ...inputs, refDOB: selectedDate });
+                }}
                 placeholder="Date of Birth *"
                 dateFormat="dd/mm/yy"
                 showIcon
@@ -562,12 +563,10 @@ const StaffTransfer: React.FC = () => {
               {/* Driving License Category */}
               <Dropdown
                 value={inputs.refDrivingLicenseCategory}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    refDrivingLicenseCategory: e.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const category = e.value as string;
+                  setInputs({ ...inputs, refDrivingLicenseCategory: category });
+                }}
                 options={licenseCategoryOptions}
                 placeholder="Driving License Category *"
                 required
@@ -586,12 +585,10 @@ const StaffTransfer: React.FC = () => {
               {/* Driving License Expiry Date */}
               <Calendar
                 value={inputs.refDrivingLicenseExpiryDate}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    refDrivingLicenseExpiryDate: e.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const selectedDate = e.value as Date | null;
+                  setInputs({ ...inputs, refDrivingLicenseExpiryDate: selectedDate });
+                }}
                 placeholder="License Expiry Date *"
                 dateFormat="dd/mm/yy"
                 showIcon
@@ -620,12 +617,10 @@ const StaffTransfer: React.FC = () => {
               {/* ID/Passport Expiry Date */}
               <Calendar
                 value={inputs.refIDPassportExpiryDate}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    refIDPassportExpiryDate: e.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const selectedDate = e.value as Date | null;
+                  setInputs({ ...inputs, refIDPassportExpiryDate: selectedDate });
+                }}
                 placeholder="ID/Passport Expiry Date *"
                 dateFormat="dd/mm/yy"
                 showIcon
@@ -636,12 +631,10 @@ const StaffTransfer: React.FC = () => {
               {/* Employment Type */}
               <Dropdown
                 value={inputs.refEmploymentType}
-                onChange={(e) =>
-                  setInputs((prev) => ({
-                    ...prev,
-                    refEmploymentType: e.value,
-                  }))
-                }
+                onChange={(e) => {
+                  const empType = e.value as string;
+                  setInputs({ ...inputs, refEmploymentType: empType });
+                }}
                 options={employmentTypeOptions}
                 placeholder="Employment Type *"
                 required
@@ -651,9 +644,10 @@ const StaffTransfer: React.FC = () => {
               {/* Start Date */}
               <Calendar
                 value={inputs.refStartDate}
-                onChange={(e) =>
-                  setInputs((prev) => ({ ...prev, refStartDate: e.value }))
-                }
+                onChange={(e) => {
+                  const selectedDate = e.value as Date | null;
+                  setInputs({ ...inputs, refStartDate: selectedDate });
+                }}
                 placeholder="Start Date (First day at work) *"
                 dateFormat="dd/mm/yy"
                 showIcon
@@ -687,5 +681,5 @@ const StaffTransfer: React.FC = () => {
     </div>
   );
 };
-``
+
 export default StaffTransfer;

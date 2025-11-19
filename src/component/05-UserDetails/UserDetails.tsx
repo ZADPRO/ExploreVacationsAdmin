@@ -13,7 +13,7 @@ import logo from "../../assets/images/logo.png";
 import { useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import UserFormDetailsTab from "../05-UserDetails/UserFormDetailsTab";
-import ViewPDFAction from "../Pdf/viewPDFAction ";
+// import ViewPDFAction from "../Pdf/viewPDFAction ";
 // import moment from "moment-timezone";
 import PdfViewer from "../Pdf/PdfViewer";
 import { useTranslation } from "react-i18next";
@@ -392,21 +392,21 @@ const UserDetails: React.FC = () => {
       setVisibleDialog(false);
     }
   };
-  const actionDeleteUser = (rowData: any) => {
-    console.log(rowData);
+  // const actionDeleteUser = (rowData: any) => {
+  //   console.log(rowData);
 
-    return (
-      <Button
-        icon="pi pi-trash"
-        severity="danger"
-        // onClick={() => deleteUSer(rowData.offlineCarBookingId)}
-        onClick={() => {
-          setSelectedBannerId(rowData.offlineCarBookingId);
-          setVisibleDialog(true);
-        }}
-      />
-    );
-  };
+  //   return (
+  //     <Button
+  //       icon="pi pi-trash"
+  //       severity="danger"
+  //       // onClick={() => deleteUSer(rowData.offlineCarBookingId)}
+  //       onClick={() => {
+  //         setSelectedBannerId(rowData.offlineCarBookingId);
+  //         setVisibleDialog(true);
+  //       }}
+  //     />
+  //   );
+  // };
 
   //update
 

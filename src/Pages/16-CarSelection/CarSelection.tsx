@@ -8,7 +8,7 @@ import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { FileUpload } from "primereact/fileupload";
 import { InputTextarea } from "primereact/inputtextarea";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { AutoComplete } from "primereact/autocomplete";
 import { MultiSelect } from "primereact/multiselect";
 export const FromToLocations: React.FC = () => {
@@ -25,12 +25,12 @@ export const FromToLocations: React.FC = () => {
   const [deleteType, setDeleteType] = useState<'from' | 'to'>('from');
   
   const [suggestions, setSuggestions] = useState<any[]>([]);
-const staticCarBadges = [
-  { refBadgeId: 1, refBadgeName: "BEST VALUE", refBadgeColor: "#10b981" },
-  { refBadgeId: 2, refBadgeName: "MOST POPULAR", refBadgeColor: "#fbbf24" },
-  { refBadgeId: 3, refBadgeName: "TOP CLASS", refBadgeColor: "#8b5cf6" },
-  { refBadgeId: 4, refBadgeName: "PREMIUM", refBadgeColor: "#ef4444" },
-];
+// const staticCarBadges = [
+//   { refBadgeId: 1, refBadgeName: "BEST VALUE", refBadgeColor: "#10b981" },
+//   { refBadgeId: 2, refBadgeName: "MOST POPULAR", refBadgeColor: "#fbbf24" },
+//   { refBadgeId: 3, refBadgeName: "TOP CLASS", refBadgeColor: "#8b5cf6" },
+//   { refBadgeId: 4, refBadgeName: "PREMIUM", refBadgeColor: "#ef4444" },
+// ];
   const [inputs, setInputs] = useState({
     refLocation: "",
     refArea: "",
@@ -773,7 +773,7 @@ export const CarSelection: React.FC = () => {
   const [selectedCarDelete, setSelectedCarDelete] = useState<number | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [carImage, setCarImage] = useState("");
-  const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
+  // const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
   
   // Active Tab State
   const [activeTab, setActiveTab] = useState(0);
@@ -837,7 +837,7 @@ export const CarSelection: React.FC = () => {
     },
   ];
 
-  const { t } = useTranslation("global");
+  // const { t } = useTranslation("global");
 
   useEffect(() => {
     fetchCars();

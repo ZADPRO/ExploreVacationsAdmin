@@ -1,4 +1,3 @@
-import axios from "axios";
 import { Button } from "primereact/button";
 import { Sidebar } from "primereact/sidebar";
 import { useState, useEffect, useRef } from "react";
@@ -6,30 +5,64 @@ import { Toast } from "primereact/toast";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import { Dialog } from "primereact/dialog";
 
+// Type Definitions
+interface Booking {
+  id: number;
+  refCustId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  fromLocation: string;
+  toLocation: string;
+  carType: string;
+  carImage: string;
+  passengers: number;
+  luggage: number;
+  price: number;
+  pickupDate: string;
+  pickupTime: string;
+  returnDate: string | null;
+  returnTime: string | null;
+  status: "Pending" | "In Progress" | "Completed";
+  allocatedDriver: number;
+  bookingDate: string;
+}
+
+interface StatusOption {
+  label: string;
+  value: "Pending" | "In Progress" | "Completed";
+}
+
+interface StatusColors {
+  Pending: string;
+  "In Progress": string;
+  Completed: string;
+}
+
 const DriverDashboard = () => {
-  const { t } = useTranslation("global");
-  const toast = useRef(null);
+  // const { t } = useTranslation("global");
+  const toast = useRef<Toast>(null);
 
   // Get logged-in driver ID from localStorage
   const loggedInDriverId = 1; // TODO: Get from localStorage.getItem("driverId") or from auth context
 
-  const [allocatedBookings, setAllocatedBookings] = useState([]);
-  const [viewDetailsSidebar, setViewDetailsSidebar] = useState(false);
-  const [viewMobileDialog, setViewMobileDialog] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState(null);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [allocatedBookings, setAllocatedBookings] = useState<Booking[]>([]);
+  const [viewDetailsSidebar, setViewDetailsSidebar] = useState<boolean>(false);
+  const [viewMobileDialog, setViewMobileDialog] = useState<boolean>(false);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
 
-  const statusOptions = [
+  const statusOptions: StatusOption[] = [
     { label: "Pending", value: "Pending" },
     { label: "In Progress", value: "In Progress" },
     { label: "Completed", value: "Completed" }
   ];
 
   // Dummy data - bookings allocated to logged-in driver
-  const DUMMY_ALLOCATED_BOOKINGS = [
+  const DUMMY_ALLOCATED_BOOKINGS: Booking[] = [
     {
       id: 1,
       refCustId: "BK001",
@@ -117,7 +150,7 @@ const DriverDashboard = () => {
     }
   };
 
-  const updateBookingStatus = async (bookingId, newStatus) => {
+  const updateBookingStatus = async (bookingId: number, newStatus: "Pending" | "In Progress" | "Completed") => {
     try {
       const updatedBookings = allocatedBookings.map(booking =>
         booking.id === bookingId ? { ...booking, status: newStatus } : booking
@@ -141,7 +174,7 @@ const DriverDashboard = () => {
     }
   };
 
-  const handleRowClick = (rowData) => {
+  const handleRowClick = (rowData: Booking) => {
     setSelectedBooking(rowData);
     if (isMobile) {
       setViewMobileDialog(true);
@@ -150,7 +183,7 @@ const DriverDashboard = () => {
     }
   };
 
-  const bookingIdTemplate = (rowData) => (
+  const bookingIdTemplate = (rowData: Booking) => (
     <span 
       style={{ 
         fontWeight: "600", 
@@ -164,7 +197,7 @@ const DriverDashboard = () => {
     </span>
   );
 
-  const viewDetailsAction = (rowData) => (
+  const viewDetailsAction = (rowData: Booking) => (
     <Button
       icon="pi pi-eye"
       severity="info"
@@ -173,8 +206,8 @@ const DriverDashboard = () => {
     />
   );
 
-  const statusBodyTemplate = (rowData) => {
-    const statusColors = {
+  const statusBodyTemplate = (rowData: Booking) => {
+    const statusColors: StatusColors = {
       Pending: "#ff9800",
       "In Progress": "#2196F3",
       Completed: "#4CAF50"
@@ -218,7 +251,7 @@ const DriverDashboard = () => {
     );
   };
 
-  const carBodyTemplate = (rowData) => (
+  const carBodyTemplate = (rowData: Booking) => (
     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
       <img
         src={rowData.carImage}
@@ -418,14 +451,10 @@ const DriverDashboard = () => {
             <Column
               field="customerName"
               header="Name"
-              headerStyle={{ width: "4rem" }}
+              headerStyle={{ width: "10rem" }}
               style={{ fontSize: "13px" }}
             />
-            {/* <Column
-              header="Meet&Greet"
-              headerStyle={{ width: "8rem" }}
-              body={statusBodyTemplate}
-            /> */}
+            
             <Column
               header="Status"
               headerStyle={{ width: "8rem" }}
@@ -472,27 +501,27 @@ const DriverDashboard = () => {
               field="fromLocation"
               header="From"
               headerStyle={{ width: "15rem" }}
-              body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.fromLocation}</div>}
+              body={(rowData: Booking) => <div style={{ fontSize: "12px" }}>{rowData.fromLocation}</div>}
             />
             
             <Column
               field="toLocation"
               header="To"
               headerStyle={{ width: "15rem" }}
-              body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.toLocation}</div>}
+              body={(rowData: Booking) => <div style={{ fontSize: "12px" }}>{rowData.toLocation}</div>}
             />
             
             <Column
               header="Price"
               headerStyle={{ width: "8rem" }}
-              body={(rowData) => `€${rowData.price.toFixed(2)}`}
+              body={(rowData: Booking) => `€${rowData.price.toFixed(2)}`}
               style={{ fontWeight: "600" }}
             />
             
             <Column
               header="Pickup Date"
               headerStyle={{ width: "10rem" }}
-              body={(rowData) => (
+              body={(rowData: Booking) => (
                 <div>
                   <div style={{ fontSize: "13px", fontWeight: "500" }}>{rowData.pickupDate}</div>
                   <div style={{ fontSize: "12px", color: "#6b7280" }}>{rowData.pickupTime}</div>

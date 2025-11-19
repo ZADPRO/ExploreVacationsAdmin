@@ -1,41 +1,84 @@
 import React, { useState } from 'react';
-import { Eye, UserPlus, Plus, X, Calendar, Clock, MapPin, Users, Briefcase, Car, ArrowLeftRight } from 'lucide-react';
+import {  UserPlus, Plus, X, Calendar, Clock, MapPin, Users, Briefcase, Car, ArrowLeftRight } from 'lucide-react';
 
-const CARS_DATA = [
+interface CarData {
+  id: number;
+  name: string;
+  price: number;
+  passengers: number;
+  luggage: number;
+}
+
+interface DriverData {
+  id: number;
+  name: string;
+  phone: string;
+  status: string;
+}
+
+interface Booking {
+  id: number;
+  refCustId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  fromLocation: string;
+  toLocation: string;
+  carType: string;
+  passengers: number;
+  luggage: number;
+  price: number;
+  pickupDate: string;
+  pickupTime: string;
+  returnDate: string | null;
+  returnTime: string | null;
+  status: string;
+  allocatedDriver: number | null;
+  bookingDate: string;
+}
+
+interface NewBookingForm {
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  fromLocation: string;
+  toLocation: string;
+  carType: string;
+  pickupDate: string;
+  pickupTime: string;
+  returnDate: string;
+  returnTime: string;
+  hasReturn: boolean;
+}
+
+interface FormErrors {
+  customerName?: string;
+  customerEmail?: string;
+  customerPhone?: string;
+  fromLocation?: string;
+  toLocation?: string;
+  carType?: string;
+  pickupDate?: string;
+  pickupTime?: string;
+  returnDate?: string;
+  returnTime?: string;
+}
+
+const CARS_DATA: CarData[] = [
   { id: 1, name: "Economy", price: 1920.24, passengers: 3, luggage: 3 },
   { id: 2, name: "Standard", price: 3174.91, passengers: 3, luggage: 3 },
   { id: 3, name: "First Class", price: 4603.62, passengers: 3, luggage: 3 },
   { id: 4, name: "Van", price: 3882.45, passengers: 7, luggage: 7 }
 ];
 
-const DRIVERS_DATA = [
+const DRIVERS_DATA: DriverData[] = [
   { id: 1, name: "John Smith", phone: "+44 7123 456789", status: "Available" },
   { id: 2, name: "Sarah Johnson", phone: "+44 7234 567890", status: "Available" },
   { id: 3, name: "Mike Wilson", phone: "+44 7345 678901", status: "Busy" },
   { id: 4, name: "Emily Davis", phone: "+44 7456 789012", status: "Available" }
 ];
 
-const DUMMY_BOOKINGS = [
-  {
-    id: 1,
-    refCustId: "BK001",
-    customerName: "Alice Cooper",
-    customerEmail: "alice@example.com",
-    customerPhone: "+44 7000 111111",
-    fromLocation: "London Heathrow Airport",
-    toLocation: "Milan Malpensa Airport",
-    carType: "Economy",
-    passengers: 3,
-    luggage: 3,
-    price: 1920.24,
-    pickupDate: "2024-01-15",
-    pickupTime: "10:30 AM",
-    returnDate: "2024-01-20",
-    returnTime: "02:00 PM",
-    status: "Pending",
-    allocatedDriver: null,
-    bookingDate: "2024-01-10"
-  },
+const DUMMY_BOOKINGS: Booking[] = [
   {
     id: 2,
     refCustId: "BK002",
@@ -59,21 +102,21 @@ const DUMMY_BOOKINGS = [
 ];
 
 const Transfer = () => {
-  const [bookings, setBookings] = useState(DUMMY_BOOKINGS);
+  const [bookings, setBookings] = useState<Booking[]>(DUMMY_BOOKINGS);
   const [viewDetailsSidebar, setViewDetailsSidebar] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [allocateDialogVisible, setAllocateDialogVisible] = useState(false);
   const [addBookingDialogVisible, setAddBookingDialogVisible] = useState(false);
   const [viewReturnDetailsSidebar, setViewReturnDetailsSidebar] = useState(false);
-  const [selectedReturnBooking, setSelectedReturnBooking] = useState(null);
-  const [selectedBookingForAllocation, setSelectedBookingForAllocation] = useState(null);
-  const [selectedDriver, setSelectedDriver] = useState(null);
-  const [drivers] = useState(DRIVERS_DATA);
+  const [selectedReturnBooking] = useState<Booking | null>(null);
+  const [selectedBookingForAllocation, setSelectedBookingForAllocation] = useState<Booking | null>(null);
+  const [selectedDriver, setSelectedDriver] = useState<DriverData | null>(null);
+  const [drivers] = useState<DriverData[]>(DRIVERS_DATA);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState({ severity: '', summary: '', detail: '' });
-  const [expandedRows, setExpandedRows] = useState([]);
+  const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
-  const [newBooking, setNewBooking] = useState({
+  const [newBooking, setNewBooking] = useState<NewBookingForm>({
     customerName: '',
     customerEmail: '',
     customerPhone: '',
@@ -87,9 +130,9 @@ const Transfer = () => {
     hasReturn: false
   });
 
-  const [formErrors, setFormErrors] = useState({});
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  const showToastMessage = (severity, summary, detail) => {
+  const showToastMessage = (severity: string, summary: string, detail: string) => {
     setToastMessage({ severity, summary, detail });
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
@@ -101,7 +144,7 @@ const Transfer = () => {
   };
 
   const validateBookingForm = () => {
-    const errors = {};
+    const errors: FormErrors = {};
     if (!newBooking.customerName.trim()) errors.customerName = 'Customer name is required';
     if (!newBooking.customerEmail.trim()) errors.customerEmail = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(newBooking.customerEmail)) errors.customerEmail = 'Invalid email format';
@@ -125,7 +168,11 @@ const Transfer = () => {
       return;
     }
     const selectedCar = CARS_DATA.find(car => car.name === newBooking.carType);
-    const booking = {
+    if (!selectedCar) {
+      showToastMessage('error', 'Error', 'Invalid car type selected');
+      return;
+    }
+    const booking: Booking = {
       id: bookings.length + 1,
       refCustId: generateBookingId(),
       customerName: newBooking.customerName,
@@ -160,6 +207,10 @@ const Transfer = () => {
       showToastMessage('error', 'Error', 'Please select a driver');
       return;
     }
+    if (!selectedBookingForAllocation) {
+      showToastMessage('error', 'Error', 'No booking selected');
+      return;
+    }
     const updatedBookings = bookings.map(booking =>
       booking.id === selectedBookingForAllocation.id
         ? { ...booking, allocatedDriver: selectedDriver.id, status: "Allocated" }
@@ -171,14 +222,14 @@ const Transfer = () => {
     showToastMessage('success', 'Success', `Driver ${selectedDriver.name} allocated successfully`);
   };
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof NewBookingForm, value: string | boolean) => {
     setNewBooking(prev => ({ ...prev, [field]: value }));
-    if (formErrors[field]) {
+    if (field in formErrors) {
       setFormErrors(prev => ({ ...prev, [field]: '' }));
     }
   };
 
-  const toggleRowExpansion = (bookingId) => {
+  const toggleRowExpansion = (bookingId: number) => {
     setExpandedRows(prev =>
       prev.includes(bookingId)
         ? prev.filter(id => id !== bookingId)
@@ -186,7 +237,7 @@ const Transfer = () => {
     );
   };
 
-  const removeDriver = (bookingId) => {
+  const removeDriver = (bookingId: number) => {
     const updatedBookings = bookings.map(booking =>
       booking.id === bookingId
         ? { ...booking, allocatedDriver: null, status: "Pending" }
@@ -196,9 +247,18 @@ const Transfer = () => {
     showToastMessage('success', 'Success', 'Driver removed successfully');
   };
 
-  const openReturnDetailsSidebar = (booking) => {
-    setSelectedReturnBooking(booking);
-    setViewReturnDetailsSidebar(true);
+  // const openReturnDetailsSidebar = (booking: Booking) => {
+  //   setSelectedReturnBooking(booking);
+  //   setViewReturnDetailsSidebar(true);
+  // };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending': return '#ff9800';
+      case 'Allocated': return '#2196F3';
+      case 'Completed': return '#4CAF50';
+      default: return '#f44336';
+    }
   };
 
   return (
@@ -301,9 +361,7 @@ const Transfer = () => {
                     <td style={{ padding: '12px', fontSize: '14px', fontWeight: '600' }}>€{booking.price}</td>
                     <td style={{ padding: '12px' }}>
                       <span style={{
-                        backgroundColor: booking.status === 'Pending' ? '#ff9800' :
-                          booking.status === 'Allocated' ? '#2196F3' :
-                            booking.status === 'Completed' ? '#4CAF50' : '#f44336',
+                        backgroundColor: getStatusColor(booking.status),
                         color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600'
                       }}>
                         {booking.status}
@@ -386,7 +444,7 @@ const Transfer = () => {
 
                   {expandedRows.includes(booking.id) && booking.returnDate && (
                     <tr style={{ backgroundColor: '#f8f9fa' }}>
-                      <td colSpan="11" style={{ padding: '16px' }}>
+                      <td colSpan={11} style={{ padding: '16px' }}>
                         <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '16px', border: '2px solid #2196F3' }}>
                           <h4 style={{ margin: '0 0 12px 0', color: '#2196F3', fontSize: '14px', fontWeight: '600' }}>
                             Return Journey Details
@@ -417,9 +475,7 @@ const Transfer = () => {
                                 </td>
                                 <td style={{ padding: '10px' }}>
                                   <span style={{
-                                    backgroundColor: booking.status === 'Pending' ? '#ff9800' :
-                                      booking.status === 'Allocated' ? '#2196F3' :
-                                        booking.status === 'Completed' ? '#4CAF50' : '#f44336',
+                                    backgroundColor: getStatusColor(booking.status),
                                     color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600'
                                   }}>
                                     {booking.status}
@@ -504,8 +560,8 @@ const Transfer = () => {
 
       {/* View Details Sidebar */}
       {viewDetailsSidebar && selectedBooking && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }}>
-          <div style={{ width: '500px', backgroundColor: 'white', height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }} onClick={() => setViewDetailsSidebar(false)}>
+          <div style={{ width: '500px', backgroundColor: 'white', height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
               <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>Booking Details</h2>
               <button onClick={() => setViewDetailsSidebar(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
@@ -522,9 +578,7 @@ const Transfer = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                   <span style={{ fontWeight: '500' }}>Status:</span>
                   <span style={{
-                    backgroundColor: selectedBooking.status === 'Pending' ? '#ff9800' :
-                      selectedBooking.status === 'Allocated' ? '#2196F3' :
-                        selectedBooking.status === 'Completed' ? '#4CAF50' : '#f44336',
+                    backgroundColor: getStatusColor(selectedBooking.status),
                     color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600'
                   }}>
                     {selectedBooking.status}
@@ -571,16 +625,6 @@ const Transfer = () => {
                 <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0, color: '#333' }}>Return Details</h3>
-                    {/* <button
-                      onClick={() => openReturnDetailsSidebar(selectedBooking)}
-                      style={{
-                        padding: '6px 12px', backgroundColor: '#9C27B0', color: 'white',
-                        border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: '600',
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
-                      }}>
-                      <Eye size={14} />
-                      View Return Journey
-                    </button> */}
                   </div>
                   <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
                     <div><strong>Date:</strong> {selectedBooking.returnDate}</div>
@@ -627,8 +671,8 @@ const Transfer = () => {
 
       {/* Return Details Sidebar */}
       {viewReturnDetailsSidebar && selectedReturnBooking && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1001 }}>
-          <div style={{ width: '500px', backgroundColor: 'white', height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1001 }} onClick={() => setViewReturnDetailsSidebar(false)}>
+          <div style={{ width: '500px', backgroundColor: 'white', height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
               <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0, color: '#9C27B0' }}>Return Journey Details</h2>
               <button onClick={() => setViewReturnDetailsSidebar(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
@@ -725,9 +769,7 @@ const Transfer = () => {
                 <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Journey Status</h3>
                 <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
                   <span style={{
-                    backgroundColor: selectedReturnBooking.status === 'Pending' ? '#ff9800' :
-                      selectedReturnBooking.status === 'Allocated' ? '#2196F3' :
-                        selectedReturnBooking.status === 'Completed' ? '#4CAF50' : '#f44336',
+                    backgroundColor: getStatusColor(selectedReturnBooking.status),
                     color: 'white', padding: '6px 16px', borderRadius: '12px', fontSize: '14px', fontWeight: '600'
                   }}>
                     {selectedReturnBooking.status}
@@ -741,8 +783,8 @@ const Transfer = () => {
 
       {/* Allocate Driver Dialog */}
       {allocateDialogVisible && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '450px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '450px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>Allocate Driver</h2>
               <button onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
@@ -765,7 +807,7 @@ const Transfer = () => {
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>Select Driver</label>
                 <select value={selectedDriver?.id || ''} onChange={(e) => {
                   const driver = drivers.find(d => d.id === parseInt(e.target.value));
-                  setSelectedDriver(driver);
+                  setSelectedDriver(driver || null);
                 }}
                   style={{
                     width: '100%', padding: '12px', border: '1px solid #d1d5db',
@@ -803,10 +845,10 @@ const Transfer = () => {
         </div>
       )}
 
-      {/* Add Booking Dialog - Continues below */}
+      {/* Add Booking Dialog */}
       {addBookingDialogVisible && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
               <h2 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>Add New Booking</h2>
               <button onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
