@@ -26,12 +26,21 @@ import DriverDashboard from "../07-DTransfer/DTransfer";
 // import Staff from "../../Pages/08-Satff/Staff";
 // import UserFormDetailsTab from "../05-UserDetails/UserFormDetailsTab";
 const MainRoutes: React.FC = () => {
+  
+    const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  
+    const toggleSidebar = () => {
+      setIsSidebarOpen(!isSidebarOpen);
+    };
+  
   return (
     <div>
       <Router>
-        <Mainheader />
-        <Header>
-          <Routes>
+       
+      <Mainheader onToggleSidebar={toggleSidebar} />
+      <Header isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar}>
+  
+            <Routes>
             <Route index path="/" element={<Login />} />
             <Route path="/tour" element={<ToursNew />} />
             <Route path="/Dtransfer" element={<DriverDashboard />} />

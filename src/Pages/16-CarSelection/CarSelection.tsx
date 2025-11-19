@@ -7,10 +7,10 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { Dialog } from "primereact/dialog";
 import { FileUpload } from "primereact/fileupload";
-import { AutoComplete } from "primereact/autocomplete";
 import { InputTextarea } from "primereact/inputtextarea";
-
-// ==================== COMPONENT 1: SEPARATE FROM/TO LOCATIONS ====================
+import { useTranslation } from "react-i18next";
+import { AutoComplete } from "primereact/autocomplete";
+import { MultiSelect } from "primereact/multiselect";
 export const FromToLocations: React.FC = () => {
   const [fromLocations, setFromLocations] = useState<any[]>([]);
   const [toLocations, setToLocations] = useState<any[]>([]);
@@ -773,8 +773,28 @@ export const CarSelection: React.FC = () => {
   const [selectedCarDelete, setSelectedCarDelete] = useState<number | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [carImage, setCarImage] = useState("");
-
+  const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
+  
+  // Active Tab State
+  const [activeTab, setActiveTab] = useState(0);
+  
+  // Services State
+  const [services, setServices] = useState<any[]>([]);
+  const [editServiceId, setEditServiceId] = useState<number | null>(null);
+  const [editServiceValue, setEditServiceValue] = useState({ refServiceName: "" });
+  const [newServiceName, setNewServiceName] = useState("");
+  const [serviceDialogVisible, setServiceDialogVisible] = useState(false);
+  const [selectedServiceDelete, setSelectedServiceDelete] = useState<number | null>(null);
+ 
   const toast = useRef<Toast>(null);
+
+  // Static Car Badges
+  const staticCarBadges = [
+    { refBadgeId: 1, refBadgeName: "BEST VALUE", refBadgeColor: "#10b981" },
+    { refBadgeId: 2, refBadgeName: "MOST POPULAR", refBadgeColor: "#fbbf24" },
+    { refBadgeId: 3, refBadgeName: "TOP CLASS", refBadgeColor: "#8b5cf6" },
+    { refBadgeId: 4, refBadgeName: "PREMIUM", refBadgeColor: "#ef4444" },
+  ];
 
   const [newCar, setNewCar] = useState({
     name: "",
@@ -783,6 +803,9 @@ export const CarSelection: React.FC = () => {
     luggage: "",
     mileage: "",
     description: "",
+    manufactureYear: "",
+    selectedBadges: [] as any[],
+    selectedServices: [] as any[]
   });
 
   const dummyCars = [
@@ -794,38 +817,58 @@ export const CarSelection: React.FC = () => {
       passengers: 3,
       luggage: 3,
       mileage: "6km/l",
+      description: "or similar",
+      manufactureYear: "2022",
+      selectedBadges: [staticCarBadges[0]],
+      selectedServices: []
     },
     {
       id: 2,
       name: "Standard",
       image: "https://via.placeholder.com/150/33FF57/FFFFFF?text=Standard",
       price: 3174.91,
-      passengers: 3,
-      luggage: 3,
+      passengers: 5,
+      luggage: 4,
       mileage: "5km/l",
+      description: "or similar",
+      manufactureYear: "2023",
+      selectedBadges: [staticCarBadges[1], staticCarBadges[2]],
+      selectedServices: []
     },
   ];
 
+  const { t } = useTranslation("global");
+
   useEffect(() => {
     fetchCars();
+    fetchServices();
   }, []);
 
   const fetchCars = async () => {
     try {
-      // TODO: Replace with your API endpoint
       setCars(dummyCars);
     } catch (error) {
       console.error("Error fetching cars:", error);
     }
   };
 
+  const fetchServices = async () => {
+    try {
+      const dummyServices = [
+        { refServiceId: 1, refServiceName: "Airport Transfer" },
+        { refServiceId: 2, refServiceName: "City Tour" },
+        { refServiceId: 3, refServiceName: "Wedding Service" },
+      ];
+      setServices(dummyServices);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  };
+
   const uploadCarImage = async (event: any) => {
     const file = event.files[0];
-    const formData = new FormData();
-    formData.append("Image", file);
 
     try {
-      // TODO: Replace with your image upload API
       const imageUrl = URL.createObjectURL(file);
       setCarImage(imageUrl);
 
@@ -837,6 +880,121 @@ export const CarSelection: React.FC = () => {
       });
     } catch (error) {
       console.error("Error uploading image:", error);
+    }
+  };
+
+  const handleServiceInputChange = (e: any, field: string) => {
+    setEditServiceValue({
+      ...editServiceValue,
+      [field]: e.target.value
+    });
+  };
+
+  const addNewService = () => {
+    if (!newServiceName.trim()) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter a service name",
+        life: 3000,
+      });
+      return;
+    }
+
+    const newService = {
+      refServiceId: services.length + 1,
+      refServiceName: newServiceName
+    };
+
+    setServices([...services, newService]);
+    setNewServiceName("");
+    
+    toast.current?.show({
+      severity: "success",
+      summary: "Success",
+      detail: "Service added successfully",
+      life: 3000,
+    });
+  };
+
+  const serviceActionTemplate = (rowData: any) => (
+    <div className="flex gap-2">
+      {editServiceId === rowData.refServiceId ? (
+        <>
+          <Button
+            icon="pi pi-check"
+            severity="success"
+            text
+            onClick={() => updateService(rowData.refServiceId)}
+          />
+          <Button
+            icon="pi pi-times"
+            severity="secondary"
+            text
+            onClick={() => setEditServiceId(null)}
+          />
+        </>
+      ) : (
+        <>
+          <Button
+            icon="pi pi-pencil"
+            severity="info"
+            text
+            onClick={() => {
+              setEditServiceId(rowData.refServiceId);
+              setEditServiceValue({
+                refServiceName: rowData.refServiceName
+              });
+            }}
+          />
+          <Button
+            icon="pi pi-trash"
+            severity="danger"
+            text
+            onClick={() => {
+              setSelectedServiceDelete(rowData.refServiceId);
+              setServiceDialogVisible(true);
+            }}
+          />
+        </>
+      )}
+    </div>
+  );
+
+  const updateService = async (id: number) => {
+    try {
+      const updatedServices = services.map(service =>
+        service.refServiceId === id
+          ? { ...service, ...editServiceValue }
+          : service
+      );
+      setServices(updatedServices);
+      setEditServiceId(null);
+      
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Service updated successfully",
+        life: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating service:", error);
+    }
+  };
+
+  const deleteService = async (id: number) => {
+    try {
+      setServices(services.filter(service => service.refServiceId !== id));
+      setServiceDialogVisible(false);
+      
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: "Service deleted successfully",
+        life: 3000,
+      });
+    } catch (error) {
+      console.error("Error deleting service:", error);
     }
   };
 
@@ -861,7 +1019,6 @@ export const CarSelection: React.FC = () => {
     setSubmitLoading(true);
 
     try {
-      // TODO: Replace with your API endpoint
       const carToAdd = {
         id: cars.length + 1,
         name: newCar.name,
@@ -870,11 +1027,16 @@ export const CarSelection: React.FC = () => {
         passengers: parseInt(newCar.passengers),
         luggage: parseInt(newCar.luggage),
         mileage: newCar.mileage,
+        description: newCar.description,
+        manufactureYear: newCar.manufactureYear,
+        selectedBadges: newCar.selectedBadges,
+        selectedServices: newCar.selectedServices
       };
 
       setCars([...cars, carToAdd]);
       resetCarForm();
       setShowForm(false);
+      setActiveTab(0);
 
       toast.current?.show({
         severity: "success",
@@ -898,7 +1060,10 @@ export const CarSelection: React.FC = () => {
       passengers: car.passengers.toString(),
       luggage: car.luggage.toString(),
       mileage: car.mileage,
-      description: car.description,
+      description: car.description || "",
+      manufactureYear: car.manufactureYear || "",
+      selectedBadges: car.selectedBadges || [],
+      selectedServices: car.selectedServices || []
     });
     setCarImage(car.image);
     setEditSidebar(true);
@@ -925,7 +1090,6 @@ export const CarSelection: React.FC = () => {
     setSubmitLoading(true);
 
     try {
-      // TODO: Replace with your API endpoint
       const updatedCars = cars.map(car =>
         car.id === editingCar.id
           ? {
@@ -936,6 +1100,10 @@ export const CarSelection: React.FC = () => {
             passengers: parseInt(newCar.passengers),
             luggage: parseInt(newCar.luggage),
             mileage: newCar.mileage,
+            description: newCar.description,
+            manufactureYear: newCar.manufactureYear,
+            selectedBadges: newCar.selectedBadges,
+            selectedServices: newCar.selectedServices
           }
           : car
       );
@@ -962,7 +1130,6 @@ export const CarSelection: React.FC = () => {
     setSubmitLoading(true);
 
     try {
-      // TODO: Replace with your API endpoint
       setCars(cars.filter((car) => car.id !== id));
       setVisibleDialog(false);
 
@@ -988,6 +1155,9 @@ export const CarSelection: React.FC = () => {
       luggage: "",
       mileage: "",
       description: "",
+      manufactureYear: "",
+      selectedBadges: [],
+      selectedServices: []
     });
     setCarImage("");
   };
@@ -1012,13 +1182,54 @@ export const CarSelection: React.FC = () => {
     />
   );
 
+  const badgesBodyTemplate = (rowData: any) => (
+    <div className="flex gap-1 flex-wrap">
+      {rowData.selectedBadges?.map((badge: any) => (
+        <span 
+          key={badge.refBadgeId}
+          style={{ 
+            backgroundColor: badge.refBadgeColor,
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            fontWeight: 'bold',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {badge.refBadgeName}
+        </span>
+      ))}
+    </div>
+  );
+
+  const servicesBodyTemplate = (rowData: any) => (
+    <div className="flex gap-1 flex-wrap">
+      {rowData.selectedServices?.map((service: any, index: number) => (
+        <span 
+          key={index}
+          style={{ 
+            color: '#3b82f6',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {service.refServiceName}
+        </span>
+      ))}
+    </div>
+  );
+
   return (
     <div>
       <Toast ref={toast} />
 
-      {!showForm ? (
-        <>
-          {/* List View */}
+    
+      {!showForm && (
+        <div className="w-[140%] float-left">
+
           <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">Car Management</h2>
 
           <div className="flex justify-end mb-4">
@@ -1062,11 +1273,17 @@ export const CarSelection: React.FC = () => {
               body={(rowData) => `€${rowData.price}`}
               style={{ width: "8rem" }}
             />
+
             <Column
               field="description"
               header="Description"
-              body={(rowData) => `${rowData.description}`}
               style={{ width: "8rem" }}
+            />
+
+            <Column
+              field="manufactureYear"
+              header="Year"
+              style={{ width: "6rem" }}
             />
 
             <Column
@@ -1082,28 +1299,96 @@ export const CarSelection: React.FC = () => {
             />
 
             <Column
+              header="Badges"
+              body={badgesBodyTemplate}
+              style={{ width: "10rem" }}
+            />
+
+            <Column
+              header="Services"
+              body={servicesBodyTemplate}
+              style={{ width: "12rem" }}
+            />
+
+            <Column
               header="Actions"
               body={actionTemplate}
               style={{ width: "8rem" }}
             />
           </DataTable>
-        </>
-      ) : (
-        <>
-          {/* Add Car Form */}
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-[#0a5c9c]">Add New Car</h2>
-            <Button
-              icon="pi pi-arrow-left"
-              label="Back to List"
-              severity="secondary"
-              onClick={() => {
-                setShowForm(false);
-                resetCarForm();
-              }}
-            />
-          </div>
+        </div>
+      )}
 
+      {/* Add/Edit Sidebar - RIGHT SIDE, 75% WIDTH */}
+      <Sidebar
+        visible={showForm || editSidebar}
+        onHide={() => {
+          setShowForm(false);
+          setEditSidebar(false);
+          resetCarForm();
+          setActiveTab(0);
+        }}
+        position="right"
+        style={{ width: "75vw" }}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-[#0a5c9c]">
+            {editSidebar ? 'Edit Car' : 'Add Cab Rental'}
+          </h2>
+          <Button
+            icon="pi pi-times"
+            severity="secondary"
+            text
+            onClick={() => {
+              setShowForm(false);
+              setEditSidebar(false);
+              resetCarForm();
+              setActiveTab(0);
+            }}
+          />
+        </div>
+
+        <p className="text-red-500 mb-4">Please fill in the details below in English. *</p>
+
+        {/* Tabs */}
+        <div className="mb-6">
+          <div className="flex gap-4 border-b-2 border-gray-200">
+             <button
+              className={`px-4 py-2 font-medium ${
+                activeTab === 2
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setActiveTab(2)}
+            >
+              Add New Services
+            </button>
+            <button
+              className={`px-4 py-2 font-medium ${
+                activeTab === 0
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setActiveTab(0)}
+            >
+              Car Details
+            </button>
+            {/* <button
+              className={`px-4 py-2 font-medium ${
+                activeTab === 1
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-500'
+              }`}
+              onClick={() => setActiveTab(1)}
+            >
+              Other Details
+            </button> */}
+           
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 0 && (
           <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
             <div>
               <label className="font-medium block mb-2">Car Name *</label>
@@ -1127,7 +1412,7 @@ export const CarSelection: React.FC = () => {
                   <p className="m-0">Drag and drop your car image here or click to browse (Max 5MB)</p>
                 }
               />
-              {/* {carImage && (
+              {carImage && (
                 <div className="mt-2">
                   <img
                     src={carImage}
@@ -1135,7 +1420,7 @@ export const CarSelection: React.FC = () => {
                     style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "8px" }}
                   />
                 </div>
-              )} */}
+              )}
             </div>
 
             <div>
@@ -1149,8 +1434,8 @@ export const CarSelection: React.FC = () => {
               />
             </div>
 
-            {/* <div className="grid grid-cols-2 gap-4"> */}
-            {/* <div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
                 <label className="font-medium block mb-2">Passengers *</label>
                 <InputText
                   type="number"
@@ -1159,19 +1444,30 @@ export const CarSelection: React.FC = () => {
                   placeholder="e.g., 3"
                   className="p-inputtext-sm w-full"
                 />
-              </div> */}
+              </div>
+
+              <div>
+                <label className="font-medium block mb-2">Luggage *</label>
+                <InputText
+                  type="number"
+                  value={newCar.luggage}
+                  onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
+                  placeholder="e.g., 3"
+                  className="p-inputtext-sm w-full"
+                />
+              </div>
+            </div>
 
             <div>
-              <label className="font-medium block mb-2">Luggage *</label>
+              <label className="font-medium block mb-2">Manufacture Year</label>
               <InputText
                 type="number"
-                value={newCar.luggage}
-                onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
-                placeholder="e.g., 3"
+                value={newCar.manufactureYear}
+                onChange={(e) => setNewCar({ ...newCar, manufactureYear: e.target.value })}
+                placeholder="e.g., 2023"
                 className="p-inputtext-sm w-full"
               />
             </div>
-            {/* </div> */}
 
             <div>
               <label className="font-medium block mb-2">Mileage *</label>
@@ -1183,26 +1479,40 @@ export const CarSelection: React.FC = () => {
               />
             </div>
 
-            {/* <div className="grid grid-cols-2 gap-4"> */}
             <div>
-              <label className="font-medium block mb-2">Passengers *</label>
-              <InputText
-                type="number"
-                value={newCar.passengers}
-                onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
-                placeholder="e.g., 3"
+              <label className="font-medium block mb-2">Description</label>
+              <InputTextarea
+                value={newCar.description}
+                onChange={(e) => setNewCar({ ...newCar, description: e.target.value })}
+                placeholder="e.g., or similar"
                 className="p-inputtext-sm w-full"
+                rows={3}
               />
             </div>
 
             <div>
-              <label className="font-medium block mb-2">Description</label>
-              <InputText
+              <label className="font-medium block mb-2">Car Badges</label>
+              <MultiSelect
+                value={newCar.selectedBadges}
+                onChange={(e) => setNewCar({ ...newCar, selectedBadges: e.value })}
+                options={staticCarBadges}
+                optionLabel="refBadgeName"
+                display="chip"
+                placeholder="Select badges (e.g., BEST VALUE, TOP CLASS)"
+                className="w-full"
+              />
+            </div>
 
-                value={newCar.description}
-                onChange={(e) => setNewCar({ ...newCar, description: e.target.value })}
-                placeholder="similar to this car "
-                className="p-inputtext-sm w-full"
+            <div>
+              <label className="font-medium block mb-2">Car Services</label>
+              <MultiSelect
+                value={newCar.selectedServices}
+                onChange={(e) => setNewCar({ ...newCar, selectedServices: e.value })}
+                options={services}
+                optionLabel="refServiceName"
+                display="chip"
+                placeholder="Select services"
+                className="w-full"
               />
             </div>
 
@@ -1212,149 +1522,87 @@ export const CarSelection: React.FC = () => {
                 severity="secondary"
                 onClick={() => {
                   setShowForm(false);
+                  setEditSidebar(false);
                   resetCarForm();
+                  setActiveTab(0);
                 }}
               />
               <Button
-                label="Add Car"
-                onClick={addNewCar}
+                label={editSidebar ? "Update Car" : "Add Car"}
+                onClick={editSidebar ? updateCar : addNewCar}
                 loading={submitLoading}
               />
             </div>
           </div>
-        </>
-      )}
+        )}
 
-      {/* Edit Sidebar */}
-      <Sidebar
-        visible={editSidebar}
-        onHide={() => setEditSidebar(false)}
-        position="right"
-        style={{ width: "500px" }}
-      >
-        <h2 className="text-xl font-bold mb-6">Edit Car</h2>
-
-        <div className="flex flex-col gap-4">
-          <div>
-            <label className="font-medium block mb-2">Car Name *</label>
-            <InputText
-              value={newCar.name}
-              onChange={(e) => setNewCar({ ...newCar, name: e.target.value })}
-              placeholder="e.g., Economy, Standard, Van"
-              className="p-inputtext-sm w-full"
-            />
+        {activeTab === 1 && (
+          <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
+            <p className="text-gray-600">Other details section - Add additional fields here</p>
           </div>
+        )}
 
-          <div>
-            <label className="font-medium block mb-2">Car Image *</label>
-            <FileUpload
-              name="carImage"
-              accept="image/*"
-              maxFileSize={5000000}
-              customUpload
-              uploadHandler={uploadCarImage}
-              emptyTemplate={
-                <p className="m-0">Drag and drop your car image here or click to browse (Max 5MB)</p>
-              }
-            />
-            {carImage && (
-              <div className="mt-2">
-                <img
-                  src={carImage}
-                  alt="Preview"
-                  style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "8px" }}
+        {activeTab === 2 && (
+          <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
+            <div className="bg-white shadow-md p-4 rounded-lg">
+              <h4 className="font-semibold mb-3">Car Services</h4>
+              
+              {/* Add Service Form */}
+              <div className="flex gap-2 mb-3">
+                <InputText
+                  value={newServiceName}
+                  onChange={(e) => setNewServiceName(e.target.value)}
+                  placeholder="Enter service name"
+                  className="p-inputtext-sm flex-1"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      addNewService();
+                    }
+                  }}
+                />
+                <Button
+                  icon="pi pi-plus"
+                  label="Add"
+                  size="small"
+                  onClick={addNewService}
                 />
               </div>
-            )}
-          </div>
 
-          <div>
-            <label className="font-medium block mb-2">Price (€) *</label>
-            <InputText
-              type="number"
-              value={newCar.price}
-              onChange={(e) => setNewCar({ ...newCar, price: e.target.value })}
-              placeholder="e.g., 1920.24"
-              className="p-inputtext-sm w-full"
-            />
-          </div>
+              <DataTable value={services} className="p-datatable-sm mt-2">
+                <Column
+                  body={(_, options) => options.rowIndex + 1}
+                  header="S.No"
+                  style={{ width: "10%", color: "#0a5c9c" }}
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="font-medium block mb-2 ml-2">Passengers *</label>
-              <InputText
-                type="number"
-                value={newCar.passengers}
-                onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
-                placeholder="e.g., 3"
-                className="p-inputtext-sm w-full ml-2"
-              />
-            </div>
+                <Column
+                  field="refServiceName"
+                  header="Service Name"
+                  body={(rowData) =>
+                    editServiceId === rowData.refServiceId ? (
+                      <InputText
+                        value={editServiceValue.refServiceName}
+                        onChange={(e) =>
+                          handleServiceInputChange(e, "refServiceName")
+                        }
+                      />
+                    ) : (
+                      rowData.refServiceName
+                    )
+                  }
+                />
 
-            <div>
-              <label className="font-medium block mb-2">Luggage *</label>
-              <InputText
-                type="number"
-                value={newCar.luggage}
-                onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
-                placeholder="e.g., 3"
-                className="p-inputtext-sm w-full"
-              />
+                <Column
+                  body={serviceActionTemplate}
+                  header="Actions"
+                />
+              </DataTable>
             </div>
           </div>
-
-          <div>
-            <label className="font-medium block mb-2">Mileage *</label>
-            <InputText
-              value={newCar.mileage}
-              onChange={(e) => setNewCar({ ...newCar, mileage: e.target.value })}
-              placeholder="e.g., 6km/l"
-              className="p-inputtext-sm w-full"
-            />
-          </div>
-
-
-          <div className="grid grid-cols-2 gap-4">
-            {/* <div>
-              <label className="font-medium block mb-2">Passengers *</label>
-              <InputText
-                type="number"
-                value={newCar.passengers}
-                onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })}
-                placeholder="e.g., 3"
-                className="p-inputtext-sm w-full"
-              />
-            </div> */}
-
-            <div>
-              <label className="font-medium block mb-2 ml-2">Description</label>
-              <InputText
-
-                value={newCar.description}
-                onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })}
-                placeholder="similar to the car"
-                className="p-inputtext-sm w-full ml-2"
-              />
-            </div>
-          </div>
-
-
-          <div className="flex gap-2 justify-end mt-6">
-            <Button
-              label="Cancel"
-              severity="secondary"
-              onClick={() => setEditSidebar(false)}
-            />
-            <Button
-              label="Update Car"
-              onClick={updateCar}
-              loading={submitLoading}
-            />
-          </div>
-        </div>
+        )}
       </Sidebar>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Car Delete Confirmation Dialog */}
       <Dialog
         header="Confirm Deletion"
         visible={visibleDialog}
@@ -1384,6 +1632,38 @@ export const CarSelection: React.FC = () => {
         }
       >
         <p>Are you sure you want to delete this car?</p>
+      </Dialog>
+
+      {/* Service Delete Confirmation Dialog */}
+      <Dialog
+        header="Confirm Deletion"
+        visible={serviceDialogVisible}
+        style={{ width: "350px" }}
+        modal
+        onHide={() => setServiceDialogVisible(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="No"
+              icon="pi pi-times"
+              className="p-button-text"
+              onClick={() => setServiceDialogVisible(false)}
+            />
+            <Button
+              label="Yes"
+              icon="pi pi-check"
+              className="p-button-danger"
+              loading={submitLoading}
+              onClick={() => {
+                if (selectedServiceDelete !== null) {
+                  deleteService(selectedServiceDelete);
+                }
+              }}
+            />
+          </div>
+        }
+      >
+        <p>Are you sure you want to delete this service?</p>
       </Dialog>
     </div>
   );

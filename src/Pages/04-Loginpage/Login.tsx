@@ -120,27 +120,29 @@ export default function Login() {
   return (
     <div className="pagebackground">
       <div className="login-background">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            minHeight: "100vh",
-          }}
-        >
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              width: "400px",
-              padding: "20px",
-              borderRadius: "8px",
-              background: "#fff",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <div className="input mt-3">
-              <div className="p-inputgroup flex-1">
-                <span className="p-inputgroup-addon">
+       <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "100vh",
+    padding: "16px", // prevent side cut on small screens
+  }}
+>
+  <form
+    onSubmit={handleSubmit}
+    style={{
+      width: "100%",        // full width on small screens
+      maxWidth: "400px",    // limit on desktop
+      padding: "20px",
+      borderRadius: "8px",
+      background: "#fff",
+      boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+    }}
+  >
+    <div className="input mt-3">
+      <div className="p-inputgroup flex-1">
+        <span className="p-inputgroup-addon">
                   <i className="pi pi-user"></i>
                 </span>
                 <InputText

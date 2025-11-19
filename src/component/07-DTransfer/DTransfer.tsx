@@ -7,6 +7,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
 import { useTranslation } from "react-i18next";
+import { Dialog } from "primereact/dialog";
 
 const DriverDashboard = () => {
   const { t } = useTranslation("global");
@@ -17,7 +18,9 @@ const DriverDashboard = () => {
 
   const [allocatedBookings, setAllocatedBookings] = useState([]);
   const [viewDetailsSidebar, setViewDetailsSidebar] = useState(false);
+  const [viewMobileDialog, setViewMobileDialog] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
   const statusOptions = [
     { label: "Pending", value: "Pending" },
@@ -94,26 +97,17 @@ const DriverDashboard = () => {
 
   useEffect(() => {
     fetchAllocatedBookings();
+    
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const fetchAllocatedBookings = async () => {
     try {
-      // TODO: Replace with your API endpoint
-      // const response = await axios.get(
-      //   `${import.meta.env.VITE_API_URL}/driver/allocatedBookings`,
-      //   {
-      //     headers: {
-      //       Authorization: localStorage.getItem("token"),
-      //     },
-      //     params: {
-      //       driverId: loggedInDriverId
-      //     }
-      //   }
-      // );
-      // const data = decrypt(response.data[1], response.data[0], import.meta.env.VITE_ENCRYPTION_KEY);
-      // setAllocatedBookings(data.result);
-
-      // Use dummy data for now - only bookings allocated to this driver
       const driverBookings = DUMMY_ALLOCATED_BOOKINGS.filter(
         booking => booking.allocatedDriver === loggedInDriverId
       );
@@ -125,33 +119,6 @@ const DriverDashboard = () => {
 
   const updateBookingStatus = async (bookingId, newStatus) => {
     try {
-      // TODO: Replace with your API endpoint
-      // const response = await axios.post(
-      //   `${import.meta.env.VITE_API_URL}/driver/updateBookingStatus`,
-      //   {
-      //     bookingId: bookingId,
-      //     status: newStatus,
-      //     driverId: loggedInDriverId
-      //   },
-      //   {
-      //     headers: {
-      //       Authorization: localStorage.getItem("token"),
-      //     },
-      //   }
-      // );
-      // const data = decrypt(response.data[1], response.data[0], import.meta.env.VITE_ENCRYPTION_KEY);
-      
-      // if (data.success) {
-      //   fetchAllocatedBookings();
-      //   toast.current?.show({
-      //     severity: "success",
-      //     summary: "Success",
-      //     detail: "Status updated successfully",
-      //     life: 3000
-      //   });
-      // }
-
-      // Local state update for now
       const updatedBookings = allocatedBookings.map(booking =>
         booking.id === bookingId ? { ...booking, status: newStatus } : booking
       );
@@ -174,15 +141,35 @@ const DriverDashboard = () => {
     }
   };
 
+  const handleRowClick = (rowData) => {
+    setSelectedBooking(rowData);
+    if (isMobile) {
+      setViewMobileDialog(true);
+    } else {
+      setViewDetailsSidebar(true);
+    }
+  };
+
+  const bookingIdTemplate = (rowData) => (
+    <span 
+      style={{ 
+        fontWeight: "600", 
+        color: "#0a5c9c", 
+        cursor: "pointer",
+        textDecoration: "underline"
+      }}
+      onClick={() => handleRowClick(rowData)}
+    >
+      {rowData.refCustId}
+    </span>
+  );
+
   const viewDetailsAction = (rowData) => (
     <Button
       icon="pi pi-eye"
       severity="info"
       text
-      onClick={() => {
-        setSelectedBooking(rowData);
-        setViewDetailsSidebar(true);
-      }}
+      onClick={() => handleRowClick(rowData)}
     />
   );
 
@@ -193,6 +180,26 @@ const DriverDashboard = () => {
       Completed: "#4CAF50"
     };
 
+    // Mobile: just show status badge (not clickable)
+    if (isMobile) {
+      return (
+        <span
+          style={{
+            backgroundColor: statusColors[rowData.status],
+            color: "white",
+            padding: "4px 8px",
+            borderRadius: "12px",
+            fontSize: "11px",
+            fontWeight: "500",
+            display: "inline-block"
+          }}
+        >
+          {rowData.status}
+        </span>
+      );
+    }
+
+    // Desktop: dropdown to change status
     return (
       <Dropdown
         value={rowData.status}
@@ -222,6 +229,124 @@ const DriverDashboard = () => {
     </div>
   );
 
+  const renderDetailsContent = () => {
+    if (!selectedBooking) return null;
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Booking Summary */}
+        <div style={{ backgroundColor: "#f5f5f5", padding: "12px", borderRadius: "6px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ fontWeight: "500" }}>Booking ID:</span>
+            <span style={{ fontWeight: "600", color: "#0a5c9c" }}>{selectedBooking.refCustId}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+            <span style={{ fontWeight: "500" }}>Status:</span>
+            <Dropdown
+              value={selectedBooking.status}
+              options={statusOptions}
+              onChange={(e) => {
+                updateBookingStatus(selectedBooking.id, e.value);
+                setSelectedBooking({ ...selectedBooking, status: e.value });
+              }}
+              style={{ width: "150px" }}
+            />
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontWeight: "500" }}>Total Price:</span>
+            <span style={{ fontSize: "18px", fontWeight: "600", color: "#2196F3" }}>
+              €{selectedBooking.price.toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Customer Details */}
+        <div>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Customer Details</h3>
+          <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+            <div><strong>Name:</strong> {selectedBooking.customerName}</div>
+            <div><strong>Email:</strong> {selectedBooking.customerEmail}</div>
+            <div>
+              <strong>Phone:</strong>{" "}
+              <a href={`tel:${selectedBooking.customerPhone}`} style={{ color: "#2196F3" }}>
+                {selectedBooking.customerPhone}
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Journey Details */}
+        <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Journey Details</h3>
+          <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+            <div><strong>From:</strong> {selectedBooking.fromLocation}</div>
+            <div><strong>To:</strong> {selectedBooking.toLocation}</div>
+          </div>
+        </div>
+
+        {/* Pickup Details */}
+        <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Pickup Details</h3>
+          <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+            <div><strong>Date:</strong> {selectedBooking.pickupDate}</div>
+            <div><strong>Time:</strong> {selectedBooking.pickupTime}</div>
+          </div>
+        </div>
+
+        {/* Return Details */}
+        {selectedBooking.returnDate && (
+          <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+            <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Return Details</h3>
+            <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+              <div><strong>Date:</strong> {selectedBooking.returnDate}</div>
+              <div><strong>Time:</strong> {selectedBooking.returnTime}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Car Details */}
+        <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Vehicle Details</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
+            <img
+              src={selectedBooking.carImage}
+              alt={selectedBooking.carType}
+              style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
+            />
+            <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
+              <div><strong>Type:</strong> {selectedBooking.carType}</div>
+              <div><strong>Passengers:</strong> {selectedBooking.passengers}</div>
+              <div><strong>Luggage:</strong> {selectedBooking.luggage}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Quick Actions</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            <Button
+              label="Call Customer"
+              icon="pi pi-phone"
+              severity="success"
+              onClick={() => window.location.href = `tel:${selectedBooking.customerPhone}`}
+              style={{ width: "100%" }}
+            />
+            <Button
+              label="Navigate to Location"
+              icon="pi pi-map-marker"
+              severity="info"
+              onClick={() => {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedBooking.fromLocation)}`);
+              }}
+              style={{ width: "100%" }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="p-4 mt-2">
       <Toast ref={toast} />
@@ -229,7 +354,7 @@ const DriverDashboard = () => {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <h2 style={{ fontSize: "24px", fontWeight: "600", margin: "0" }}>
+          <h2 style={{ fontSize: isMobile ? "20px" : "24px", fontWeight: "600", margin: "0" }}>
             My Allocated Bookings
           </h2>
           <p style={{ fontSize: "14px", color: "#6b7280", marginTop: "4px" }}>
@@ -239,7 +364,7 @@ const DriverDashboard = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
         <div style={{ backgroundColor: "#fff3cd", padding: "16px", borderRadius: "8px", border: "1px solid #ffc107" }}>
           <div style={{ fontSize: "14px", color: "#856404", marginBottom: "4px" }}>Pending</div>
           <div style={{ fontSize: "24px", fontWeight: "600", color: "#856404" }}>
@@ -263,92 +388,135 @@ const DriverDashboard = () => {
       </div>
 
       {/* Bookings Table */}
-      <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: "16px" }}>
+      <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: isMobile ? "8px" : "16px" }}>
         <h3 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "16px" }}>
           All Allocated Bookings
         </h3>
-        <DataTable
-          value={allocatedBookings}
-          tableStyle={{ minWidth: "100%" }}
-          scrollable
-          scrollHeight="500px"
-          paginator
-          rows={10}
-          emptyMessage="No bookings allocated yet"
-        >
-          <Column
-            header="S.No"
-            headerStyle={{ width: "3rem" }}
-            body={(_, options) => options.rowIndex + 1}
-          />
-          
-          <Column
-            field="refCustId"
-            header="Booking ID"
-            headerStyle={{ width: "8rem" }}
-            style={{ fontWeight: "600", color: "#0a5c9c" }}
-          />
-          
-          <Column
-            field="customerName"
-            header="Customer Name"
-            headerStyle={{ width: "12rem" }}
-          />
-          
-          <Column
-            header="Car"
-            headerStyle={{ width: "12rem" }}
-            body={carBodyTemplate}
-          />
-          
-          <Column
-            field="fromLocation"
-            header="From"
-            headerStyle={{ width: "15rem" }}
-            body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.fromLocation}</div>}
-          />
-          
-          <Column
-            field="toLocation"
-            header="To"
-            headerStyle={{ width: "15rem" }}
-            body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.toLocation}</div>}
-          />
-          
-          <Column
-            header="Price"
-            headerStyle={{ width: "8rem" }}
-            body={(rowData) => `€${rowData.price.toFixed(2)}`}
-            style={{ fontWeight: "600" }}
-          />
-          
-          <Column
-            header="Pickup Date"
-            headerStyle={{ width: "10rem" }}
-            body={(rowData) => (
-              <div>
-                <div style={{ fontSize: "13px", fontWeight: "500" }}>{rowData.pickupDate}</div>
-                <div style={{ fontSize: "12px", color: "#6b7280" }}>{rowData.pickupTime}</div>
-              </div>
-            )}
-          />
-          
-          <Column
-            header="Status"
-            headerStyle={{ width: "12rem" }}
-            body={statusBodyTemplate}
-          />
-          
-          <Column
-            header="Actions"
-            headerStyle={{ width: "8rem" }}
-            body={viewDetailsAction}
-          />
-        </DataTable>
+        
+        {/* Mobile View - Only 4 columns */}
+        {isMobile ? (
+          <DataTable
+            value={allocatedBookings}
+            tableStyle={{ minWidth: "100%" }}
+            scrollable
+            scrollHeight="400px"
+            emptyMessage="No bookings allocated yet"
+          >
+            <Column
+              header="S.No"
+              headerStyle={{ width: "3rem" }}
+              body={(_, options) => options.rowIndex + 1}
+            />
+            
+            <Column
+              field="refCustId"
+              header="Booking ID"
+              headerStyle={{ width: "7rem" }}
+              body={bookingIdTemplate}
+            />
+            
+            <Column
+              field="customerName"
+              header="Name"
+              headerStyle={{ width: "4rem" }}
+              style={{ fontSize: "13px" }}
+            />
+            {/* <Column
+              header="Meet&Greet"
+              headerStyle={{ width: "8rem" }}
+              body={statusBodyTemplate}
+            /> */}
+            <Column
+              header="Status"
+              headerStyle={{ width: "8rem" }}
+              body={statusBodyTemplate}
+            />
+          </DataTable>
+        ) : (
+          // Desktop View - All columns
+          <DataTable
+            value={allocatedBookings}
+            tableStyle={{ minWidth: "100%" }}
+            scrollable
+            scrollHeight="500px"
+            paginator
+            rows={10}
+            emptyMessage="No bookings allocated yet"
+          >
+            <Column
+              header="S.No"
+              headerStyle={{ width: "3rem" }}
+              body={(_, options) => options.rowIndex + 1}
+            />
+            
+            <Column
+              field="refCustId"
+              header="Booking ID"
+              headerStyle={{ width: "8rem" }}
+              style={{ fontWeight: "600", color: "#0a5c9c" }}
+            />
+            
+            <Column
+              field="customerName"
+              header="Customer Name"
+              headerStyle={{ width: "12rem" }}
+            />
+            
+            <Column
+              header="Car"
+              headerStyle={{ width: "12rem" }}
+              body={carBodyTemplate}
+            />
+            
+            <Column
+              field="fromLocation"
+              header="From"
+              headerStyle={{ width: "15rem" }}
+              body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.fromLocation}</div>}
+            />
+            
+            <Column
+              field="toLocation"
+              header="To"
+              headerStyle={{ width: "15rem" }}
+              body={(rowData) => <div style={{ fontSize: "12px" }}>{rowData.toLocation}</div>}
+            />
+            
+            <Column
+              header="Price"
+              headerStyle={{ width: "8rem" }}
+              body={(rowData) => `€${rowData.price.toFixed(2)}`}
+              style={{ fontWeight: "600" }}
+            />
+            
+            <Column
+              header="Pickup Date"
+              headerStyle={{ width: "10rem" }}
+              body={(rowData) => (
+                <div>
+                  <div style={{ fontSize: "13px", fontWeight: "500" }}>{rowData.pickupDate}</div>
+                  <div style={{ fontSize: "12px", color: "#6b7280" }}>{rowData.pickupTime}</div>
+                </div>
+              )}
+            />
+            
+            <Column
+              header="Status"
+              headerStyle={{ width: "12rem" }}
+              body={statusBodyTemplate}
+            />
+            
+            <Column
+              header="Actions"
+              headerStyle={{ width: "8rem" }}
+              body={viewDetailsAction}
+            />
+          </DataTable>
+        )}
       </div>
 
-      {/* View Details Sidebar */}
-      {selectedBooking && (
+      {/* Desktop - Sidebar View */}
+      {!isMobile && selectedBooking && (
         <Sidebar
           visible={viewDetailsSidebar}
           onHide={() => setViewDetailsSidebar(false)}
@@ -358,120 +526,26 @@ const DriverDashboard = () => {
           <h2 style={{ fontSize: "20px", fontWeight: "600", marginBottom: "20px" }}>
             Booking Details
           </h2>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            {/* Booking Summary */}
-            <div style={{ backgroundColor: "#f5f5f5", padding: "12px", borderRadius: "6px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                <span style={{ fontWeight: "500" }}>Booking ID:</span>
-                <span style={{ fontWeight: "600", color: "#0a5c9c" }}>{selectedBooking.refCustId}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                <span style={{ fontWeight: "500" }}>Status:</span>
-                <Dropdown
-                  value={selectedBooking.status}
-                  options={statusOptions}
-                  onChange={(e) => {
-                    updateBookingStatus(selectedBooking.id, e.value);
-                    setSelectedBooking({ ...selectedBooking, status: e.value });
-                  }}
-                  style={{ width: "150px" }}
-                />
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ fontWeight: "500" }}>Total Price:</span>
-                <span style={{ fontSize: "18px", fontWeight: "600", color: "#2196F3" }}>
-                  €{selectedBooking.price.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Customer Details */}
-            <div>
-              <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Customer Details</h3>
-              <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                <div><strong>Name:</strong> {selectedBooking.customerName}</div>
-                <div><strong>Email:</strong> {selectedBooking.customerEmail}</div>
-                <div>
-                  <strong>Phone:</strong>{" "}
-                  <a href={`tel:${selectedBooking.customerPhone}`} style={{ color: "#2196F3" }}>
-                    {selectedBooking.customerPhone}
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Journey Details */}
-            <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Journey Details</h3>
-              <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                <div><strong>From:</strong> {selectedBooking.fromLocation}</div>
-                <div><strong>To:</strong> {selectedBooking.toLocation}</div>
-              </div>
-            </div>
-
-            {/* Pickup Details */}
-            <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Pickup Details</h3>
-              <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                <div><strong> Date:</strong> {selectedBooking.pickupDate}</div>
-                <div><strong> Time:</strong> {selectedBooking.pickupTime}</div>
-              </div>
-            </div>
-
-            {/* Return Details */}
-            {selectedBooking.returnDate && (
-              <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-                <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Return Details</h3>
-                <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                  <div><strong> Date:</strong> {selectedBooking.returnDate}</div>
-                  <div><strong> Time:</strong> {selectedBooking.returnTime}</div>
-                </div>
-              </div>
-            )}
-
-            {/* Car Details */}
-            <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Vehicle Details</h3>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-                <img
-                  src={selectedBooking.carImage}
-                  alt={selectedBooking.carType}
-                  style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
-                />
-                <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-                  <div><strong>Type:</strong> {selectedBooking.carType}</div>
-                  <div><strong>Passengers:</strong> {selectedBooking.passengers}</div>
-                  <div><strong>Luggage:</strong> {selectedBooking.luggage}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-              <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Quick Actions</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <Button
-                  label="Call Customer"
-                  icon="pi pi-phone"
-                  severity="success"
-                  onClick={() => window.location.href = `tel:${selectedBooking.customerPhone}`}
-                  style={{ width: "100%" }}
-                />
-                <Button
-                  label="Navigate to Location"
-                  icon="pi pi-map-marker"
-                  severity="info"
-                  onClick={() => {
-                    // Open Google Maps or your navigation app
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedBooking.fromLocation)}`);
-                  }}
-                  style={{ width: "100%" }}
-                />
-              </div>
-            </div>
-          </div>
+          {renderDetailsContent()}
         </Sidebar>
+      )}
+
+      {/* Mobile - Dialog View */}
+      {isMobile && selectedBooking && (
+        <Dialog
+          visible={viewMobileDialog}
+          onHide={() => setViewMobileDialog(false)}
+          header="Booking Details"
+          style={{ width: "95vw", maxWidth: "500px" }}
+          contentStyle={{ 
+            padding: "20px",
+            maxHeight: "70vh",
+            overflowY: "auto"
+          }}
+          dismissableMask
+        >
+          {renderDetailsContent()}
+        </Dialog>
       )}
     </div>
   );

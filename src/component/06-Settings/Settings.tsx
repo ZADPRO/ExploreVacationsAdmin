@@ -207,7 +207,7 @@ const Settings: React.FC = () => {
       </Sidebar >
       {/* cars */}
        < Sidebar
-        style={{ width: "50vw" }}
+        style={{ width: "75vw" }}
         visible={visibleSidebar === "cars"}
         onHide={() => setVisibleSidebar(null)}
         position="right"

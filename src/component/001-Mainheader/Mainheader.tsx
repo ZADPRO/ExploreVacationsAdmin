@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { FaUserAlt } from "react-icons/fa";
+import { FaUserAlt, FaBars } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
 import logo from "../../assets/images/logo.png";
 import "./Mainheader.css";
@@ -8,7 +8,11 @@ import flagEN from "../../assets/flag/english.png";
 import flagDE from "../../assets/flag/german.png";
 import { OverlayPanel } from 'primereact/overlaypanel';
 
-const Mainheader: React.FC = () => {
+interface MainheaderProps {
+  onToggleSidebar?: () => void; // Add this prop to trigger sidebar toggle
+}
+
+const Mainheader: React.FC<MainheaderProps> = ({ onToggleSidebar }) => {
   const location = useLocation();
   const isLoginScreen = location.pathname === "/";
   const roleId = parseInt(localStorage.getItem("roleId") || "0", 10);
@@ -26,7 +30,7 @@ const Mainheader: React.FC = () => {
   const initialLang = (localStorage.getItem("language") as Language) || "en";
 
   const [language, setLanguage] = useState<Language>(initialLang);
-  const {i18n } = useTranslation("global");
+  const { i18n } = useTranslation("global");
 
   const langPanelRef = useRef<OverlayPanel | null>(null);
 
@@ -51,13 +55,23 @@ const Mainheader: React.FC = () => {
   return (
     <div>
       <div className="primaryNav">
-        <img className="h-16" src={logo} alt="logo" />
-        <div className="flex items-center justify-between">
-          <div className="relative mr-4 ">
+        {/* Left Section: Toggle + Logo */}
+        <div className="nav-left-section">
+          {!isLoginScreen && (
+            <button className="mobile-toggle-btn" onClick={onToggleSidebar}>
+              <FaBars />
+            </button>
+          )}
+          <img className="header-logo" src={logo} alt="logo" />
+        </div>
+
+        {/* Right Section: Language + Profile */}
+        <div className="nav-right-section">
+          <div className="language-selector">
             <img
               src={getFlag()}
               alt="Language"
-              className="h-6 w-6 rounded-full   cursor-pointer"
+              className="flag-icon"
               onClick={(e) => langPanelRef.current?.toggle(e)}
             />
             <OverlayPanel ref={langPanelRef}>
