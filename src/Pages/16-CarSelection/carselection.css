@@ -1,0 +1,29 @@
+.table-scroll-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: auto;
+  scrollbar-color: #777 #e0e0e0;
+}
+
+/* Chrome / Edge / Safari */
+.table-scroll-container::-webkit-scrollbar {
+  height: 12px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+  background: #e0e0e0;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #777;
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+}
+/* Force remove ALL sidebar default header area */
+.ggg .p-sidebar .p-sidebar-header {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}

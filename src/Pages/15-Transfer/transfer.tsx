@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {  UserPlus, Plus, X, Calendar, Clock, MapPin, Users, Briefcase, Car, ArrowLeftRight } from 'lucide-react';
-
+import '../../Pages/15-Transfer/transfer.css'
 interface CarData {
   id: number;
   name: string;
@@ -35,6 +35,8 @@ interface Booking {
   status: string;
   allocatedDriver: number | null;
   bookingDate: string;
+  flightNumber?: string;
+  driverNotes?: string;
 }
 
 interface NewBookingForm {
@@ -97,7 +99,9 @@ const DUMMY_BOOKINGS: Booking[] = [
     returnTime: null,
     status: "Allocated",
     allocatedDriver: 1,
-    bookingDate: "2024-01-11"
+    bookingDate: "2024-01-11",
+    flightNumber: "BA123",
+    driverNotes: "Customer prefers quiet journey"
   }
 ];
 
@@ -246,11 +250,6 @@ const Transfer = () => {
     setBookings(updatedBookings);
     showToastMessage('success', 'Success', 'Driver removed successfully');
   };
-
-  // const openReturnDetailsSidebar = (booking: Booking) => {
-  //   setSelectedReturnBooking(booking);
-  //   setViewReturnDetailsSidebar(true);
-  // };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -558,116 +557,371 @@ const Transfer = () => {
         </div>
       </div>
 
-      {/* View Details Sidebar */}
-      {viewDetailsSidebar && selectedBooking && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'flex-end', zIndex: 1000 }} onClick={() => setViewDetailsSidebar(false)}>
-          <div style={{ width: '500px', backgroundColor: 'white', height: '100vh', overflowY: 'auto', boxShadow: '-4px 0 12px rgba(0,0,0,0.15)' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>Booking Details</h2>
-              <button onClick={() => setViewDetailsSidebar(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-                <X size={24} />
-              </button>
-            </div>
+    <>
+    {/* ========= ALLOCATE DRIVER MODAL ========= */}
+{allocateDialogVisible && (
+  <div
+    className="modal-overlay"
+    onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
+  >
+    <div
+      className="modal-box small-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="modal-header">
+        <h2>Allocate Driver</h2>
+        <button
+          className="close-btn"
+          onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
+        >
+          <X size={24} />
+        </button>
+      </div>
 
-            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ backgroundColor: '#f5f5f5', padding: '16px', borderRadius: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Booking ID:</span>
-                  <span style={{ fontWeight: '600', color: '#2196F3' }}>{selectedBooking.refCustId}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontWeight: '500' }}>Status:</span>
-                  <span style={{
-                    backgroundColor: getStatusColor(selectedBooking.status),
-                    color: 'white', padding: '4px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: '600'
-                  }}>
-                    {selectedBooking.status}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontWeight: '500' }}>Total Price:</span>
-                  <span style={{ fontSize: '20px', fontWeight: '700', color: '#2196F3' }}>€{selectedBooking.price}</span>
-                </div>
-              </div>
+      <div className="modal-body">
+        <div className="modal-booking-info">
+          <p className="bold">Booking: {selectedBookingForAllocation?.refCustId}</p>
+          <p className="gray">
+            {selectedBookingForAllocation?.fromLocation} → {selectedBookingForAllocation?.toLocation}
+          </p>
+        </div>
 
-              <div>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Customer Details</h3>
-                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                  <div><strong>Name:</strong> {selectedBooking.customerName}</div>
-                  <div><strong>Email:</strong> {selectedBooking.customerEmail}</div>
-                  <div><strong>Phone:</strong> {selectedBooking.customerPhone}</div>
-                </div>
-              </div>
+        <div className="modal-input-block">
+          <label className="modal-label">Select Driver</label>
+          <select
+            value={selectedDriver?.id || ""}
+            onChange={(e) => {
+              const driver = drivers.find(d => d.id === parseInt(e.target.value));
+              setSelectedDriver(driver || null);
+            }}
+            className="modal-select"
+          >
+            <option value="">Choose a driver</option>
+            {drivers.map(driver => (
+              <option key={driver.id} value={driver.id}>
+                {driver.name} - {driver.status} ({driver.phone})
+              </option>
+            ))}
+          </select>
+        </div>
 
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Journey Details</h3>
-                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                  <div style={{ marginBottom: '8px' }}>
-                    <strong>From:</strong>
-                    <div style={{ color: '#666', marginTop: '4px' }}>{selectedBooking.fromLocation}</div>
-                  </div>
+        <div className="modal-actions">
+          <button className="btn-outline" onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}>
+            Cancel
+          </button>
+          <button className="btn-primary" onClick={allocateDriver}>
+            Allocate
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+{/* ========= ADD BOOKING MODAL ========= */}
+{addBookingDialogVisible && (
+  <div className="modal-overlay" onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
+    <div className="modal-box large-modal" onClick={(e) => e.stopPropagation()}>
+      
+      <div className="modal-header">
+        <h2>Add New Booking</h2>
+        <button className="close-btn" onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
+          <X size={24} />
+        </button>
+      </div>
+
+      {/* 👇 SCROLL AREA - NO EXTRA DIV */}
+      <div className="modal-body scrollable-box">
+
+       
+         <div style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Customer Information</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
-                    <strong>To:</strong>
-                    <div style={{ color: '#666', marginTop: '4px' }}>{selectedBooking.toLocation}</div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Customer Name *</label>
+                    <input type="text" value={newBooking.customerName} onChange={(e) => handleInputChange('customerName', e.target.value)}
+                      placeholder="Enter customer name"
+                      style={{ width: '100%', padding: '10px', border: formErrors.customerName ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                    {formErrors.customerName && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.customerName}</span>}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Email *</label>
+                      <input type="email" value={newBooking.customerEmail} onChange={(e) => handleInputChange('customerEmail', e.target.value)}
+                        placeholder="customer@example.com"
+                        style={{ width: '100%', padding: '10px', border: formErrors.customerEmail ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                      {formErrors.customerEmail && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.customerEmail}</span>}
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Phone Number *</label>
+                      <input type="tel" value={newBooking.customerPhone} onChange={(e) => handleInputChange('customerPhone', e.target.value)}
+                        placeholder="+44 7000 000000"
+                        style={{ width: '100%', padding: '10px', border: formErrors.customerPhone ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                      {formErrors.customerPhone && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.customerPhone}</span>}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Pickup Details</h3>
-                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                  <div><strong>Date:</strong> {selectedBooking.pickupDate}</div>
-                  <div><strong>Time:</strong> {selectedBooking.pickupTime}</div>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Journey Details</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                      <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      From Location *
+                    </label>
+                    <input type="text" value={newBooking.fromLocation} onChange={(e) => handleInputChange('fromLocation', e.target.value)}
+                      placeholder="Pickup location"
+                      style={{ width: '100%', padding: '10px', border: formErrors.fromLocation ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                    {formErrors.fromLocation && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.fromLocation}</span>}
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                      <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      To Location *
+                    </label>
+                    <input type="text" value={newBooking.toLocation} onChange={(e) => handleInputChange('toLocation', e.target.value)}
+                      placeholder="Drop-off location"
+                      style={{ width: '100%', padding: '10px', border: formErrors.toLocation ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                    {formErrors.toLocation && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.toLocation}</span>}
+                  </div>
                 </div>
               </div>
 
-              {selectedBooking.returnDate && (
-                <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                    <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0, color: '#333' }}>Return Details</h3>
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Vehicle Selection</h3>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                    <Car size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                    Select Car Type *
+                  </label>
+                  <select value={newBooking.carType} onChange={(e) => handleInputChange('carType', e.target.value)}
+                    style={{ width: '100%', padding: '10px', border: formErrors.carType ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}>
+                    <option value="">Choose a car type</option>
+                    {CARS_DATA.map(car => (
+                      <option key={car.id} value={car.name}>
+                        {car.name} - €{car.price} ({car.passengers} passengers, {car.luggage} luggage)
+                      </option>
+                    ))}
+                  </select>
+                  {formErrors.carType && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.carType}</span>}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Pickup Details</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                      <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Pickup Date *
+                    </label>
+                    <input type="date" value={newBooking.pickupDate} onChange={(e) => handleInputChange('pickupDate', e.target.value)}
+                      style={{ width: '100%', padding: '10px', border: formErrors.pickupDate ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                    {formErrors.pickupDate && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.pickupDate}</span>}
                   </div>
-                  <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                    <div><strong>Date:</strong> {selectedBooking.returnDate}</div>
-                    <div><strong>Time:</strong> {selectedBooking.returnTime}</div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                      <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                      Pickup Time *
+                    </label>
+                    <input type="time" value={newBooking.pickupTime} onChange={(e) => handleInputChange('pickupTime', e.target.value)}
+                      style={{ width: '100%', padding: '10px', border: formErrors.pickupTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                    {formErrors.pickupTime && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.pickupTime}</span>}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={newBooking.hasReturn} onChange={(e) => handleInputChange('hasReturn', e.target.checked)}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                  <span style={{ fontSize: '14px', fontWeight: '500' }}>Add Return Journey</span>
+                </label>
+              </div>
+
+              {newBooking.hasReturn && (
+                <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Return Details</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                        Return Date *
+                      </label>
+                      <input type="date" value={newBooking.returnDate} onChange={(e) => handleInputChange('returnDate', e.target.value)}
+                        min={newBooking.pickupDate}
+                        style={{ width: '100%', padding: '10px', border: formErrors.returnDate ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                      {formErrors.returnDate && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.returnDate}</span>}
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
+                        Return Time *
+                      </label>
+                      <input type="time" value={newBooking.returnTime} onChange={(e) => handleInputChange('returnTime', e.target.value)}
+                        style={{ width: '100%', padding: '10px', border: formErrors.returnTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
+                      {formErrors.returnTime && <span style={{ color: '#f44336', fontSize: '12px', marginTop: '4px', display: 'block' }}>{formErrors.returnTime}</span>}
+                    </div>
                   </div>
                 </div>
               )}
 
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Vehicle Details</h3>
-                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <Car size={18} />
-                    <strong>Car Type:</strong> {selectedBooking.carType}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                    <Users size={18} />
-                    <strong>Passengers:</strong> {selectedBooking.passengers}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Briefcase size={18} />
-                    <strong>Luggage:</strong> {selectedBooking.luggage}
-                  </div>
-                </div>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
+                <button onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}
+                  style={{ flex: 1, padding: '12px', backgroundColor: '#fff', color: '#333', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+                <button onClick={handleAddBooking}
+                  style={{ flex: 1, padding: '12px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)' }}>
+                  Add Booking
+                </button>
               </div>
+            
+        </div>
 
-              <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '16px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: '#333' }}>Assigned Driver</h3>
-                <div style={{ fontSize: '14px', lineHeight: '1.8' }}>
-                  {selectedBooking.allocatedDriver ? (
-                    <>
-                      <div><strong>Driver:</strong> {drivers.find(d => d.id === selectedBooking.allocatedDriver)?.name}</div>
-                      <div><strong>Phone:</strong> {drivers.find(d => d.id === selectedBooking.allocatedDriver)?.phone}</div>
-                    </>
-                  ) : (
-                    <div style={{ color: '#999', fontStyle: 'italic' }}>No driver assigned yet</div>
-                  )}
-                </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
+      {/* View Details Sidebar */}
+     {/* Booking Details Slide-Over Panel */}
+{viewDetailsSidebar && selectedBooking && (
+  <div
+    className="overlay-backdrop"
+    onClick={() => setViewDetailsSidebar(false)}
+  >
+    <div
+      className="overlay-sidebar"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="sidebar-header">
+        <h2>Booking Details</h2>
+        <button className="close-btn" onClick={() => setViewDetailsSidebar(false)}>
+          <X size={24} />
+        </button>
+      </div>
+
+      {/* Content */}
+      <div className="sidebar-content">
+
+        {/* Booking Summary */}
+        <div className="summary-box">
+          <div className="summary-row">
+            <span>Booking ID:</span>
+            <span className="blue-text">{selectedBooking.refCustId}</span>
+          </div>
+          <div className="summary-row">
+            <span>Status:</span>
+            <span
+              className="status-badge"
+              style={{ backgroundColor: getStatusColor(selectedBooking.status) }}
+            >
+              {selectedBooking.status}
+            </span>
+          </div>
+          <div className="summary-row">
+            <span>Total Price:</span>
+            <span className="price-text">€{selectedBooking.price}</span>
+          </div>
+        </div>
+
+        {/* Customer */}
+        <div>
+          <h3 className="section-title">Customer Details</h3>
+          <div className="details-text">
+            <div><strong>Name:</strong> {selectedBooking.customerName}</div>
+            <div><strong>Email:</strong> {selectedBooking.customerEmail}</div>
+            <div><strong>Phone:</strong> {selectedBooking.customerPhone}</div>
+          </div>
+        </div>
+
+        {/* Journey */}
+        <div className="section-divider">
+          <h3 className="section-title">Journey Details</h3>
+          <div className="details-text">
+            <div><strong>From:</strong> <div className="gray-text">{selectedBooking.fromLocation}</div></div>
+            <div><strong>To:</strong> <div className="gray-text">{selectedBooking.toLocation}</div></div>
+          </div>
+        </div>
+
+        {/* Pickup */}
+        <div className="section-divider">
+          <h3 className="section-title">Pickup Details</h3>
+          <div className="details-text">
+            <div><strong>Date:</strong> {selectedBooking.pickupDate}</div>
+            <div><strong>Time:</strong> {selectedBooking.pickupTime}</div>
+          </div>
+        </div>
+
+        {/* Return */}
+        {selectedBooking.returnDate && (
+          <div className="section-divider">
+            <h3 className="section-title">Return Details</h3>
+            <div className="details-text">
+              <div><strong>Date:</strong> {selectedBooking.returnDate}</div>
+              <div><strong>Time:</strong> {selectedBooking.returnTime}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Vehicle */}
+        <div className="section-divider">
+          <h3 className="section-title">Vehicle Details</h3>
+          <div className="details-text">
+            <div className="icon-row"><Car size={18} /><strong>Car Type:</strong> {selectedBooking.carType}</div>
+            <div className="icon-row"><Users size={18} /><strong>Passengers:</strong> {selectedBooking.passengers}</div>
+            <div className="icon-row"><Briefcase size={18} /><strong>Luggage:</strong> {selectedBooking.luggage}</div>
+          </div>
+        </div>
+
+        {/* Driver */}
+        <div className="section-divider">
+          <h3 className="section-title">Assigned Driver</h3>
+          <div className="details-text">
+            {selectedBooking.allocatedDriver ? (
+              <>
+                <div><strong>Driver:</strong> {drivers.find(d => d.id === selectedBooking.allocatedDriver)?.name}</div>
+                <div><strong>Phone:</strong> {drivers.find(d => d.id === selectedBooking.allocatedDriver)?.phone}</div>
+              </>
+            ) : (
+              <div className="no-driver">No driver assigned yet</div>
+            )}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="section-divider">
+          <h3 className="section-title">Extras & Notes</h3>
+          <div className="details-text">
+            <div><strong>Flight/Train Number</strong>
+              <div className="gray-text">
+                {selectedBooking.flightNumber || 'Please provide your flight number. Driver will track your flight.'}
+              </div>
+            </div>
+
+            <div><strong>Driver Notes (Outward)</strong>
+              <div className="gray-text">
+                {selectedBooking.driverNotes || 'No additional notes provided'}
               </div>
             </div>
           </div>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Return Details Sidebar */}
       {viewReturnDetailsSidebar && selectedReturnBooking && (
@@ -780,73 +1034,8 @@ const Transfer = () => {
           </div>
         </div>
       )}
-
-      {/* Allocate Driver Dialog */}
-      {allocateDialogVisible && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '450px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '600', margin: 0 }}>Allocate Driver</h2>
-              <button onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-                <X size={24} />
-              </button>
-            </div>
-
-            <div style={{ padding: '24px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <p style={{ marginBottom: '4px', fontWeight: '600', fontSize: '15px' }}>
-                  Booking: {selectedBookingForAllocation?.refCustId}
-                </p>
-                <p style={{ fontSize: '13px', color: '#666', margin: 0 }}>
-                  {selectedBookingForAllocation?.fromLocation} → {selectedBookingForAllocation?.toLocation}
-                </p>
-              </div>
-
-              <div style={{ marginBottom: '24px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', fontSize: '14px' }}>Select Driver</label>
-                <select value={selectedDriver?.id || ''} onChange={(e) => {
-                  const driver = drivers.find(d => d.id === parseInt(e.target.value));
-                  setSelectedDriver(driver || null);
-                }}
-                  style={{
-                    width: '100%', padding: '12px', border: '1px solid #d1d5db',
-                    borderRadius: '8px', fontSize: '14px', backgroundColor: 'white'
-                  }}>
-                  <option value="">Choose a driver</option>
-                  {drivers.map(driver => (
-                    <option key={driver.id} value={driver.id}>
-                      {driver.name} - {driver.status} ({driver.phone})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
-                  style={{
-                    flex: 1, padding: '12px', backgroundColor: '#fff', color: '#333',
-                    border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px',
-                    fontWeight: '600', cursor: 'pointer'
-                  }}>
-                  Cancel
-                </button>
-                <button onClick={allocateDriver}
-                  style={{
-                    flex: 1, padding: '12px', backgroundColor: '#2196F3', color: 'white',
-                    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600',
-                    cursor: 'pointer', boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)'
-                  }}>
-                  Allocate
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add Booking Dialog */}
-      {addBookingDialogVisible && (
+    </>
+    {addBookingDialogVisible && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
@@ -1010,6 +1199,7 @@ const Transfer = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

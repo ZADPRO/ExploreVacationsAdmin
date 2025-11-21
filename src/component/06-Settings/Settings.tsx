@@ -11,6 +11,12 @@ import { useTranslation } from "react-i18next";
 // import { FaArrowRight } from "react-icons/fa";
 import { FromToLocations, CarSelection } from "../../Pages/16-CarSelection/CarSelection";
 const Settings: React.FC = () => {
+  const customHeader = (
+        <div className="flex align-items-center gap-2">
+          
+  <p className="text-xl font-bold text-[#0a5c9c]">Car Management</p>
+        </div>
+    );
   const [visibleSidebar, setVisibleSidebar] = useState<string | null>(null);
   const { t } = useTranslation("global");
   return (
@@ -211,6 +217,8 @@ const Settings: React.FC = () => {
         visible={visibleSidebar === "cars"}
         onHide={() => setVisibleSidebar(null)}
         position="right"
+        className="ggg"
+        header={customHeader}
       >
         <CarSelection />
       </Sidebar >
