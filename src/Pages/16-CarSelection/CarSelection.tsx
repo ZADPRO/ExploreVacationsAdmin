@@ -12,6 +12,7 @@ import { Dropdown } from "primereact/dropdown";
 import { AutoComplete } from "primereact/autocomplete";
 import '../../Pages/16-CarSelection/carselection.css'
 import { MultiSelect } from "primereact/multiselect";
+import { useTranslation } from "react-i18next";
 // import { X } from "lucide-react";
 import axios from "axios";
 import { decryptAPIResponse } from "../../utils";
@@ -26,6 +27,7 @@ export const FromToLocations: React.FC = () => {
   const [editToSidebar, setEditToSidebar] = useState(false);
   const [editingLocation, setEditingLocation] = useState<any>(null);
 
+    const { t } = useTranslation("global");
   const [visibleDialog, setVisibleDialog] = useState(false);
   const [selectedLocationDelete, setSelectedLocationDelete] = useState<any>(null);
   const [deleteType, setDeleteType] = useState<'from' | 'to'>('from');
@@ -57,7 +59,6 @@ export const FromToLocations: React.FC = () => {
 
   const fetchFromLocations = async () => {
     try {
-      // TODO: Replace with your API endpoint
       const dummyLocations = [
         {
           id: 1,
@@ -88,7 +89,6 @@ export const FromToLocations: React.FC = () => {
 
   const fetchToLocations = async () => {
     try {
-      // TODO: Replace with your API endpoint
       const dummyLocations = [
         {
           id: 1,
@@ -326,11 +326,11 @@ export const FromToLocations: React.FC = () => {
 
   const LocationForm = ({ type }: { type: 'from' | 'to' }) => (
     <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
-      <h3 className="font-semibold text-lg mb-3">{type === 'from' ? 'From' : 'To'} Location</h3>
+      <h3 className="font-semibold text-lg mb-3">{type === 'from' ? 'From' : 'To'} {t("dashboard.Location")}</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="col-span-2">
-          <label className="font-medium block mb-2">Search Location *</label>
+          <label className="font-medium block mb-2">{t("dashboard.Search Location")} *</label>
           <AutoComplete
             value={inputs.refLocation}
             suggestions={suggestions}
@@ -345,7 +345,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">Area/Locality</label>
+          <label className="font-medium block mb-2">{t("dashboard.Area/Locality")}</label>
           <InputText
             value={inputs.refArea}
             onChange={(e) => setInputs({ ...inputs, refArea: e.target.value })}
@@ -355,7 +355,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">Street/Road</label>
+          <label className="font-medium block mb-2">{t("dashboard.Street/Road")}</label>
           <InputText
             value={inputs.refStreet}
             onChange={(e) => setInputs({ ...inputs, refStreet: e.target.value })}
@@ -365,7 +365,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">City *</label>
+          <label className="font-medium block mb-2">{t("dashboard.City")} *</label>
           <InputText
             value={inputs.refCity}
             onChange={(e) => setInputs({ ...inputs, refCity: e.target.value })}
@@ -375,7 +375,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">State/Region</label>
+          <label className="font-medium block mb-2">{t("dashboard.State/Region")}</label>
           <InputText
             value={inputs.refState}
             onChange={(e) => setInputs({ ...inputs, refState: e.target.value })}
@@ -385,7 +385,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">Country *</label>
+          <label className="font-medium block mb-2">{t("dashboard.Country")} *</label>
           <InputText
             value={inputs.refCountry}
             onChange={(e) => setInputs({ ...inputs, refCountry: e.target.value })}
@@ -395,7 +395,7 @@ export const FromToLocations: React.FC = () => {
         </div>
 
         <div>
-          <label className="font-medium block mb-2">Pincode/Postal Code</label>
+          <label className="font-medium block mb-2">{t("dashboard.Pincode/Postal Code")}</label>
           <InputText
             value={inputs.refPincode}
             onChange={(e) => setInputs({ ...inputs, refPincode: e.target.value })}
@@ -433,7 +433,7 @@ export const FromToLocations: React.FC = () => {
 
       {/* FROM LOCATIONS TABLE */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">From Locations</h2>
+        <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">{t("dashboard.From Locations")}</h2>
 
         {!showFromForm ? (
           <>
@@ -499,7 +499,7 @@ export const FromToLocations: React.FC = () => {
 
       {/* TO LOCATIONS TABLE */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">To Locations</h2>
+        <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">{t("dashboard.To Locations")}</h2>
 
         {!showToForm ? (
           <>
@@ -547,7 +547,7 @@ export const FromToLocations: React.FC = () => {
         ) : (
           <>
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold">Add New To Location</h3>
+              <h3 className="text-lg font-semibold">{t("dashboard.Add New To Location")}</h3>
               <Button
                 icon="pi pi-arrow-left"
                 label="Back to List"
@@ -570,11 +570,11 @@ export const FromToLocations: React.FC = () => {
         position="right"
         style={{ width: "600px" }}
       >
-        <h2 className="text-xl font-bold mb-6">Edit From Location</h2>
+        <h2 className="text-xl font-bold mb-6">{t("dashboard.Edit From Location")}</h2>
 
         <div className="flex flex-col gap-4">
           <div>
-            <label className="font-medium block mb-2">Location Name *</label>
+            <label className="font-medium block mb-2">{t("dashboard.Location Name")} *</label>
             <InputText
               value={inputs.refLocation}
               onChange={(e) => setInputs({ ...inputs, refLocation: e.target.value })}
@@ -583,7 +583,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Area</label>
+            <label className="font-medium block mb-2">{t("dashboard.Area")}</label>
             <InputText
               value={inputs.refArea}
               onChange={(e) => setInputs({ ...inputs, refArea: e.target.value })}
@@ -592,7 +592,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Street</label>
+            <label className="font-medium block mb-2">{t("dashboard.Street")}</label>
             <InputText
               value={inputs.refStreet}
               onChange={(e) => setInputs({ ...inputs, refStreet: e.target.value })}
@@ -601,7 +601,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">City *</label>
+            <label className="font-medium block mb-2">{t("dashboard.City")} *</label>
             <InputText
               value={inputs.refCity}
               onChange={(e) => setInputs({ ...inputs, refCity: e.target.value })}
@@ -610,7 +610,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">State</label>
+            <label className="font-medium block mb-2">{t("dashboard.State")}</label>
             <InputText
               value={inputs.refState}
               onChange={(e) => setInputs({ ...inputs, refState: e.target.value })}
@@ -619,7 +619,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Country *</label>
+            <label className="font-medium block mb-2">{t("dashboard.Country")} *</label>
             <InputText
               value={inputs.refCountry}
               onChange={(e) => setInputs({ ...inputs, refCountry: e.target.value })}
@@ -628,7 +628,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Pincode</label>
+            <label className="font-medium block mb-2">{t("dashboard.Pincode")}</label>
             <InputText
               value={inputs.refPincode}
               onChange={(e) => setInputs({ ...inputs, refPincode: e.target.value })}
@@ -658,11 +658,11 @@ export const FromToLocations: React.FC = () => {
         position="right"
         style={{ width: "600px" }}
       >
-        <h2 className="text-xl font-bold mb-6">Edit To Location</h2>
+        <h2 className="text-xl font-bold mb-6">{t("dashboard.Edit To Location")}</h2>
 
         <div className="flex flex-col gap-4">
           <div>
-            <label className="font-medium block mb-2">Location Name *</label>
+            <label className="font-medium block mb-2">{t("dashboard.Location Name")} *</label>
             <InputText
               value={inputs.refLocation}
               onChange={(e) => setInputs({ ...inputs, refLocation: e.target.value })}
@@ -671,7 +671,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Area</label>
+            <label className="font-medium block mb-2">{t("dashboard.Area")}</label>
             <InputText
               value={inputs.refArea}
               onChange={(e) => setInputs({ ...inputs, refArea: e.target.value })}
@@ -680,7 +680,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Street</label>
+            <label className="font-medium block mb-2">{t("dashboard.Street")}</label>
             <InputText
               value={inputs.refStreet}
               onChange={(e) => setInputs({ ...inputs, refStreet: e.target.value })}
@@ -689,7 +689,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">City *</label>
+            <label className="font-medium block mb-2">{t("dashboard.City")} *</label>
             <InputText
               value={inputs.refCity}
               onChange={(e) => setInputs({ ...inputs, refCity: e.target.value })}
@@ -698,7 +698,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">State</label>
+            <label className="font-medium block mb-2">{t("dashboard.State")}</label>
             <InputText
               value={inputs.refState}
               onChange={(e) => setInputs({ ...inputs, refState: e.target.value })}
@@ -707,7 +707,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Country *</label>
+            <label className="font-medium block mb-2">{t("dashboard.Country")} *</label>
             <InputText
               value={inputs.refCountry}
               onChange={(e) => setInputs({ ...inputs, refCountry: e.target.value })}
@@ -716,7 +716,7 @@ export const FromToLocations: React.FC = () => {
           </div>
 
           <div>
-            <label className="font-medium block mb-2">Pincode</label>
+            <label className="font-medium block mb-2">{t("dashboard.Pincode")}</label>
             <InputText
               value={inputs.refPincode}
               onChange={(e) => setInputs({ ...inputs, refPincode: e.target.value })}
@@ -764,7 +764,7 @@ export const FromToLocations: React.FC = () => {
           </div>
         }
       >
-        <p>Are you sure you want to delete this location?</p>
+        <p>{t("dashboard.Are you sure you want to delete this location?")}</p>
       </Dialog>
     </div>
   );
@@ -824,8 +824,6 @@ const buildCarImageUrl = (filePath: string) => {
   const fileName =
     filePath.split("\\").pop() || filePath.split("/").pop() || "";
 
-  // 🔴 IMPORTANT: set this env var to your public image base URL
-  // Example: VITE_CAR_IMAGE_BASE_URL = "http://localhost:6201/carParkingImage"
   return `${import.meta.env.VITE_CAR_IMAGE_BASE_URL}/${fileName}`;
 };
 
@@ -856,7 +854,6 @@ const fetchCars = async () => {
       throw new Error(decrypted.message || "Failed to fetch cars");
     }
 
-    // 🧹 Prepare data for UI
     const carsData = decrypted.data?.map((car: any) => ({
       id: car.id,
       name: car.car_name,
@@ -1196,7 +1193,6 @@ const updateBadge = async (id: number) => {
 
     console.log("ENCRYPTED UPDATE BADGE RESPONSE => ", response.data);
 
-    // 🔐 DECRYPT
     const decrypted = decryptAPIResponse(
       response.data[1],
       response.data[0],
@@ -1262,7 +1258,6 @@ const deleteBadge = async (id: number) => {
 
     console.log("ENCRYPTED DELETE BADGE RESPONSE => ", response.data);
 
-    // 🔐 DECRYPT
     const decrypted = decryptAPIResponse(
       response.data[1],
       response.data[0],
@@ -1628,7 +1623,6 @@ const addNewCar = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    // 📌 Extract IDS from selectedBadges & Services
     const badgeIds = Array.isArray(newCar.selectedBadges)
       ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
       : [];
@@ -1637,11 +1631,10 @@ const addNewCar = async () => {
       ? newCar.selectedServices.map((s: any) => s.refServiceId)
       : [];
 
-    // 📌 Prepare payload (BACKEND EXPECTS STRING ARRAYS)
     const payload = {
       car_name: newCar.name,
       car_brand: newCar.brand,
-      car_image: carImage.split("/").pop(), // ⬅ extract filename only
+      car_image: carImage.split("/").pop(), 
       price: newCar.price.toString(),
       passengers: newCar.passengers.toString(),
       luggage: newCar.luggage.toString(),
@@ -1653,7 +1646,6 @@ const addNewCar = async () => {
       specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
     };
 
-    // 🔐 API CALL
     const response = await axios.post(
       `${import.meta.env.VITE_API_URL}/transferRoutes/addCar`,
       payload,
@@ -1667,7 +1659,6 @@ const addNewCar = async () => {
 
     console.log("Encrypted ADD CAR response:", response.data);
 
-    // 🔐 Decrypt result
     const decrypted = decryptAPIResponse(
       response.data[1],
       response.data[0],
@@ -1682,13 +1673,12 @@ const addNewCar = async () => {
 
     const saved = decrypted.data;
 
-    // 👉 Update UI table with saved data
    setCars(prev => [ ...(Array.isArray(prev) ? prev : []),
       {
         id: saved.id,
         name: saved.car_name,
         brand: saved.car_brand,
-        image: carImage, // already resolved http URL
+        image: carImage,
         price: parseFloat(saved.price),
         passengers: parseInt(saved.passengers),
         luggage: parseInt(saved.luggage),
@@ -1777,7 +1767,6 @@ const updateCar = async () => {
   try {
     const token = localStorage.getItem("token");
 
-    // 📌 Extract IDs for API (not objects)
     const badgeIds = Array.isArray(newCar.selectedBadges)
       ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
       : [];
@@ -1786,7 +1775,6 @@ const updateCar = async () => {
       ? newCar.selectedServices.map((s: any) => s.refServiceId)
       : [];
 
-    // 📌 Payload same as addCar API
     const payload = {
       car_name: newCar.name,
       car_brand: newCar.brand,
@@ -1802,7 +1790,6 @@ const updateCar = async () => {
       specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
     };
 
-    // 🔐 PUT CALL - FIXED ENDPOINT 🚀
     const response = await axios.put(
       `${import.meta.env.VITE_API_URL}/transferRoutes/cars/${editingCar.id}`,
       payload,
@@ -1816,7 +1803,6 @@ const updateCar = async () => {
 
     console.log("Encrypted Update Car Response:", response.data);
 
-    // 🔐 Decrypt
     const decrypted = decryptAPIResponse(
       response.data[1],
       response.data[0],
@@ -1831,7 +1817,6 @@ const updateCar = async () => {
 
     const updatedCar = decrypted.data;
 
-    // 🧼 Update UI (local state update)
     const updatedCars = cars.map((car) =>
       car.id === editingCar.id
         ? {
@@ -1897,10 +1882,9 @@ const updateCar = async () => {
 
     console.log("ENCRYPTED DELETE CAR RESPONSE => ", response.data);
 
-    // 🔐 DECRYPT RESPONSE
     const decrypted = decryptAPIResponse(
-      response.data[1],               // encrypted data
-      response.data[0],               // encrypted iv
+      response.data[1],             
+      response.data[0],               
       import.meta.env.VITE_ENCRYPTION_KEY
     );
 
@@ -1909,11 +1893,8 @@ const updateCar = async () => {
     if (!decrypted.success) {
       throw new Error(decrypted.message || "Failed to delete car");
     }
-
-    // 🧹 Remove from UI
     setCars((prev) => prev.filter((car) => car.id !== id));
 
-    // Close dialog
     setVisibleDialog(false);
 
     toast.current?.show({
@@ -1975,7 +1956,9 @@ const updateCar = async () => {
     />
   );
 
+  const { t } = useTranslation("global");
   const priceBodyTemplate = (rowData: any) => (
+    
     <div style={{ textAlign: 'right' }}>
       {rowData.showSpecialPrice && rowData.specialPrice > 0 ? (
         <div>
@@ -1999,7 +1982,7 @@ const updateCar = async () => {
             color: '#666',
             marginTop: '2px'
           }}>
-            Total price
+            {t("dashboard.Total price")}
           </div>
         </div>
       ) : (
@@ -2037,7 +2020,7 @@ const updateCar = async () => {
             </span>
           ))
         ) : (
-          <span style={{ color: '#999', fontSize: '12px' }}>No badges</span>
+          <span style={{ color: '#999', fontSize: '12px' }}>{t("dashboard.No badges")}</span>
         )}
       </div>
     );
@@ -2066,7 +2049,7 @@ const updateCar = async () => {
           </span>
         ))
       ) : (
-        <span style={{ color: '#999', fontSize: '12px' }}>No services</span>
+        <span style={{ color: '#999', fontSize: '12px' }}>{t("dashboard.No services")}</span>
       )}
     </div>
   );
@@ -2114,14 +2097,14 @@ const updateCar = async () => {
 
       {/* Sidebar */}
       <Sidebar header={customHeader} visible={showForm || editSidebar} onHide={() => { setShowForm(false); setEditSidebar(false); resetCarForm(); setActiveTab(0); }} position="right" style={{ width: "75vw" }}>
-        <p style={{ color: "red", fontSize: "15px" }}>Please fill in the details below in English. *</p>
+        <p style={{ color: "red", fontSize: "15px" }}>{t("dashboard.Please fill in the details below in English.")} *</p>
 
         {/* Tabs */}
         <div className="mb-6 mt-4">
           <div className="flex gap-4 border-b-2 border-gray-200">
-            <button className={`px-4 py-2 font-medium ${activeTab === 1 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(1)}>Add Services</button>
-            <button className={`px-4 py-2 font-medium ${activeTab === 2 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(2)}>Add Badges</button>
-            <button className={`px-4 py-2 font-medium ${activeTab === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(0)}>Car Details</button>
+            <button className={`px-4 py-2 font-medium ${activeTab === 1 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(1)}>{t("dashboard.Add Services")}</button>
+            <button className={`px-4 py-2 font-medium ${activeTab === 2 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(2)}>{t("dashboard.Add Badges")}</button>
+            <button className={`px-4 py-2 font-medium ${activeTab === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(0)}>{t("dashboard.Car Details")}</button>
 
           </div>
         </div>
@@ -2130,48 +2113,48 @@ const updateCar = async () => {
         {activeTab === 0 && (
           <div className="flex flex-col gap-4 p-4 pt-3 bg-gray-50 rounded-lg">
               <div>
-                <label className="font-medium block mb-2">Car Name *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Car Name")} *</label>
                 <InputText value={newCar.name} onChange={(e) => setNewCar({ ...newCar, name: e.target.value })} placeholder="e.g., Economy" className="p-inputtext-sm w-full" />
               </div>
               <div>
-                <label className="font-medium block mb-2">Car Brand *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Car Brand")} *</label>
                 <InputText value={newCar.brand} onChange={(e) => setNewCar({ ...newCar, brand: e.target.value })} placeholder="e.g., Toyota" className="p-inputtext-sm w-full" />
               </div>
          <div className="flex flex-row gap-3">
               <div>
-                <label className="font-medium block mb-2">Regular Price (CHF) *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Regular Price")} (CHF) *</label>
                 <InputText type="number" value={newCar.price} onChange={(e) => setNewCar({ ...newCar, price: e.target.value })} placeholder="e.g., 66.00" className="p-inputtext-sm w-full" />
               </div>
               <div>
-                <label className="font-medium block mb-2">Special Price (CHF)</label>
+                <label className="font-medium block mb-2">{t("dashboard.Special Price")} (CHF)</label>
                 <div className="flex gap-2 items-center">
                   <input type="checkbox" checked={newCar.showSpecialPrice} onChange={(e) => setNewCar({ ...newCar, showSpecialPrice: e.target.checked })} style={{ width: "18px", height: "18px" }} />
                   <InputText type="number" value={newCar.specialPrice} onChange={(e) => setNewCar({ ...newCar, specialPrice: e.target.value })} placeholder="e.g., 60.00" className="p-inputtext-sm flex-1" disabled={!newCar.showSpecialPrice} />
                 </div>
-                <small className="text-gray-500">Enable to show strikethrough price</small>
+                <small className="text-gray-500">{t("dashboard.Enable to show strikethrough price")}</small>
               </div>
             </div>
          <div className="flex flex-row gap-3">
 
               <div>
-                <label className="font-medium block mb-2">Passengers *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Passengers")} *</label>
                 <InputText type="number" value={newCar.passengers} onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })} placeholder="e.g., 3" className="p-inputtext-sm w-full" />
               </div>
               <div>
-                <label className="font-medium block mb-2">Luggage *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Luggage")} *</label>
                 <InputText type="number" value={newCar.luggage} onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })} placeholder="e.g., 3" className="p-inputtext-sm w-full" />
               </div>
               <div>
-                <label className="font-medium block mb-2">Mileage *</label>
+                <label className="font-medium block mb-2">{t("dashboard.Mileage")} *</label>
                 <InputText value={newCar.mileage} onChange={(e) => setNewCar({ ...newCar, mileage: e.target.value })} placeholder="e.g., 6km/l" className="p-inputtext-sm w-full" />
             </div>
             </div>
               <div>
-                <label className="font-medium block mb-2">Description</label>
+                <label className="font-medium block mb-2">{t("dashboard.Description")}</label>
                 <InputTextarea value={newCar.description} onChange={(e) => setNewCar({ ...newCar, description: e.target.value })} placeholder="e.g., or similar" className="p-inputtext-sm w-full" rows={3} />
               </div>
             <div>
-              <label className="font-medium block mb-2">Car Badges</label>
+              <label className="font-medium block mb-2">{t("dashboard.Car Badges")}</label>
               <Dropdown
                 value={newCar.selectedBadges[0] || null}
                 onChange={(e) => setNewCar({ ...newCar, selectedBadges: e.value ? [e.value] : [] })}
@@ -2185,12 +2168,12 @@ const updateCar = async () => {
             </div>
 
             <div>
-              <label className="font-medium block mb-2">Car Services</label>
+              <label className="font-medium block mb-2">{t("dashboard.Car Services")}</label>
               <MultiSelect value={newCar.selectedServices} onChange={(e) => setNewCar({ ...newCar, selectedServices: e.value })} options={services} optionLabel="refServiceName" display="chip" placeholder="Select services" className="w-full" />
             </div>
  <div>
-            <label className="font-medium block mb-2 ">Car Image *</label>
-            <FileUpload name="carImage" accept="image/*" maxFileSize={5000000} customUpload uploadHandler={uploadCarImage} emptyTemplate={<p className="m-0">Drag and drop image (Max 5MB)</p>} />
+            <label className="font-medium block mb-2 ">{t("dashboard.Car Image")} *</label>
+            <FileUpload name="carImage" accept="image/*" maxFileSize={5000000} customUpload uploadHandler={uploadCarImage} emptyTemplate={<p className="m-0">{t("dashboard.Drag and drop image (Max 5MB)")}</p>} />
             {carImage && <img src={carImage} alt="Preview" style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", marginTop: "8px" }} />}
           </div>
             <div className="flex gap-2 justify-end mb-3">
@@ -2204,7 +2187,7 @@ const updateCar = async () => {
         {/* Services Tab */}
         {activeTab === 1 && (
           <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold">Car Services</h4>
+            <h4 className="font-semibold">{t("dashboard.Car Services")}</h4>
             <div className="flex gap-2">
               <InputText value={newServiceName} onChange={(e) => setNewServiceName(e.target.value)} placeholder="Enter service name" className="p-inputtext-sm flex-1" />
               <Button icon="pi pi-plus" label="Add" size="small" onClick={addNewService} />
@@ -2220,7 +2203,7 @@ const updateCar = async () => {
         {/* Badges Tab */}
         {activeTab === 2 && (
           <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold">Car Badges</h4>
+            <h4 className="font-semibold">{t("dashboard.Car Badges")}</h4>
             <div className="flex gap-2">
               <InputText value={newBadgeName} onChange={(e) => setNewBadgeName(e.target.value)} placeholder="Badge name" className="p-inputtext-sm flex-1" />
               <input type="color" value={newBadgeColor} onChange={(e) => setNewBadgeColor(e.target.value)} style={{ width: "60px", height: "38px", cursor: "pointer" }} />
@@ -2235,11 +2218,11 @@ const updateCar = async () => {
           </div>
         )}
       </Sidebar>
-      <Dialog header="Confirm Deletion" visible={visibleDialog} style={{ width: "350px" }} modal onHide={() => setVisibleDialog(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setVisibleDialog(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedCarDelete !== null) { deleteCar(selectedCarDelete); } }} /></div>}><p>Are you sure you want to delete this car?</p></Dialog>
+      <Dialog header="Confirm Deletion" visible={visibleDialog} style={{ width: "350px" }} modal onHide={() => setVisibleDialog(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setVisibleDialog(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedCarDelete !== null) { deleteCar(selectedCarDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this car?")}</p></Dialog>
 
-      <Dialog header="Confirm Deletion" visible={serviceDialogVisible} style={{ width: "350px" }} modal onHide={() => setServiceDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setServiceDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedServiceDelete !== null) { deleteService(selectedServiceDelete); } }} /></div>}><p>Are you sure you want to delete this service?</p></Dialog>
+      <Dialog header="Confirm Deletion" visible={serviceDialogVisible} style={{ width: "350px" }} modal onHide={() => setServiceDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setServiceDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedServiceDelete !== null) { deleteService(selectedServiceDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this service?")}</p></Dialog>
 
-      <Dialog header="Confirm Deletion" visible={badgeDialogVisible} style={{ width: "350px" }} modal onHide={() => setBadgeDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setBadgeDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" onClick={() => { if (selectedBadgeDelete !== null) { deleteBadge(selectedBadgeDelete); } }} /></div>}><p>Are you sure you want to delete this badge?</p></Dialog>
+      <Dialog header="Confirm Deletion" visible={badgeDialogVisible} style={{ width: "350px" }} modal onHide={() => setBadgeDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setBadgeDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" onClick={() => { if (selectedBadgeDelete !== null) { deleteBadge(selectedBadgeDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this badge?")}</p></Dialog>
     </div>
   );
 

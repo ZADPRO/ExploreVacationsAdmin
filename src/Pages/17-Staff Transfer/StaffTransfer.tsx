@@ -10,6 +10,7 @@ import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
+import { useTranslation } from "react-i18next";
 interface DriverDetails {
   refDriverId: string;
   refFirstLastName: string;
@@ -130,6 +131,7 @@ const StaffTransfer: React.FC = () => {
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const toast = useRef<Toast>(null);
 
+    const { t } = useTranslation("global");
   // Form inputs state
   const [inputs, setInputs] = useState({
     refFirstLastName: "",
@@ -352,7 +354,7 @@ const StaffTransfer: React.FC = () => {
       <Toast ref={toast} />
       <div className="p-4 mt-2">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Driver Management</h2>
+          <h2 className="text-2xl font-semibold">{t("dashboard.Driver Management")}</h2>
           <Button
             label="Add New Driver"
             severity="success"
@@ -366,7 +368,7 @@ const StaffTransfer: React.FC = () => {
         </div>
 
         <div className="mt-3 p-2">
-          <h3 className="text-lg font-bold">Registered Drivers</h3>
+          <h3 className="text-lg font-bold">{t("dashboard.Registered Drivers")}</h3>
           <DataTable
             value={drivers}
             tableStyle={{ minWidth: "50rem" }}
@@ -463,7 +465,7 @@ const StaffTransfer: React.FC = () => {
               </div>
             }
           >
-            <p>Are you sure you want to delete this driver?</p>
+            <p>{t("dashboard.Are you sure you want to delete this driver?")}</p>
           </Dialog>
         </div>
 
@@ -480,7 +482,7 @@ const StaffTransfer: React.FC = () => {
             {isEditMode ? "Edit Driver" : "Driver Registration Form"}
           </h2>
           <p className="text-sm text-[#f60000] mb-3">
-            Fill the fields below. Dropdowns available where applicable.
+            {t("dashboard.Fill the fields below. Dropdowns available where applicable.")}
           </p>
 
           <form

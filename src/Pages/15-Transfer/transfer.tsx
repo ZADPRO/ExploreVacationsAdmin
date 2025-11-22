@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {  UserPlus, Plus, X, Calendar, Clock, MapPin, Users, Briefcase, Car, ArrowLeftRight } from 'lucide-react';
 import '../../Pages/15-Transfer/transfer.css'
+
+import { useTranslation } from "react-i18next";
 interface CarData {
   id: number;
   name: string;
@@ -80,6 +82,7 @@ const DRIVERS_DATA: DriverData[] = [
   { id: 4, name: "Emily Davis", phone: "+44 7456 789012", status: "Available" }
 ];
 
+    const { t } = useTranslation("global");
 const DUMMY_BOOKINGS: Booking[] = [
   {
     id: 2,
@@ -275,37 +278,37 @@ const Transfer = () => {
       )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '28px', fontWeight: '600', margin: 0, color: '#333' }}>Transfer Bookings</h2>
+        <h2 style={{ fontSize: '28px', fontWeight: '600', margin: 0, color: '#333' }}>{t("dashboard.Transfer Bookings")}</h2>
         <button onClick={() => setAddBookingDialogVisible(true)} style={{
           display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 24px',
           backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '8px',
           fontSize: '15px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)'
         }}>
           <Plus size={20} />
-          Add New Booking
+          {t("dashboard.Add New Booking")}
         </button>
       </div>
 
       <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#333' }}>
-          All Bookings ({bookings.length})
+          {t("dashboard.All Bookings")} ({bookings.length})
         </h3>
 
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#f8f9fa', borderBottom: '2px solid #dee2e6' }}>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>S.No</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Booking ID</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Customer</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Car Type</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>From</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>To</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Pickup Date</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Price</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Status</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Driver</th>
-                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>Return</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.S.No")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Booking ID")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Customer")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Car Type")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.From")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.To")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Pickup ")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Price")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Status")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Driver")}</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Return")}</th>
               </tr>
             </thead>
             <tbody>
@@ -425,7 +428,7 @@ const Transfer = () => {
                           }}
                         >
                           <UserPlus size={14} />
-                          Allocate
+                          {t("dashboard.Allocate")}
                         </button>
                       )}
                     </td>
@@ -436,7 +439,7 @@ const Transfer = () => {
                           <div style={{ fontSize: '12px', color: '#666' }}>{booking.returnTime}</div>
                         </div>
                       ) : (
-                        <span style={{ fontSize: '13px', color: '#999' }}>One-way</span>
+                        <span style={{ fontSize: '13px', color: '#999' }}>{t("dashboard.One-way")}</span>
                       )}
                     </td>
                   </tr>
@@ -446,18 +449,18 @@ const Transfer = () => {
                       <td colSpan={11} style={{ padding: '16px' }}>
                         <div style={{ backgroundColor: 'white', borderRadius: '8px', padding: '16px', border: '2px solid #2196F3' }}>
                           <h4 style={{ margin: '0 0 12px 0', color: '#2196F3', fontSize: '14px', fontWeight: '600' }}>
-                            Return Journey Details
+                            {t("dashboard.Return Journey Details")}
                           </h4>
                           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                               <tr style={{ backgroundColor: '#e3f2fd', borderBottom: '1px solid #2196F3' }}>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>From</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>To</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>Return Date</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>Return Time</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>Car Type</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>Status</th>
-                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>Driver</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.From")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.To")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Return Date")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Return Time")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Car Type")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Status")}</th>
+                                <th style={{ padding: '10px', textAlign: 'left', fontSize: '12px', fontWeight: '600', color: '#495057' }}>{t("dashboard.Driver")}</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -539,7 +542,7 @@ const Transfer = () => {
                                       }}
                                     >
                                       <UserPlus size={12} />
-                                      Allocate
+                                      {t("dashboard.Allocate")}
                                     </button>
                                   )}
                                 </td>
@@ -569,7 +572,7 @@ const Transfer = () => {
       onClick={(e) => e.stopPropagation()}
     >
       <div className="modal-header">
-        <h2>Allocate Driver</h2>
+        <h2>{t("dashboard.Allocate Driver")}</h2>
         <button
           className="close-btn"
           onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}
@@ -580,7 +583,7 @@ const Transfer = () => {
 
       <div className="modal-body">
         <div className="modal-booking-info">
-          <p className="bold">Booking: {selectedBookingForAllocation?.refCustId}</p>
+          <p className="bold">{t("dashboard.Booking")}: {selectedBookingForAllocation?.refCustId}</p>
           <p className="gray">
             {selectedBookingForAllocation?.fromLocation} → {selectedBookingForAllocation?.toLocation}
           </p>
@@ -596,7 +599,7 @@ const Transfer = () => {
             }}
             className="modal-select"
           >
-            <option value="">Choose a driver</option>
+            <option value="">{t("dashboard.Choose a driver")}</option>
             {drivers.map(driver => (
               <option key={driver.id} value={driver.id}>
                 {driver.name} - {driver.status} ({driver.phone})
@@ -607,10 +610,10 @@ const Transfer = () => {
 
         <div className="modal-actions">
           <button className="btn-outline" onClick={() => { setAllocateDialogVisible(false); setSelectedDriver(null); }}>
-            Cancel
+            {t("dashboard.Cancel")}
           </button>
           <button className="btn-primary" onClick={allocateDriver}>
-            Allocate
+            {t("dashboard.Allocate")}
           </button>
         </div>
       </div>
@@ -624,7 +627,7 @@ const Transfer = () => {
     <div className="modal-box large-modal" onClick={(e) => e.stopPropagation()}>
       
       <div className="modal-header">
-        <h2>Add New Booking</h2>
+        <h2>{t("dashboard.Add New Booking")}</h2>
         <button className="close-btn" onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
           <X size={24} />
         </button>
@@ -636,10 +639,10 @@ const Transfer = () => {
        
          <div style={{ padding: '24px' }}>
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Customer Information</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Customer Information")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Customer Name *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Customer Name")} *</label>
                     <input type="text" value={newBooking.customerName} onChange={(e) => handleInputChange('customerName', e.target.value)}
                       placeholder="Enter customer name"
                       style={{ width: '100%', padding: '10px', border: formErrors.customerName ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -648,7 +651,7 @@ const Transfer = () => {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Email *</label>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Email")} *</label>
                       <input type="email" value={newBooking.customerEmail} onChange={(e) => handleInputChange('customerEmail', e.target.value)}
                         placeholder="customer@example.com"
                         style={{ width: '100%', padding: '10px', border: formErrors.customerEmail ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -656,7 +659,7 @@ const Transfer = () => {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Phone Number *</label>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Phone Number")} *</label>
                       <input type="tel" value={newBooking.customerPhone} onChange={(e) => handleInputChange('customerPhone', e.target.value)}
                         placeholder="+44 7000 000000"
                         style={{ width: '100%', padding: '10px', border: formErrors.customerPhone ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -667,12 +670,12 @@ const Transfer = () => {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Journey Details</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Journey Details")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      From Location *
+                      {t("dashboard.From Location")} *
                     </label>
                     <input type="text" value={newBooking.fromLocation} onChange={(e) => handleInputChange('fromLocation', e.target.value)}
                       placeholder="Pickup location"
@@ -683,7 +686,7 @@ const Transfer = () => {
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      To Location *
+                     {t("dashboard. To Location")} *
                     </label>
                     <input type="text" value={newBooking.toLocation} onChange={(e) => handleInputChange('toLocation', e.target.value)}
                       placeholder="Drop-off location"
@@ -698,14 +701,14 @@ const Transfer = () => {
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                     <Car size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                    Select Car Type *
+                    {t("dashboard.Select Car Type")} *
                   </label>
                   <select value={newBooking.carType} onChange={(e) => handleInputChange('carType', e.target.value)}
                     style={{ width: '100%', padding: '10px', border: formErrors.carType ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}>
-                    <option value="">Choose a car type</option>
+                    <option value="">{t("dashboard.Choose a car type")}</option>
                     {CARS_DATA.map(car => (
                       <option key={car.id} value={car.name}>
-                        {car.name} - €{car.price} ({car.passengers} passengers, {car.luggage} luggage)
+                        {car.name} - €{car.price} ({car.passengers} {t("dashboard.passengers")}, {car.luggage} luggage)
                       </option>
                     ))}
                   </select>
@@ -714,12 +717,12 @@ const Transfer = () => {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Pickup Details</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Pickup Details")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      Pickup Date *
+                      {t("dashboard.Pickup Date")} *
                     </label>
                     <input type="date" value={newBooking.pickupDate} onChange={(e) => handleInputChange('pickupDate', e.target.value)}
                       style={{ width: '100%', padding: '10px', border: formErrors.pickupDate ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -729,7 +732,7 @@ const Transfer = () => {
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      Pickup Time *
+                      {t("dashboard.Pickup Time")} *
                     </label>
                     <input type="time" value={newBooking.pickupTime} onChange={(e) => handleInputChange('pickupTime', e.target.value)}
                       style={{ width: '100%', padding: '10px', border: formErrors.pickupTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -748,12 +751,12 @@ const Transfer = () => {
 
               {newBooking.hasReturn && (
                 <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Return Details</h3>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Return Details")}</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                         <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                        Return Date *
+                        {t("dashboard.Return Date")} *
                       </label>
                       <input type="date" value={newBooking.returnDate} onChange={(e) => handleInputChange('returnDate', e.target.value)}
                         min={newBooking.pickupDate}
@@ -764,7 +767,7 @@ const Transfer = () => {
                     <div>
                       <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                         <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                        Return Time *
+                        {t("dashboard.Return Time")} *
                       </label>
                       <input type="time" value={newBooking.returnTime} onChange={(e) => handleInputChange('returnTime', e.target.value)}
                         style={{ width: '100%', padding: '10px', border: formErrors.returnTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -777,11 +780,11 @@ const Transfer = () => {
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}
                   style={{ flex: 1, padding: '12px', backgroundColor: '#fff', color: '#333', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
-                  Cancel
+                  {t("dashboard.Cancel")}
                 </button>
                 <button onClick={handleAddBooking}
                   style={{ flex: 1, padding: '12px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)' }}>
-                  Add Booking
+                  {t("dashboard.Add Booking")}
                 </button>
               </div>
             
@@ -1039,7 +1042,7 @@ const Transfer = () => {
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}>
           <div style={{ backgroundColor: 'white', borderRadius: '12px', width: '90%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }} onClick={(e) => e.stopPropagation()}>
             <div style={{ padding: '24px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 1 }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>Add New Booking</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>{t("dashboard.Add New Booking")}</h2>
               <button onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
                 <X size={24} />
               </button>
@@ -1047,10 +1050,10 @@ const Transfer = () => {
 
             <div style={{ padding: '24px' }}>
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Customer Information</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Customer Information")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Customer Name *</label>
+                    <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Customer Name")} *</label>
                     <input type="text" value={newBooking.customerName} onChange={(e) => handleInputChange('customerName', e.target.value)}
                       placeholder="Enter customer name"
                       style={{ width: '100%', padding: '10px', border: formErrors.customerName ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1059,7 +1062,7 @@ const Transfer = () => {
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Email *</label>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Email")} *</label>
                       <input type="email" value={newBooking.customerEmail} onChange={(e) => handleInputChange('customerEmail', e.target.value)}
                         placeholder="customer@example.com"
                         style={{ width: '100%', padding: '10px', border: formErrors.customerEmail ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1067,7 +1070,7 @@ const Transfer = () => {
                     </div>
 
                     <div>
-                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>Phone Number *</label>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Phone Number")} *</label>
                       <input type="tel" value={newBooking.customerPhone} onChange={(e) => handleInputChange('customerPhone', e.target.value)}
                         placeholder="+44 7000 000000"
                         style={{ width: '100%', padding: '10px', border: formErrors.customerPhone ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1078,12 +1081,12 @@ const Transfer = () => {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Journey Details</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Journey Details")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      From Location *
+                      {t("dashboard.From Location")} *
                     </label>
                     <input type="text" value={newBooking.fromLocation} onChange={(e) => handleInputChange('fromLocation', e.target.value)}
                       placeholder="Pickup location"
@@ -1094,7 +1097,7 @@ const Transfer = () => {
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <MapPin size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      To Location *
+                      {t("dashboard.To Location")} *
                     </label>
                     <input type="text" value={newBooking.toLocation} onChange={(e) => handleInputChange('toLocation', e.target.value)}
                       placeholder="Drop-off location"
@@ -1105,18 +1108,18 @@ const Transfer = () => {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Vehicle Selection</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Vehicle Selection")}</h3>
                 <div>
                   <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                     <Car size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                    Select Car Type *
+                    {t("dashboard.Select Car Type")} *
                   </label>
                   <select value={newBooking.carType} onChange={(e) => handleInputChange('carType', e.target.value)}
                     style={{ width: '100%', padding: '10px', border: formErrors.carType ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px', backgroundColor: 'white' }}>
-                    <option value="">Choose a car type</option>
+                    <option value="">{t("dashboard.Choose a car type")}</option>
                     {CARS_DATA.map(car => (
                       <option key={car.id} value={car.name}>
-                        {car.name} - €{car.price} ({car.passengers} passengers, {car.luggage} luggage)
+                        {car.name} - €{car.price} ({car.passengers} {t("dashboard.passengers")}, {car.luggage} luggage)
                       </option>
                     ))}
                   </select>
@@ -1125,12 +1128,12 @@ const Transfer = () => {
               </div>
 
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Pickup Details</h3>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Pickup Details")}</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      Pickup Date *
+                      {t("dashboard.Pickup Date")} *
                     </label>
                     <input type="date" value={newBooking.pickupDate} onChange={(e) => handleInputChange('pickupDate', e.target.value)}
                       style={{ width: '100%', padding: '10px', border: formErrors.pickupDate ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1140,7 +1143,7 @@ const Transfer = () => {
                   <div>
                     <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                       <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                      Pickup Time *
+                      {t("dashboard.Pickup Time")} *
                     </label>
                     <input type="time" value={newBooking.pickupTime} onChange={(e) => handleInputChange('pickupTime', e.target.value)}
                       style={{ width: '100%', padding: '10px', border: formErrors.pickupTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1153,18 +1156,18 @@ const Transfer = () => {
                 <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                   <input type="checkbox" checked={newBooking.hasReturn} onChange={(e) => handleInputChange('hasReturn', e.target.checked)}
                     style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-                  <span style={{ fontSize: '14px', fontWeight: '500' }}>Add Return Journey</span>
+                  <span style={{ fontSize: '14px', fontWeight: '500' }}>{t("dashboard.Add Return Journey")}</span>
                 </label>
               </div>
 
               {newBooking.hasReturn && (
                 <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>Return Details</h3>
+                  <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', color: '#2196F3' }}>{t("dashboard.Return Details")}</h3>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     <div>
                       <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                         <Calendar size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                        Return Date *
+                        {t("dashboard.Return Date")} *
                       </label>
                       <input type="date" value={newBooking.returnDate} onChange={(e) => handleInputChange('returnDate', e.target.value)}
                         min={newBooking.pickupDate}
@@ -1175,7 +1178,7 @@ const Transfer = () => {
                     <div>
                       <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
                         <Clock size={14} style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
-                        Return Time *
+                        {t("dashboard.Return Time")} *
                       </label>
                       <input type="time" value={newBooking.returnTime} onChange={(e) => handleInputChange('returnTime', e.target.value)}
                         style={{ width: '100%', padding: '10px', border: formErrors.returnTime ? '1px solid #f44336' : '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }} />
@@ -1188,11 +1191,11 @@ const Transfer = () => {
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button onClick={() => { setAddBookingDialogVisible(false); setFormErrors({}); }}
                   style={{ flex: 1, padding: '12px', backgroundColor: '#fff', color: '#333', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
-                  Cancel
+                  {t("dashboard.Cancel")}
                 </button>
                 <button onClick={handleAddBooking}
                   style={{ flex: 1, padding: '12px', backgroundColor: '#2196F3', color: 'white', border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: '600', cursor: 'pointer', boxShadow: '0 2px 8px rgba(33, 150, 243, 0.3)' }}>
-                  Add Booking
+                  {t("dashboard.Add Booking")}
                 </button>
               </div>
             </div>

@@ -5,7 +5,7 @@ import { Toast } from "primereact/toast";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Dropdown } from "primereact/dropdown";
-// import { useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { Dialog } from "primereact/dialog";
 
 // Type Definitions
@@ -43,7 +43,7 @@ interface StatusColors {
 }
 
 const DriverDashboard = () => {
-  // const { t } = useTranslation("global");
+  const { t } = useTranslation("global");
   const toast = useRef<Toast>(null);
 
   // Get logged-in driver ID from localStorage
@@ -388,10 +388,10 @@ const DriverDashboard = () => {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
           <h2 style={{ fontSize: isMobile ? "20px" : "24px", fontWeight: "600", margin: "0" }}>
-            My Allocated Bookings
+            {t("dashboard.My Allocated Bookings")}
           </h2>
           <p style={{ fontSize: "14px", color: "#6b7280", marginTop: "4px" }}>
-            Total Bookings: {allocatedBookings.length}
+            {t("dashboard.Total Bookings")}: {allocatedBookings.length}
           </p>
         </div>
       </div>
@@ -399,21 +399,21 @@ const DriverDashboard = () => {
       {/* Statistics Cards */}
       <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px", marginBottom: "24px" }}>
         <div style={{ backgroundColor: "#fff3cd", padding: "16px", borderRadius: "8px", border: "1px solid #ffc107" }}>
-          <div style={{ fontSize: "14px", color: "#856404", marginBottom: "4px" }}>Pending</div>
+          <div style={{ fontSize: "14px", color: "#856404", marginBottom: "4px" }}>{t("dashboard.Pending")}</div>
           <div style={{ fontSize: "24px", fontWeight: "600", color: "#856404" }}>
             {allocatedBookings.filter(b => b.status === "Pending").length}
           </div>
         </div>
 
         <div style={{ backgroundColor: "#cfe2ff", padding: "16px", borderRadius: "8px", border: "1px solid #0d6efd" }}>
-          <div style={{ fontSize: "14px", color: "#084298", marginBottom: "4px" }}>In Progress</div>
+          <div style={{ fontSize: "14px", color: "#084298", marginBottom: "4px" }}>{t("dashboard.In Progress")}</div>
           <div style={{ fontSize: "24px", fontWeight: "600", color: "#084298" }}>
             {allocatedBookings.filter(b => b.status === "In Progress").length}
           </div>
         </div>
 
         <div style={{ backgroundColor: "#d1e7dd", padding: "16px", borderRadius: "8px", border: "1px solid #198754" }}>
-          <div style={{ fontSize: "14px", color: "#0a3622", marginBottom: "4px" }}>Completed</div>
+          <div style={{ fontSize: "14px", color: "#0a3622", marginBottom: "4px" }}>{t("dashboard.Completed")}</div>
           <div style={{ fontSize: "24px", fontWeight: "600", color: "#0a3622" }}>
             {allocatedBookings.filter(b => b.status === "Completed").length}
           </div>
@@ -423,7 +423,7 @@ const DriverDashboard = () => {
       {/* Bookings Table */}
       <div style={{ backgroundColor: "#fff", borderRadius: "8px", padding: isMobile ? "8px" : "16px" }}>
         <h3 style={{ fontSize: "18px", fontWeight: "600", marginBottom: "16px" }}>
-          All Allocated Bookings
+          {t("dashboard.All Allocated Bookings")}
         </h3>
         
         {/* Mobile View - Only 4 columns */}
