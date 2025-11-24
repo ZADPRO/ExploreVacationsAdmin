@@ -807,7 +807,7 @@ const [cars, setCars] = useState<any[]>([]);
     luggage: "",
     mileage: "",
     description: "",
-    selectedBadges: [],
+    selectedBadges: [] as any,
     selectedServices: [] as any[]
   });
 
@@ -1782,7 +1782,7 @@ const updateCar = async () => {
       price: newCar.price.toString(),
       passengers: newCar.passengers.toString(),
       luggage: newCar.luggage.toString(),
-      manufacturer_year: newCar.year || "",
+      // manufacturer_year: newCar.year || "",
       mileage: newCar.mileage,
       description: newCar.description,
       car_badges: JSON.stringify(badgeIds),
@@ -2031,28 +2031,28 @@ const updateCar = async () => {
 
     </div>
   );
-  const servicesBodyTemplate = (rowData: any) => (
-    <div className="flex gap-1 flex-wrap">
-      {Array.isArray(rowData.selectedServices) && rowData.selectedServices.length > 0 ? (
-        rowData.selectedServices.map((service: any, index: number) => (
-          <span
-            key={index}
-            style={{
-              color: '#3b82f6',
-              padding: '4px 8px',
-              borderRadius: '4px',
-              fontSize: '10px',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {service.refServiceName}
-          </span>
-        ))
-      ) : (
-        <span style={{ color: '#999', fontSize: '12px' }}>{t("dashboard.No services")}</span>
-      )}
-    </div>
-  );
+  // const servicesBodyTemplate = (rowData: any) => (
+  //   <div className="flex gap-1 flex-wrap">
+  //     {Array.isArray(rowData.selectedServices) && rowData.selectedServices.length > 0 ? (
+  //       rowData.selectedServices.map((service: any, index: number) => (
+  //         <span
+  //           key={index}
+  //           style={{
+  //             color: '#3b82f6',
+  //             padding: '4px 8px',
+  //             borderRadius: '4px',
+  //             fontSize: '10px',
+  //             whiteSpace: 'nowrap'
+  //           }}
+  //         >
+  //           {service.refServiceName}
+  //         </span>
+  //       ))
+  //     ) : (
+  //       <span style={{ color: '#999', fontSize: '12px' }}>{t("dashboard.No services")}</span>
+  //     )}
+  //   </div>
+  // );
   // CONTINUE FROM PART 1 - Replace the return null; with this complete return statement
 
   // const CarSelectionStyles = `
