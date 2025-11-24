@@ -82,7 +82,6 @@ const DRIVERS_DATA: DriverData[] = [
   { id: 4, name: "Emily Davis", phone: "+44 7456 789012", status: "Available" }
 ];
 
-    const { t } = useTranslation("global");
 const DUMMY_BOOKINGS: Booking[] = [
   {
     id: 2,
@@ -109,6 +108,7 @@ const DUMMY_BOOKINGS: Booking[] = [
 ];
 
 const Transfer = () => {
+  const { t } = useTranslation("global");
   const [bookings, setBookings] = useState<Booking[]>(DUMMY_BOOKINGS);
   const [viewDetailsSidebar, setViewDetailsSidebar] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);

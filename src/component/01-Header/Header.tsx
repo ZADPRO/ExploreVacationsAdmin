@@ -25,7 +25,11 @@ interface HeaderProps {
   onToggleSidebar: () => void;
 }
 
-export default function Header({ children, isSidebarOpen, onToggleSidebar }: HeaderProps) {
+export default function Header({
+  children,
+  isSidebarOpen,
+  onToggleSidebar,
+}: HeaderProps) {
   const { t } = useTranslation("global");
   const [isOpen, setIsOpen] = useState(isSidebarOpen);
 
@@ -38,7 +42,7 @@ export default function Header({ children, isSidebarOpen, onToggleSidebar }: Hea
     setIsOpen(!isOpen);
     onToggleSidebar();
   };
-  
+
   const routes: any = [
     {
       path: "/dashboard",

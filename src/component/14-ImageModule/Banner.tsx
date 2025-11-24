@@ -1,4 +1,4 @@
-  import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "primereact/button";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
@@ -37,8 +37,8 @@ const Banner: React.FC = () => {
   const isFormSubmitting = false;
   const [_bannerSingle, setBannerSingle] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
-  
-    const [visibleDialog, setVisibleDialog] = useState(false);
+
+  const [visibleDialog, setVisibleDialog] = useState(false);
   const [selectedBannerId, setSelectedBannerId] = useState<number | null>(null);
 
   const closeBanner = () => {
@@ -275,10 +275,10 @@ const Banner: React.FC = () => {
         icon="pi pi-trash"
         severity="danger"
         // onClick={() => deleteBanner(rowData.refHomePageId)}
-         onClick={() => {
+        onClick={() => {
           setSelectedBannerId(rowData.refHomePageId);
           setVisibleDialog(true);
-           }}
+        }}
       />
     );
   };
@@ -362,7 +362,7 @@ const Banner: React.FC = () => {
             paginator
             rows={8}
             scrollable
-          scrollHeight="500px"
+            scrollHeight="500px"
           >
             <Column
               header={t("dashboard.SNo")}
@@ -413,38 +413,37 @@ const Banner: React.FC = () => {
             />
 
             <Column body={actionDelete} header={t("dashboard.actionDelete")} />
-
           </DataTable>
-            <Dialog
-        header="Confirm Deletion"
-        visible={visibleDialog}
-        style={{ width: "350px" }}
-        onHide={() => setVisibleDialog(false)}
-        footer={
-          <div className="flex justify-end gap-2">
-            <Button
-              label="No"
-              icon="pi pi-times"
-              className="p-button-text"
-              onClick={() => setVisibleDialog(false)}
-            />
-            <Button
-              label="Yes"
-              icon="pi pi-check"
-              className="p-button-danger"
-              loading={submitLoading}
-              onClick={() => {
-                if (selectedBannerId !== null) {
-                  deleteBanner(selectedBannerId);
-                }
-                setVisibleDialog(false)
-              }}
-            />
-          </div>
-        }
-      >
-        <p>Are you sure you want to delete this banner?</p>
-      </Dialog>
+          <Dialog
+            header="Confirm Deletion"
+            visible={visibleDialog}
+            style={{ width: "350px" }}
+            onHide={() => setVisibleDialog(false)}
+            footer={
+              <div className="flex justify-end gap-2">
+                <Button
+                  label="No"
+                  icon="pi pi-times"
+                  className="p-button-text"
+                  onClick={() => setVisibleDialog(false)}
+                />
+                <Button
+                  label="Yes"
+                  icon="pi pi-check"
+                  className="p-button-danger"
+                  loading={submitLoading}
+                  onClick={() => {
+                    if (selectedBannerId !== null) {
+                      deleteBanner(selectedBannerId);
+                    }
+                    setVisibleDialog(false);
+                  }}
+                />
+              </div>
+            }
+          >
+            <p>Are you sure you want to delete this banner?</p>
+          </Dialog>
         </div>
 
         <Sidebar
@@ -530,7 +529,11 @@ const Banner: React.FC = () => {
               />
             </div>
             <div className="flex justify-center mt-5">
-              <Button type="submit" label={t("dashboard.Submit")} loading={isFormSubmitting} />
+              <Button
+                type="submit"
+                label={t("dashboard.Submit")}
+                loading={isFormSubmitting}
+              />
             </div>
           </form>
         </Sidebar>
