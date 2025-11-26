@@ -1,7 +1,8 @@
 .table-scroll-container {
   overflow-x: auto !important;
-  overflow-y: hidden !important;
+  overflow-y: auto !important;
   scrollbar-width: auto;
+
   scrollbar-color: #777 #e0e0e0;
 }
 

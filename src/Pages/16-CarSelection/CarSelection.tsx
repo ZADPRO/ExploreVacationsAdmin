@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 // import { X } from "lucide-react";
 import axios from "axios";
 import { decryptAPIResponse } from "../../utils";
+import Dashboard from "../../component/02-Dashboard/Dashboard";
 
 export const FromToLocations: React.FC = () => {
   const [fromLocations, setFromLocations] = useState<any[]>([]);
@@ -27,7 +28,7 @@ export const FromToLocations: React.FC = () => {
   const [editToSidebar, setEditToSidebar] = useState(false);
   const [editingLocation, setEditingLocation] = useState<any>(null);
 
-    const { t } = useTranslation("global");
+  const { t } = useTranslation("global");
   const [visibleDialog, setVisibleDialog] = useState(false);
   const [selectedLocationDelete, setSelectedLocationDelete] = useState<any>(null);
   const [deleteType, setDeleteType] = useState<'from' | 'to'>('from');
@@ -770,7 +771,7 @@ export const FromToLocations: React.FC = () => {
   );
 };
 export const CarSelection: React.FC = () => {
-const [cars, setCars] = useState<any[]>([]);
+  const [cars, setCars] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editSidebar, setEditSidebar] = useState(false);
   const [editingCar, setEditingCar] = useState<any>(null);
@@ -817,260 +818,343 @@ const [cars, setCars] = useState<any[]>([]);
     fetchServices();
     fetchBadges();
   }, []);
-const buildCarImageUrl = (filePath: string) => {
-  if (!filePath) return "";
 
-  // get just the filename from the full path
-  const fileName =
-    filePath.split("\\").pop() || filePath.split("/").pop() || "";
 
-  return `${import.meta.env.VITE_CAR_IMAGE_BASE_URL}/${fileName}`;
-};
+  const fetchCars = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-const fetchCars = async () => {
-  try {
-    const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/cars`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+          },
+        }
+      );
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/cars`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-        },
+      console.log("ENCRYPTED CASS RESPONSE => ", response.data);
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("DECRYPTED y => ", decrypted);
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to fetch cars");
       }
-    );
 
-    console.log("ENCRYPTED CAR LIST RESPONSE => ", response.data);
+      const carsData = decrypted.data?.map((car: any) => ({
+        id: car.id,
+        name: car.car_name,
+        brand: car.car_brand,
 
-    const decrypted = decryptAPIResponse(
-      response.data[1], 
-      response.data[0], 
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
+        image: car.car_image_base64 ?? car.car_image,
 
-    console.log("DECRYPTED CAR LIST => ", decrypted);
+        price: parseFloat(car.price),
+        passengers: car.passengers,
+        luggage: car.luggage,
+        mileage: car.mileage,
+        description: car.description,
+        selectedBadges: parseBadgeIds(car.car_badges),
+        selectedServices: parseServiceIds(car.car_services),
+        showSpecialPrice: +car.specialPrice > 0,
+        specialPrice: parseFloat(car.specialPrice || 0),
+      }));
 
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to fetch cars");
+      setCars(carsData);
+
+    } catch (err: any) {
+      console.error("Error fetching cars:", err);
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err?.message || "Unable to load cars",
+        life: 3000,
+      });
+    }
+  };
+
+
+  const uploadCarImage = async (event: any) => {
+    const file = event.files?.[0];
+    if (!file) return;
+
+    setSubmitLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const formData = new FormData();
+      formData.append("images", file);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/carRoutes/uploadImages`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const decrypted = decryptAPIResponse(
+        res.data[1],
+        res.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Upload failed");
+      }
+      const fullPath = decrypted.filePath;
+      const cleanedPath = fullPath.replace(/\\/g, "/");
+
+      setCarImage(cleanedPath);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message || "Image uploaded successfully",
+      });
+
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: err?.message || "Failed to upload image",
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+  const addNewCar = async () => {
+    if (
+      !newCar.name ||
+      !newCar.brand ||
+      !newCar.price ||
+      !newCar.passengers ||
+      !newCar.luggage ||
+      !newCar.mileage ||
+      !carImage
+    ) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please fill all required fields and upload an image",
+        life: 3000,
+      });
+      return;
     }
 
-    const carsData = decrypted.data?.map((car: any) => ({
-      id: car.id,
-      name: car.car_name,
-      brand: car.car_brand,
-      image:buildCarImageUrl(car.car_image),
-      price: parseFloat(car.price),
-      passengers: car.passengers,
-      luggage: car.luggage,
-      mileage: car.mileage,
-      description: car.description,
-      selectedBadges: parseBadgeIds(car.car_badges),
-      selectedServices: parseServiceIds(car.car_services),
-      showSpecialPrice: car.specialPrice > 0,
-      specialPrice: parseFloat(car.specialPrice || 0),
-    }));
+    if (newCar.showSpecialPrice && !newCar.specialPrice) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter special price",
+        life: 3000,
+      });
+      return;
+    }
 
-    setCars(carsData);
+    setSubmitLoading(true);
 
-  } catch (err: any) {
-    console.error("Error fetching cars:", err);
+    try {
+      const token = localStorage.getItem("token");
 
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: err?.message || "Unable to load cars",
-      life: 3000,
-    });
-  }
-};
+      const badgeIds = Array.isArray(newCar.selectedBadges)
+        ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
+        : [];
 
-const parseBadgeIds = (badgesString: string) => {
-  try {
-    const ids = JSON.parse(badgesString);
-    return badges.filter(b => ids.includes(b.refBadgeId));
-  } catch {
-    return [];
-  }
-};
+      const serviceIds = Array.isArray(newCar.selectedServices)
+        ? newCar.selectedServices.map((s: any) => s.refServiceId)
+        : [];
 
-const parseServiceIds = (servicesString: string) => {
-  try {
-    const ids = JSON.parse(servicesString);
-    return services.filter(s => ids.includes(s.refServiceId));
-  } catch {
-    return [];
-  }
-};
+      console.log('CarSelection.tsx / carImage / 999 -------------------  ', carImage);
+      const payload = {
+        car_name: newCar.name,
+        car_brand: newCar.brand,
+        car_image: carImage,
+        price: newCar.price.toString(),
+        passengers: newCar.passengers.toString(),
+        luggage: newCar.luggage.toString(),
+        // manufacturer_year: newCar.year || "", // ⬅ if you add manufacturer year later
+        mileage: newCar.mileage,
+        description: newCar.description,
+        car_badges: JSON.stringify(badgeIds),
+        car_services: JSON.stringify(serviceIds),
+        specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
+      };
 
-  // const fetchServices = async () => {
-  //   try {
-  //     const dummyServices = [
-  //       { refServiceId: 1, refServiceName: "Airport Transfer" },
-  //       { refServiceId: 2, refServiceName: "City Tour" },
-  //       { refServiceId: 3, refServiceName: "Wedding Service" },
-  //     ];
-  //     setServices(dummyServices);
-  //   } catch (error) {
-  //     console.error("Error fetching services:", error);
-  //   }
-  // };
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/addCar`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Encrypted ADD CAR response:", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("Decrypted ADD CAR:", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to add car");
+      }
+
+      const saved = decrypted.data;
+      console.log('CarSelection.tsx / saved / 1037 -------------------  ', saved);
+
+
+      await fetchCars()
+      resetCarForm();
+      setShowForm(false);
+      setActiveTab(0);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message || "Car added successfully",
+        life: 3000,
+      });
+    } catch (error: any) {
+      console.error("Error adding car:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to add car",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+  const parseBadgeIds = (badgesString: string) => {
+    try {
+      const ids = JSON.parse(badgesString);
+      return badges.filter(b => ids.includes(b.refBadgeId));
+    } catch {
+      return [];
+    }
+  };
+
+  const parseServiceIds = (servicesString: string) => {
+    try {
+      const ids = JSON.parse(servicesString);
+      return services.filter(s => ids.includes(s.refServiceId));
+    } catch {
+      return [];
+    }
+  };
+
+
   const fetchServices = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/services`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/services`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("ENCRYPTED SERVICES RESPONSE => ", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1], // encrypted data
+        response.data[0], // encrypted iv
+        import.meta.env.VITE_ENCRYPTION_KEY // key
+      );
+
+      console.log("DECRYPTED SERVICES => ", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to fetch services");
       }
-    );
 
-    console.log("ENCRYPTED SERVICES RESPONSE => ", response.data);
+      const formatted = decrypted.data?.map((item: any) => ({
+        refServiceId: item.id,
+        refServiceName: item.carService,
+      })) || [];
 
-    // 🔐 DECRYPT (as you requested)
-    const decrypted = decryptAPIResponse(
-      response.data[1], // encrypted data
-      response.data[0], // encrypted iv
-      import.meta.env.VITE_ENCRYPTION_KEY // key
-    );
+      setServices(formatted);
+    } catch (error: any) {
+      console.error("Error fetching services:", error);
 
-    console.log("DECRYPTED SERVICES => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to fetch services");
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to load services",
+        life: 3000,
+      });
     }
+  };
 
-    // 🧹 Format for UI
-    const formatted = decrypted.data?.map((item: any) => ({
-      refServiceId: item.id,
-      refServiceName: item.carService,
-    })) || [];
+  const fetchBadges = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    setServices(formatted);
-  } catch (error: any) {
-    console.error("Error fetching services:", error);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/carBadges`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to load services",
-      life: 3000,
-    });
-  }
-};
+      console.log("ENCRYPTED BADGES RESPONSE => ", response.data);
 
- const fetchBadges = async () => {
-  try {
-    const token = localStorage.getItem("token");
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
 
-    const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/carBadges`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
+      console.log("DECRYPTED BADGES => ", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to fetch badges");
       }
-    );
+      const formatted = decrypted.data?.map((item: any) => ({
+        refBadgeId: item.id,
+        refBadgeName: item.badgeName,
+        refBadgeColor: item.badgeColorCode,
+      })) || [];
 
-    console.log("ENCRYPTED BADGES RESPONSE => ", response.data);
-
-    // 🔐 DECRYPT
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED BADGES => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to fetch badges");
+      setBadges(formatted);
+    } catch (error: any) {
+      console.error("Error fetching badges:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to load badges",
+        life: 3000,
+      });
     }
-
-    // 🧹 Format for your UI structure
-    const formatted = decrypted.data?.map((item: any) => ({
-      refBadgeId: item.id,
-      refBadgeName: item.badgeName,
-      refBadgeColor: item.badgeColorCode,
-    })) || [];
-
-    setBadges(formatted);
-  } catch (error: any) {
-    console.error("Error fetching badges:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to load badges",
-      life: 3000,
-    });
-  }
-};
+  };
 
 
 
- const uploadCarImage = async (event: any) => {
-  const file = event.files[0];
-  if (!file) return;
 
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const formData = new FormData();
-    formData.append("images", file);
-
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/carRoutes/uploadImages`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-
-    console.log("ENCRYPTED UPLOAD RESPONSE => ", res.data);
-
-    const decrypted = decryptAPIResponse(
-      res.data[1],                      
-      res.data[0],                     
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED UPLOAD RESPONSE => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Upload failed");
-    }
-
-    const uploadedFile = decrypted.files?.[0] || {};
-    const uploadedPath = decrypted.filePath || uploadedFile?.filename;
-
-    setCarImage(buildCarImageUrl(uploadedPath));
-
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message || "Image uploaded successfully",
-    });
-
-  } catch (err: any) {
-    console.error("Upload error:", err);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: err?.message || "Failed to upload image",
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
 
 
   const handleBadgeInputChange = (e: any, field: string) => {
@@ -1080,217 +1164,216 @@ const parseServiceIds = (servicesString: string) => {
     });
   };
 
-const addNewBadge = async () => {
-  if (!newBadgeName.trim()) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter a badge name",
-      life: 3000,
-    });
-    return;
-  }
-
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const payload = {
-      badgeName: newBadgeName.trim(),
-      badgeColorCode: newBadgeColor,
-    };
-
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/carBadges`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("ENCRYPTED ADD BADGE RESPONSE => ", response.data);
-
-    // 🔐 DECRYPT
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED ADD BADGE => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to create badge");
+  const addNewBadge = async () => {
+    if (!newBadgeName.trim()) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter a badge name",
+        life: 3000,
+      });
+      return;
     }
 
-    const newData = decrypted.data;
+    setSubmitLoading(true);
 
-    const newBadge = {
-      refBadgeId: newData.id,
-      refBadgeName: newData.badgeName,
-      refBadgeColor: newData.badgeColorCode,
-    };
+    try {
+      const token = localStorage.getItem("token");
 
-    setBadges([...badges, newBadge]);
-    setNewBadgeName("");
-    setNewBadgeColor("#10b981");
+      const payload = {
+        badgeName: newBadgeName.trim(),
+        badgeColorCode: newBadgeColor,
+      };
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message,
-      life: 3000,
-    });
-  } catch (error: any) {
-    console.error("Error adding badge:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to add badge",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/carBadges`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
+      console.log("ENCRYPTED ADD BADGE RESPONSE => ", response.data);
 
-const updateBadge = async (id: number) => {
-  if (!editBadgeValue.refBadgeName.trim()) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter a badge name",
-      life: 3000,
-    });
-    return;
-  }
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
 
-  setSubmitLoading(true);
+      console.log("DECRYPTED ADD BADGE => ", decrypted);
 
-  try {
-    const token = localStorage.getItem("token");
-
-    const payload = {
-      badgeName: editBadgeValue.refBadgeName.trim(),
-      badgeColorCode: editBadgeValue.refBadgeColor,
-    };
-
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/carBadges/${id}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to create badge");
       }
-    );
 
-    console.log("ENCRYPTED UPDATE BADGE RESPONSE => ", response.data);
+      const newData = decrypted.data;
 
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
+      const newBadge = {
+        refBadgeId: newData.id,
+        refBadgeName: newData.badgeName,
+        refBadgeColor: newData.badgeColorCode,
+      };
 
-    console.log("DECRYPTED UPDATE BADGE => ", decrypted);
+      setBadges([...badges, newBadge]);
+      setNewBadgeName("");
+      setNewBadgeColor("#10b981");
 
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to update badge");
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message,
+        life: 3000,
+      });
+    } catch (error: any) {
+      console.error("Error adding badge:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to add badge",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+
+  const updateBadge = async (id: number) => {
+    if (!editBadgeValue.refBadgeName.trim()) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter a badge name",
+        life: 3000,
+      });
+      return;
     }
 
-    const updated = decrypted.data;
+    setSubmitLoading(true);
 
-    const updatedList = badges.map((badge) =>
-      badge.refBadgeId === id
-        ? {
+    try {
+      const token = localStorage.getItem("token");
+
+      const payload = {
+        badgeName: editBadgeValue.refBadgeName.trim(),
+        badgeColorCode: editBadgeValue.refBadgeColor,
+      };
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/carBadges/${id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("ENCRYPTED UPDATE BADGE RESPONSE => ", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("DECRYPTED UPDATE BADGE => ", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to update badge");
+      }
+
+      const updated = decrypted.data;
+
+      const updatedList = badges.map((badge) =>
+        badge.refBadgeId === id
+          ? {
             refBadgeId: updated.id,
             refBadgeName: updated.badgeName,
             refBadgeColor: updated.badgeColorCode,
           }
-        : badge
-    );
+          : badge
+      );
 
-    setBadges(updatedList);
-    setEditBadgeId(null);
+      setBadges(updatedList);
+      setEditBadgeId(null);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message,
-      life: 3000,
-    });
-  } catch (error: any) {
-    console.error("Error updating badge:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to update badge",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
-
-
-const deleteBadge = async (id: number) => {
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/carBadges/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("ENCRYPTED DELETE BADGE RESPONSE => ", response.data);
-
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED DELETE BADGE => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to delete badge");
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message,
+        life: 3000,
+      });
+    } catch (error: any) {
+      console.error("Error updating badge:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to update badge",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
     }
+  };
 
-    setBadges(badges.filter((badge) => badge.refBadgeId !== id));
-    setBadgeDialogVisible(false);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message,
-      life: 3000,
-    });
-  } catch (error: any) {
-    console.error("Error deleting badge:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to delete badge",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+  const deleteBadge = async (id: number) => {
+    setSubmitLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/carBadges/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("ENCRYPTED DELETE BADGE RESPONSE => ", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("DECRYPTED DELETE BADGE => ", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to delete badge");
+      }
+
+      setBadges(badges.filter((badge) => badge.refBadgeId !== id));
+      setBadgeDialogVisible(false);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message,
+        life: 3000,
+      });
+    } catch (error: any) {
+      console.error("Error deleting badge:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to delete badge",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
 
 
@@ -1345,204 +1428,204 @@ const deleteBadge = async (id: number) => {
       [field]: e.target.value
     });
   };
-const addNewService = async () => {
-  if (!newServiceName.trim()) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter a service name",
-    });
-    return;
-  }
-
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-    const payload = { carService: newServiceName.trim() };
-
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/addServices`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("RAW ENCRYPTED SERVICE RESPONSE => ", response.data);
-
-    const decryptedData = decryptAPIResponse(
-      response.data[1],       
-      response.data[0],       
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED SERVICE RESPONSE => ", decryptedData);
-
-    if (!decryptedData.success) {
-      throw new Error(decryptedData.message || "Request failed");
+  const addNewService = async () => {
+    if (!newServiceName.trim()) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter a service name",
+      });
+      return;
     }
 
-    const newItem = decryptedData.data; // backend returns inside data
+    setSubmitLoading(true);
 
-    setServices([
-      ...services,
-      {
-        refServiceId: newItem.id,
-        refServiceName: newItem.carService,
-      },
-    ]);
+    try {
+      const token = localStorage.getItem("token");
+      const payload = { carService: newServiceName.trim() };
 
-    setNewServiceName("");
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/addServices`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decryptedData.message,
-    });
+      console.log("RAW ENCRYPTED SERVICE RESPONSE => ", response.data);
 
-  } catch (error: any) {
-    console.error("Error adding service:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to add service",
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+      const decryptedData = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
 
+      console.log("DECRYPTED SERVICE RESPONSE => ", decryptedData);
 
- const updateService = async (id: number) => {
-  if (!editServiceValue.refServiceName.trim()) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter a service name",
-      life: 3000,
-    });
-    return;
-  }
-
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-    const payload = { carService: editServiceValue.refServiceName.trim() };
-    const res = await axios.put(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/services/${id}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
+      if (!decryptedData.success) {
+        throw new Error(decryptedData.message || "Request failed");
       }
-    );
 
-    console.log("UPDATE SERVICE RESPONSE => ", res.data);
- const decryptedData = decryptAPIResponse(
-      res.data[1],       
-      res.data[0],       
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-        console.log("DECRYPTED SERVICE RESPONSE => ", decryptedData);
+      const newItem = decryptedData.data; // backend returns inside data
 
-    if (!decryptedData.success) {
-      throw new Error(decryptedData.message || "Failed to update service");
+      setServices([
+        ...services,
+        {
+          refServiceId: newItem.id,
+          refServiceName: newItem.carService,
+        },
+      ]);
+
+      setNewServiceName("");
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decryptedData.message,
+      });
+
+    } catch (error: any) {
+      console.error("Error adding service:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to add service",
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+
+  const updateService = async (id: number) => {
+    if (!editServiceValue.refServiceName.trim()) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter a service name",
+        life: 3000,
+      });
+      return;
     }
 
-    const updatedItem = decryptedData.data;
+    setSubmitLoading(true);
 
-    // Update UI after success
-    const updatedServices = services.map(service =>
-      service.refServiceId === id
-        ? { refServiceId: updatedItem.id, refServiceName: updatedItem.carService }
-        : service
-    );
+    try {
+      const token = localStorage.getItem("token");
+      const payload = { carService: editServiceValue.refServiceName.trim() };
+      const res = await axios.put(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/services/${id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-    setServices(updatedServices);
-    setEditServiceId(null);
+      console.log("UPDATE SERVICE RESPONSE => ", res.data);
+      const decryptedData = decryptAPIResponse(
+        res.data[1],
+        res.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+      console.log("DECRYPTED SERVICE RESPONSE => ", decryptedData);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decryptedData.message,
-      life: 3000,
-    });
-
-  } catch (error: any) {
-    console.error("Error updating service:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to update service",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
-
-
-const deleteService = async (id: number) => {
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/services/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
+      if (!decryptedData.success) {
+        throw new Error(decryptedData.message || "Failed to update service");
       }
-    );
 
-    console.log("ENCRYPTED DELETE RESPONSE => ", response.data);
+      const updatedItem = decryptedData.data;
 
-    const decryptedData = decryptAPIResponse(
-      response.data[1],                    
-      response.data[0],                   
-      import.meta.env.VITE_ENCRYPTION_KEY  
-    );
+      // Update UI after success
+      const updatedServices = services.map(service =>
+        service.refServiceId === id
+          ? { refServiceId: updatedItem.id, refServiceName: updatedItem.carService }
+          : service
+      );
 
-    console.log("DECRYPTED DELETE RESPONSE => ", decryptedData);
+      setServices(updatedServices);
+      setEditServiceId(null);
 
-    if (!decryptedData.success) {
-      throw new Error(decryptedData.message || "Failed to delete");
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decryptedData.message,
+        life: 3000,
+      });
+
+    } catch (error: any) {
+      console.error("Error updating service:", error);
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to update service",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
     }
+  };
 
-    setServices(services.filter(service => service.refServiceId !== id));
-    setServiceDialogVisible(false);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decryptedData.message || "Service deleted successfully",
-      life: 3000,
-    });
+  const deleteService = async (id: number) => {
+    setSubmitLoading(true);
 
-  } catch (error: any) {
-    console.error("Error deleting service:", error);
+    try {
+      const token = localStorage.getItem("token");
 
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to delete service",
-      life: 3000,
-    });
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/services/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+      console.log("ENCRYPTED DELETE RESPONSE => ", response.data);
+
+      const decryptedData = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("DECRYPTED DELETE RESPONSE => ", decryptedData);
+
+      if (!decryptedData.success) {
+        throw new Error(decryptedData.message || "Failed to delete");
+      }
+
+      setServices(services.filter(service => service.refServiceId !== id));
+      setServiceDialogVisible(false);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decryptedData.message || "Service deleted successfully",
+        life: 3000,
+      });
+
+    } catch (error: any) {
+      console.error("Error deleting service:", error);
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to delete service",
+        life: 3000,
+      });
+
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
 
   const serviceActionTemplate = (rowData: any) => (
@@ -1589,130 +1672,7 @@ const deleteService = async (id: number) => {
     </div>
   );
 
-const addNewCar = async () => {
-  if (
-    !newCar.name ||
-    !newCar.brand ||
-    !newCar.price ||
-    !newCar.passengers ||
-    !newCar.luggage ||
-    !newCar.mileage ||
-    !carImage
-  ) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please fill all required fields and upload an image",
-      life: 3000,
-    });
-    return;
-  }
 
-  if (newCar.showSpecialPrice && !newCar.specialPrice) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter special price",
-      life: 3000,
-    });
-    return;
-  }
-
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const badgeIds = Array.isArray(newCar.selectedBadges)
-      ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
-      : [];
-
-    const serviceIds = Array.isArray(newCar.selectedServices)
-      ? newCar.selectedServices.map((s: any) => s.refServiceId)
-      : [];
-
-    const payload = {
-      car_name: newCar.name,
-      car_brand: newCar.brand,
-      car_image: carImage.split("/").pop(), 
-      price: newCar.price.toString(),
-      passengers: newCar.passengers.toString(),
-      luggage: newCar.luggage.toString(),
-      // manufacturer_year: newCar.year || "", // ⬅ if you add manufacturer year later
-      mileage: newCar.mileage,
-      description: newCar.description,
-      car_badges: JSON.stringify(badgeIds),
-      car_services: JSON.stringify(serviceIds),
-      specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
-    };
-
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/addCar`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("Encrypted ADD CAR response:", response.data);
-
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("Decrypted ADD CAR:", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to add car");
-    }
-
-    const saved = decrypted.data;
-
-   setCars(prev => [ ...(Array.isArray(prev) ? prev : []),
-      {
-        id: saved.id,
-        name: saved.car_name,
-        brand: saved.car_brand,
-        image: carImage,
-        price: parseFloat(saved.price),
-        passengers: parseInt(saved.passengers),
-        luggage: parseInt(saved.luggage),
-        mileage: saved.mileage,
-        description: saved.description,
-        selectedBadges: newCar.selectedBadges,
-        selectedServices: newCar.selectedServices,
-        showSpecialPrice: !!saved.specialPrice,
-        specialPrice: parseFloat(saved.specialPrice || 0),
-      },
-    ]);
-
-    resetCarForm();
-    setShowForm(false);
-    setActiveTab(0);
-
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message || "Car added successfully",
-      life: 3000,
-    });
-  } catch (error: any) {
-    console.error("Error adding car:", error);
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to add car",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
 
   const openEditSidebar = (car: any) => {
     setEditingCar(car);
@@ -1733,191 +1693,170 @@ const addNewCar = async () => {
     setEditSidebar(true);
   };
 
-const updateCar = async () => {
-  if (
-    !newCar.name ||
-    !newCar.brand ||
-    !newCar.price ||
-    !newCar.passengers ||
-    !newCar.luggage ||
-    !newCar.mileage ||
-    !carImage
-  ) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please fill all required fields and upload an image",
-      life: 3000,
-    });
-    return;
-  }
-
-  if (newCar.showSpecialPrice && !newCar.specialPrice) {
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: "Please enter special price",
-      life: 3000,
-    });
-    return;
-  }
-
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const badgeIds = Array.isArray(newCar.selectedBadges)
-      ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
-      : [];
-
-    const serviceIds = Array.isArray(newCar.selectedServices)
-      ? newCar.selectedServices.map((s: any) => s.refServiceId)
-      : [];
-
-    const payload = {
-      car_name: newCar.name,
-      car_brand: newCar.brand,
-      car_image: carImage.split("/").pop(), // only filename
-      price: newCar.price.toString(),
-      passengers: newCar.passengers.toString(),
-      luggage: newCar.luggage.toString(),
-      // manufacturer_year: newCar.year || "",
-      mileage: newCar.mileage,
-      description: newCar.description,
-      car_badges: JSON.stringify(badgeIds),
-      car_services: JSON.stringify(serviceIds),
-      specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
-    };
-
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/cars/${editingCar.id}`,
-      payload,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("Encrypted Update Car Response:", response.data);
-
-    const decrypted = decryptAPIResponse(
-      response.data[1],
-      response.data[0],
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("Decrypted Update Car:", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to update car");
+  const updateCar = async () => {
+    if (
+      !newCar.name ||
+      !newCar.brand ||
+      !newCar.price ||
+      !newCar.passengers ||
+      !newCar.luggage ||
+      !newCar.mileage ||
+      !carImage
+    ) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please fill all required fields and upload an image",
+        life: 3000,
+      });
+      return;
     }
 
-    const updatedCar = decrypted.data;
-
-    const updatedCars = cars.map((car) =>
-      car.id === editingCar.id
-        ? {
-            ...car,
-            name: updatedCar.car_name,
-            brand: updatedCar.car_brand,
-            image: carImage,
-            price: parseFloat(updatedCar.price),
-            passengers: parseInt(updatedCar.passengers),
-            luggage: parseInt(updatedCar.luggage),
-            mileage: updatedCar.mileage,
-            description: updatedCar.description,
-            selectedBadges: newCar.selectedBadges,
-            selectedServices: newCar.selectedServices,
-            showSpecialPrice: !!updatedCar.specialPrice,
-            specialPrice: parseFloat(updatedCar.specialPrice || 0),
-          }
-        : car
-    );
-
-    setCars(updatedCars);
-    resetCarForm();
-    setEditSidebar(false);
-
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message || "Car updated successfully",
-      life: 3000,
-    });
-
-  } catch (error: any) {
-    console.error("Error updating car:", error);
-
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to update car",
-      life: 3000,
-    });
-  } finally {
-    setSubmitLoading(false);
-  }
-};
-
-
-
- const deleteCar = async (id: number) => {
-  setSubmitLoading(true);
-
-  try {
-    const token = localStorage.getItem("token");
-
-    const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/transferRoutes/cars/${id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("ENCRYPTED DELETE CAR RESPONSE => ", response.data);
-
-    const decrypted = decryptAPIResponse(
-      response.data[1],             
-      response.data[0],               
-      import.meta.env.VITE_ENCRYPTION_KEY
-    );
-
-    console.log("DECRYPTED DELETE CAR RESPONSE => ", decrypted);
-
-    if (!decrypted.success) {
-      throw new Error(decrypted.message || "Failed to delete car");
+    if (newCar.showSpecialPrice && !newCar.specialPrice) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: "Please enter special price",
+        life: 3000,
+      });
+      return;
     }
-    setCars((prev) => prev.filter((car) => car.id !== id));
 
-    setVisibleDialog(false);
+    setSubmitLoading(true);
 
-    toast.current?.show({
-      severity: "success",
-      summary: "Success",
-      detail: decrypted.message || "Car deleted successfully",
-      life: 3000,
-    });
+    try {
+      const token = localStorage.getItem("token");
 
-  } catch (error: any) {
-    console.error("Error deleting car:", error);
+      const badgeIds = Array.isArray(newCar.selectedBadges)
+        ? newCar.selectedBadges.map((b: any) => b.refBadgeId)
+        : [];
 
-    toast.current?.show({
-      severity: "error",
-      summary: "Error",
-      detail: error?.message || "Failed to delete car",
-      life: 3000,
-    });
+      const serviceIds = Array.isArray(newCar.selectedServices)
+        ? newCar.selectedServices.map((s: any) => s.refServiceId)
+        : [];
 
-  } finally {
-    setSubmitLoading(false);
-  }
-};
+      const payload = {
+        car_name: newCar.name,
+        car_brand: newCar.brand,
+        car_image: carImage, // only filename
+        price: newCar.price.toString(),
+        passengers: newCar.passengers.toString(),
+        luggage: newCar.luggage.toString(),
+        // manufacturer_year: newCar.year || "",
+        mileage: newCar.mileage,
+        description: newCar.description,
+        car_badges: JSON.stringify(badgeIds),
+        car_services: JSON.stringify(serviceIds),
+        specialPrice: newCar.showSpecialPrice ? newCar.specialPrice.toString() : "",
+      };
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/cars/${editingCar.id}`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Encrypted Update Car Response:", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("Decrypted Update Car:", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to update car");
+      }
+
+      const updatedCar = decrypted.data;
+      console.log('CarSelection.tsx / saved / 1037 -------------------  ', updatedCar);
+
+
+      await fetchCars()
+      resetCarForm();
+      setEditSidebar(false);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message || "Car updated successfully",
+        life: 3000,
+      });
+
+    } catch (error: any) {
+      console.error("Error updating car:", error);
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to update car",
+        life: 3000,
+      });
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+const deleteCar = async (id: number) => {
+    setSubmitLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/transferRoutes/cars/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token?.replace("Bearer ", "")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("ENCRYPTED DELETE CAR RESPONSE => ", response.data);
+
+      const decrypted = decryptAPIResponse(
+        response.data[1],
+        response.data[0],
+        import.meta.env.VITE_ENCRYPTION_KEY
+      );
+
+      console.log("DECRYPTED DELETE CAR RESPONSE => ", decrypted);
+
+      if (!decrypted.success) {
+        throw new Error(decrypted.message || "Failed to delete car");
+      }
+      setCars((prev) => prev.filter((car) => car.id !== id));
+
+      setVisibleDialog(false);
+
+      toast.current?.show({
+        severity: "success",
+        summary: "Success",
+        detail: decrypted.message || "Car deleted successfully",
+        life: 3000,
+      });
+
+    } catch (error: any) {
+      console.error("Error deleting car:", error);
+
+      toast.current?.show({
+        severity: "error",
+        summary: "Error",
+        detail: error?.message || "Failed to delete car",
+        life: 3000,
+      });
+
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
 
   const resetCarForm = () => {
     setNewCar({
@@ -1958,7 +1897,7 @@ const updateCar = async () => {
 
   const { t } = useTranslation("global");
   const priceBodyTemplate = (rowData: any) => (
-    
+
     <div style={{ textAlign: 'right' }}>
       {rowData.showSpecialPrice && rowData.specialPrice > 0 ? (
         <div>
@@ -2027,7 +1966,7 @@ const updateCar = async () => {
   };
   const customHeader = (
     <div className="flex align-items-center gap-2">
-      <h2 className="text-xl font-bold text-[#0a5c9c] mb-4">{editSidebar ? 'Edit Car' : 'Add Cab Rental'}</h2>
+      <h2 className="text-xl font-bold text-[#0a5c9c]">{editSidebar ? 'Edit Car' : 'Add Cab Rental'}</h2>
 
     </div>
   );
@@ -2070,91 +2009,167 @@ const updateCar = async () => {
       {!showForm && (
         <div className="w-full">
 
-          <div className="justify-center mb-10">
-            <Button label="Add New Car" severity="success" onClick={() => setShowForm(true)} />
+          <div className="justify-center sticky top-0 mb-1">
+            <Button label={t("dashboard.add_new_car")} severity="success" onClick={() => setShowForm(true)} />
           </div>
 
           <div className="table-scroll-container">
-            <DataTable value={cars} scrollable scrollHeight="400px" style={{ minWidth: "1400px" }} paginator rows={5}>
-              <Column header="S.No" body={(_, options) => options.rowIndex + 1} style={{ minWidth: "60px" }} frozen />
-              <Column header="Image" body={imageBodyTemplate} style={{ minWidth: "100px" }} />
-              <Column field="name" header="Car Name" style={{ minWidth: "150px" }} body={(rowData) => (
+            <DataTable value={cars} scrollable scrollHeight="350px" style={{ minWidth: "1400px" }} paginator rows={5}>
+              <Column header={t("dashboard.S.No")} body={(_, options) => options.rowIndex + 1} style={{ minWidth: "60px" }} frozen />
+              <Column header={t("dashboard.image")} body={imageBodyTemplate} style={{ minWidth: "100px" }} />
+              <Column field="name" header={t("dashboard.Car Name")} style={{ minWidth: "150px" }} body={(rowData) => (
                 <div className="text-[#0a5c9c] cursor-pointer underline" onClick={() => openEditSidebar(rowData)}>
                   {rowData.name}
                 </div>
               )} />
-              <Column field="brand" header="Brand" style={{ minWidth: "120px" }} />
-              <Column header="Price (CHF)" body={priceBodyTemplate} style={{ minWidth: "180px" }} />
-              <Column field="description" header="Description" style={{ minWidth: "200px" }} />
-              <Column header="Capacity" body={(rowData) => `${rowData.passengers} pax, ${rowData.luggage} bags`} style={{ minWidth: "150px" }} />
-              <Column field="mileage" header="Mileage" style={{ minWidth: "120px" }} />
-              <Column header="Badges" body={badgesBodyTemplate} style={{ minWidth: "150px" }} />
-              <Column header="Actions" body={actionTemplate} style={{ minWidth: "150px" }} frozen alignFrozen="right" />
+              <Column field="brand" header={t("dashboard.brand")} style={{ minWidth: "120px" }} />
+              <Column header={t("dashboard.price")} body={priceBodyTemplate} style={{ minWidth: "120px" }} />
+              <Column field="description" header={t("dashboard.description")} style={{ minWidth: "200px" }} />
+              <Column header={t("dashboard.capacity")} body={(rowData) => `${rowData.passengers} pax, ${rowData.luggage} bags`} style={{ minWidth: "150px" }} />
+              <Column field="mileage" header={t("dashboard.mileage")} style={{ minWidth: "120px" }} />
+              <Column header={t("dashboard.badges")} body={badgesBodyTemplate} style={{ minWidth: "150px" }} />
+              <Column header={t("dashboard.Actions")} body={actionTemplate} style={{ minWidth: "150px" }} frozen alignFrozen="right" />
             </DataTable>
           </div>
         </div>
       )}
-
-      {/* Sidebar */}
       <Sidebar header={customHeader} visible={showForm || editSidebar} onHide={() => { setShowForm(false); setEditSidebar(false); resetCarForm(); setActiveTab(0); }} position="right" style={{ width: "75vw" }}>
-        <p style={{ color: "red", fontSize: "15px" }}>{t("dashboard.Please fill in the details below in English.")} *</p>
+        <Toast ref={toast} position="top-right" />
+        <p className="sticky top-0 bg-white z-20" style={{ color: "red", fontSize: "15px" }}>{t("dashboard.Please fill in the details below in English.")} *</p>
 
-        {/* Tabs */}
-        <div className="mb-6 mt-4">
+        <div className="mb-6 mt-4 top-[28px] sticky  bg-white z-10">
           <div className="flex gap-4 border-b-2 border-gray-200">
-            <button className={`px-4 py-2 font-medium ${activeTab === 1 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(1)}>{t("dashboard.Add Services")}</button>
-            <button className={`px-4 py-2 font-medium ${activeTab === 2 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(2)}>{t("dashboard.Add Badges")}</button>
-            <button className={`px-4 py-2 font-medium ${activeTab === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`} onClick={() => setActiveTab(0)}>{t("dashboard.Car Details")}</button>
-
+            <button
+              className={`px-4 py-2 font-medium ${activeTab === 1 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+              onClick={() => setActiveTab(1)}
+            >
+              {t("dashboard.Add Services")}
+            </button>
+            <button
+              className={`px-4 py-2 font-medium ${activeTab === 2 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+              onClick={() => setActiveTab(2)}
+            >
+              {t("dashboard.Add Badges")}
+            </button>
+            <button
+              className={`px-4 py-2 font-medium ${activeTab === 0 ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500'}`}
+              onClick={() => setActiveTab(0)}
+            >
+              {t("dashboard.Car Details")}
+            </button>
           </div>
         </div>
-
         {/* Car Details Tab */}
         {activeTab === 0 && (
-          <div className="flex flex-col gap-4 p-4 pt-3 bg-gray-50 rounded-lg">
-              <div>
-                <label className="font-medium block mb-2">{t("dashboard.Car Name")} *</label>
-                <InputText value={newCar.name} onChange={(e) => setNewCar({ ...newCar, name: e.target.value })} placeholder="e.g., Economy" className="p-inputtext-sm w-full" />
-              </div>
-              <div>
-                <label className="font-medium block mb-2">{t("dashboard.Car Brand")} *</label>
-                <InputText value={newCar.brand} onChange={(e) => setNewCar({ ...newCar, brand: e.target.value })} placeholder="e.g., Toyota" className="p-inputtext-sm w-full" />
-              </div>
-         <div className="flex flex-row gap-3">
+          <div className="flex flex-col gap-4 p-4 pt-[-25px] bg-gray-50 rounded-lg">
+            <div>
+              <label className="font-medium block mb-2">{t("dashboard.Car Name")} *</label>
+              <InputText value={newCar.name} onChange={(e) => setNewCar({ ...newCar, name: e.target.value })} placeholder="e.g., Economy" className="p-inputtext-sm w-full" />
+            </div>
+            <div>
+              <label className="font-medium block mb-2">{t("dashboard.Car Brand")} *</label>
+              <InputText value={newCar.brand} onChange={(e) => setNewCar({ ...newCar, brand: e.target.value })} placeholder="e.g., Toyota" className="p-inputtext-sm w-full" />
+            </div>
+            <div className="flex flex-row gap-3">
               <div>
                 <label className="font-medium block mb-2">{t("dashboard.Regular Price")} (CHF) *</label>
-                <InputText type="number" value={newCar.price} onChange={(e) => setNewCar({ ...newCar, price: e.target.value })} placeholder="e.g., 66.00" className="p-inputtext-sm w-full" />
+                <InputText type="number" value={newCar.price} onChange={(e) => {
+                  const val = e.target.value;
+                  if (Number(val) >= 0) {
+                    setNewCar({ ...newCar, price: e.target.value });
+                  }
+                }} placeholder="e.g., 66.00" className="p-inputtext-sm w-full" />
               </div>
               <div>
-                <label className="font-medium block mb-2">{t("dashboard.Special Price")} (CHF)</label>
-                <div className="flex gap-2 items-center">
-                  <input type="checkbox" checked={newCar.showSpecialPrice} onChange={(e) => setNewCar({ ...newCar, showSpecialPrice: e.target.checked })} style={{ width: "18px", height: "18px" }} />
-                  <InputText type="number" value={newCar.specialPrice} onChange={(e) => setNewCar({ ...newCar, specialPrice: e.target.value })} placeholder="e.g., 60.00" className="p-inputtext-sm flex-1" disabled={!newCar.showSpecialPrice} />
-                </div>
-                <small className="text-gray-500">{t("dashboard.Enable to show strikethrough price")}</small>
-              </div>
-            </div>
-         <div className="flex flex-row gap-3">
+                <label className="font-medium block mb-2">
+                  {t("dashboard.Special Price")} (CHF)
+                </label>
 
+                <div className="flex gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={newCar.showSpecialPrice}
+                    onChange={(e) =>
+                      setNewCar({ ...newCar, showSpecialPrice: e.target.checked })
+                    }
+                    style={{ width: "18px", height: "18px" }}
+                  />
+
+                  <InputText
+                    type="number"
+                    value={newCar.specialPrice}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      const numVal = Number(val);
+                      if (numVal >= 0 && numVal <= Number(newCar.price)) {
+                        setNewCar({ ...newCar, specialPrice: val });
+                      }
+                    }}
+                    placeholder="e.g., 60.00"
+                    className="p-inputtext-sm flex-1"
+                    disabled={!newCar.showSpecialPrice}
+                    min="0"
+                    max={newCar.price}
+                  />
+                </div>
+
+                {/* Message */}
+                <small className="text-gray-500">
+                  {t("dashboard.Enable to show strikethrough price")}
+                </small>
+
+                {/* Validation Error Message */}
+                {newCar.specialPrice && Number(newCar.specialPrice) > Number(newCar.price) && (
+                  <small className="text-red-500 block mt-1">
+                    {t("dashboard.Special price should not exceed regular price")}
+                  </small>
+                )}
+              </div>
+
+            </div>
+            <div className="flex flex-row gap-3">
               <div>
                 <label className="font-medium block mb-2">{t("dashboard.Passengers")} *</label>
-                <InputText type="number" value={newCar.passengers} onChange={(e) => setNewCar({ ...newCar, passengers: e.target.value })} placeholder="e.g., 3" className="p-inputtext-sm w-full" />
-              </div>
+                <InputText
+                  type="number"
+                  value={newCar.passengers}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (Number(val) >= 0) {
+                      setNewCar({ ...newCar, passengers: val });
+                    }
+                  }}
+                  placeholder="e.g., 3"
+                  className="p-inputtext-sm w-full"
+                  min="0"
+                />              </div>
               <div>
                 <label className="font-medium block mb-2">{t("dashboard.Luggage")} *</label>
-                <InputText type="number" value={newCar.luggage} onChange={(e) => setNewCar({ ...newCar, luggage: e.target.value })} placeholder="e.g., 3" className="p-inputtext-sm w-full" />
+                <InputText
+                  type="number"
+                  value={newCar.luggage}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (Number(val) >= 0) {
+                      setNewCar({ ...newCar, luggage: val });
+                    }
+                  }}
+                  placeholder="e.g., 3"
+                  className="p-inputtext-sm w-full"
+                  min="0"
+                />
               </div>
               <div>
-                <label className="font-medium block mb-2">{t("dashboard.Mileage")} *</label>
+                <label className="font-medium block mb-2">{t("dashboard.mileage")} *</label>
                 <InputText value={newCar.mileage} onChange={(e) => setNewCar({ ...newCar, mileage: e.target.value })} placeholder="e.g., 6km/l" className="p-inputtext-sm w-full" />
-            </div>
-            </div>
-              <div>
-                <label className="font-medium block mb-2">{t("dashboard.Description")}</label>
-                <InputTextarea value={newCar.description} onChange={(e) => setNewCar({ ...newCar, description: e.target.value })} placeholder="e.g., or similar" className="p-inputtext-sm w-full" rows={3} />
               </div>
+            </div>
             <div>
-              <label className="font-medium block mb-2">{t("dashboard.Car Badges")}</label>
+              <label className="font-medium block mb-2">{t("dashboard.description")}</label>
+              <InputTextarea value={newCar.description} onChange={(e) => setNewCar({ ...newCar, description: e.target.value })} placeholder="e.g., or similar" className="p-inputtext-sm w-full" rows={3} />
+            </div>
+            <div>
+              <label className="font-medium block mb-2">{t("dashboard.car_badges")}</label>
               <Dropdown
                 value={newCar.selectedBadges[0] || null}
                 onChange={(e) => setNewCar({ ...newCar, selectedBadges: e.value ? [e.value] : [] })}
@@ -2166,66 +2181,70 @@ const updateCar = async () => {
                 showClear
               />
             </div>
-
             <div>
-              <label className="font-medium block mb-2">{t("dashboard.Car Services")}</label>
+              <label className="font-medium block mb-2">{t("dashboard.car_services")}</label>
               <MultiSelect value={newCar.selectedServices} onChange={(e) => setNewCar({ ...newCar, selectedServices: e.value })} options={services} optionLabel="refServiceName" display="chip" placeholder="Select services" className="w-full" />
             </div>
- <div>
-            <label className="font-medium block mb-2 ">{t("dashboard.Car Image")} *</label>
-            <FileUpload name="carImage" accept="image/*" maxFileSize={5000000} customUpload uploadHandler={uploadCarImage} emptyTemplate={<p className="m-0">{t("dashboard.Drag and drop image (Max 5MB)")}</p>} />
-            {carImage && <img src={carImage} alt="Preview" style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", marginTop: "8px" }} />}
-          </div>
-            <div className="flex gap-2 justify-end mb-3">
-              <Button label="Cancel" severity="secondary" onClick={() => { setShowForm(false); setEditSidebar(false); resetCarForm(); }} />
-              <Button label={editSidebar ? "Update Car" : "Add Car"} onClick={editSidebar ? updateCar : addNewCar} loading={submitLoading} />
+            <div>
+              <label className="font-medium block mb-2 ">{t("dashboard.Car Image")} *</label>
+              <FileUpload name="carImage" accept="image/*" maxFileSize={5000000} customUpload uploadHandler={uploadCarImage} emptyTemplate={<p className="m-0">{t("dashboard.Drag and drop image (Max 5MB)")}</p>} />
+              {/* {carImage && <img src={carImage} alt="Preview" style={{ width: "200px", height: "150px", objectFit: "cover", borderRadius: "8px", marginTop: "8px" }} />} */}
             </div>
-            
+            <div className="flex gap-2 justify-end mb-3">
+              <Button label={t("dashboard.Cancel")} severity="secondary" onClick={() => { setShowForm(false); setEditSidebar(false); resetCarForm(); }} />
+              <Button
+                label={editSidebar ? t("dashboard.update_car") : t("dashboard.add_car")}
+                onClick={editSidebar ? updateCar : addNewCar}
+                loading={submitLoading}
+              />
+            </div>
           </div>
         )}
 
         {/* Services Tab */}
         {activeTab === 1 && (
           <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold">{t("dashboard.Car Services")}</h4>
+            <h4 className="font-semibold">{t("dashboard.car_services")}</h4>
             <div className="flex gap-2">
               <InputText value={newServiceName} onChange={(e) => setNewServiceName(e.target.value)} placeholder="Enter service name" className="p-inputtext-sm flex-1" />
               <Button icon="pi pi-plus" label="Add" size="small" onClick={addNewService} />
             </div>
             <DataTable value={services} className="p-datatable-sm">
-              <Column body={(_, options) => options.rowIndex + 1} header="S.No" style={{ width: "80px" }} />
-              <Column field="refServiceName" header="Service Name" body={(rowData) => editServiceId === rowData.refServiceId ? <InputText value={editServiceValue.refServiceName} onChange={(e) => handleServiceInputChange(e, "refServiceName")} /> : rowData.refServiceName} />
-              <Column body={serviceActionTemplate} header="Actions" style={{ width: "150px" }} />
+              <Column body={(_, options) => options.rowIndex + 1} header={t("dashboard.S.No")} style={{ width: "80px" }} />
+              <Column field="refServiceName" header={t("dashboard.service_name")} body={(rowData) => editServiceId === rowData.refServiceId ? <InputText value={editServiceValue.refServiceName} onChange={(e) => handleServiceInputChange(e, "refServiceName")} /> : rowData.refServiceName} />
+              <Column body={serviceActionTemplate} header={t("dashboard.Actions")} style={{ width: "150px" }} />
             </DataTable>
           </div>
         )}
-
         {/* Badges Tab */}
         {activeTab === 2 && (
-          <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-semibold">{t("dashboard.Car Badges")}</h4>
+          <div className="flex flex-col gap-4 p-3 mt-[-18px] bg-gray-50 rounded-lg">
+            <h4 className="font-semibold">{t("dashboard.car_badges")}</h4>
             <div className="flex gap-2">
               <InputText value={newBadgeName} onChange={(e) => setNewBadgeName(e.target.value)} placeholder="Badge name" className="p-inputtext-sm flex-1" />
               <input type="color" value={newBadgeColor} onChange={(e) => setNewBadgeColor(e.target.value)} style={{ width: "60px", height: "38px", cursor: "pointer" }} />
-              <Button icon="pi pi-plus" label="Add" size="small" onClick={addNewBadge} />
+              <Button icon="pi pi-plus" label={t("dashboard.add")} size="small" onClick={addNewBadge} />
             </div>
             <DataTable value={badges} className="p-datatable-sm">
-              <Column body={(_, options) => options.rowIndex + 1} header="S.No" style={{ width: "80px" }} />
-              <Column field="refBadgeName" header="Badge Name" body={(rowData) => editBadgeId === rowData.refBadgeId ? <InputText value={editBadgeValue.refBadgeName} onChange={(e) => handleBadgeInputChange(e, "refBadgeName")} /> : rowData.refBadgeName} />
-              <Column field="refBadgeColor" header="Color" body={(rowData) => editBadgeId === rowData.refBadgeId ? <input type="color" value={editBadgeValue.refBadgeColor} onChange={(e) => handleBadgeInputChange(e, "refBadgeColor")} /> : <div style={{ width: "30px", height: "30px", backgroundColor: rowData.refBadgeColor, borderRadius: "4px" }}></div>} />
-              <Column body={badgeActionTemplate} header="Actions" style={{ width: "150px" }} />
+              <Column body={(_, options) => options.rowIndex + 1} header={t("dashboard.S.No")} style={{ width: "80px" }} />
+              <Column field="refBadgeName" header={t("dashboard.badge_name")} body={(rowData) => editBadgeId === rowData.refBadgeId ? <InputText value={editBadgeValue.refBadgeName} onChange={(e) => handleBadgeInputChange(e, "refBadgeName")} /> : rowData.refBadgeName} />
+              <Column field="refBadgeColor" header={t("dashboard.color")} body={(rowData) => editBadgeId === rowData.refBadgeId ? <input type="color" value={editBadgeValue.refBadgeColor} onChange={(e) => handleBadgeInputChange(e, "refBadgeColor")} /> : <div style={{ width: "30px", height: "30px", backgroundColor: rowData.refBadgeColor, borderRadius: "4px" }}></div>} />
+              <Column body={badgeActionTemplate} header={t("dashboard.Actions")} style={{ width: "150px" }} />
             </DataTable>
           </div>
         )}
       </Sidebar>
-      <Dialog header="Confirm Deletion" visible={visibleDialog} style={{ width: "350px" }} modal onHide={() => setVisibleDialog(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setVisibleDialog(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedCarDelete !== null) { deleteCar(selectedCarDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this car?")}</p></Dialog>
+      <Dialog header={t("dashboard.Confirm Deletion")} visible={visibleDialog} style={{ width: "350px" }} modal onHide={() => setVisibleDialog(false)} footer={<div className="flex justify-end gap-2"><Button label={t("dashboard.no")} icon="pi pi-times" className="p-button-text" onClick={() => setVisibleDialog(false)} /><Button label={t("dashboard.yes")} icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedCarDelete !== null) { deleteCar(selectedCarDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this car?")}</p></Dialog>
 
-      <Dialog header="Confirm Deletion" visible={serviceDialogVisible} style={{ width: "350px" }} modal onHide={() => setServiceDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setServiceDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedServiceDelete !== null) { deleteService(selectedServiceDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this service?")}</p></Dialog>
+      <Dialog header={t("dashboard.Confirm Deletion")} visible={serviceDialogVisible} style={{ width: "350px" }} modal onHide={() => setServiceDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label={t("dashboard.no")} icon="pi pi-times" className="p-button-text" onClick={() => setServiceDialogVisible(false)} /><Button label={t("dashboard.yes")} icon="pi pi-check" className="p-button-danger" loading={submitLoading} onClick={() => { if (selectedServiceDelete !== null) { deleteService(selectedServiceDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this service?")}</p></Dialog>
 
-      <Dialog header="Confirm Deletion" visible={badgeDialogVisible} style={{ width: "350px" }} modal onHide={() => setBadgeDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label="No" icon="pi pi-times" className="p-button-text" onClick={() => setBadgeDialogVisible(false)} /><Button label="Yes" icon="pi pi-check" className="p-button-danger" onClick={() => { if (selectedBadgeDelete !== null) { deleteBadge(selectedBadgeDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this badge?")}</p></Dialog>
+      <Dialog header={t("dashboard.Confirm Deletion")} visible={badgeDialogVisible} style={{ width: "350px" }} modal onHide={() => setBadgeDialogVisible(false)} footer={<div className="flex justify-end gap-2"><Button label={t("dashboard.no")} icon="pi pi-times" className="p-button-text" onClick={() => setBadgeDialogVisible(false)} /><Button label={t("dashboard.yes")} icon="pi pi-check" className="p-button-danger" onClick={() => { if (selectedBadgeDelete !== null) { deleteBadge(selectedBadgeDelete); } }} /></div>}><p>{t("dashboard.Are you sure you want to delete this badge?")}</p></Dialog>
     </div>
   );
 
 };
 
 export default CarSelection;
+
+
+

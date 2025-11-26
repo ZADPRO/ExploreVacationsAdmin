@@ -56,9 +56,9 @@ const DriverDashboard = () => {
   const [isMobile, setIsMobile] = useState<boolean>(window.innerWidth <= 768);
 
   const statusOptions: StatusOption[] = [
-    { label: "Pending", value: "Pending" },
-    { label: "In Progress", value: "In Progress" },
-    { label: "Completed", value: "Completed" }
+    { label: t("dashboard.Pending"), value: "Pending" },
+    { label: t("dashboard.In Progress"), value: "In Progress" },
+    { label: t("dashboard.Completed"), value: "Completed" }
   ];
 
   // Dummy data - bookings allocated to logged-in driver
@@ -261,7 +261,15 @@ const DriverDashboard = () => {
       <span>{rowData.carType}</span>
     </div>
   );
+ const customHeader = (
 
+    <div className="flex align-items-center gap-2">
+
+    <h2 style={{ fontSize: "20px", fontWeight: "600"}}>
+            {t("dashboard.Booking Details")}
+          </h2>
+    </div>
+  );
   const renderDetailsContent = () => {
     if (!selectedBooking) return null;
 
@@ -270,11 +278,11 @@ const DriverDashboard = () => {
         {/* Booking Summary */}
         <div style={{ backgroundColor: "#f5f5f5", padding: "12px", borderRadius: "6px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontWeight: "500" }}>Booking ID:</span>
+            <span style={{ fontWeight: "500" }}>{t("dashboard.Booking ID")}:</span>
             <span style={{ fontWeight: "600", color: "#0a5c9c" }}>{selectedBooking.refCustId}</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-            <span style={{ fontWeight: "500" }}>Status:</span>
+            <span style={{ fontWeight: "500" }}>{t("dashboard.Status")}:</span>
             <Dropdown
               value={selectedBooking.status}
               options={statusOptions}
@@ -286,7 +294,7 @@ const DriverDashboard = () => {
             />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <span style={{ fontWeight: "500" }}>Total Price:</span>
+            <span style={{ fontWeight: "500" }}>{t("dashboard.Total price")}:</span>
             <span style={{ fontSize: "18px", fontWeight: "600", color: "#2196F3" }}>
               €{selectedBooking.price.toFixed(2)}
             </span>
@@ -295,12 +303,12 @@ const DriverDashboard = () => {
 
         {/* Customer Details */}
         <div>
-          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Customer Details</h3>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>{t("dashboard.Customer Details")}</h3>
           <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-            <div><strong>Name:</strong> {selectedBooking.customerName}</div>
-            <div><strong>Email:</strong> {selectedBooking.customerEmail}</div>
+            <div><strong>{t("dashboard.name")}:</strong> {selectedBooking.customerName}</div>
+            <div><strong>{t("dashboard.Email")}:</strong> {selectedBooking.customerEmail}</div>
             <div>
-              <strong>Phone:</strong>{" "}
+              <strong>{t("dashboard.Phone Number")}:</strong>{" "}
               <a href={`tel:${selectedBooking.customerPhone}`} style={{ color: "#2196F3" }}>
                 {selectedBooking.customerPhone}
               </a>
@@ -310,36 +318,36 @@ const DriverDashboard = () => {
 
         {/* Journey Details */}
         <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Journey Details</h3>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>{t("dashboard.Journey Details")}</h3>
           <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-            <div><strong>From:</strong> {selectedBooking.fromLocation}</div>
-            <div><strong>To:</strong> {selectedBooking.toLocation}</div>
+            <div><strong>{t("dashboard.From")}:</strong> {selectedBooking.fromLocation}</div>
+            <div><strong>{t("dashboard.To")}:</strong> {selectedBooking.toLocation}</div>
           </div>
         </div>
 
         {/* Pickup Details */}
         <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Pickup Details</h3>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>{t("dashboard.Pickup Details")}</h3>
           <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-            <div><strong>Date:</strong> {selectedBooking.pickupDate}</div>
-            <div><strong>Time:</strong> {selectedBooking.pickupTime}</div>
+            <div><strong>{t("dashboard.Date")}:</strong> {selectedBooking.pickupDate}</div>
+            <div><strong>{t("dashboard.Time")}:</strong> {selectedBooking.pickupTime}</div>
           </div>
         </div>
 
         {/* Return Details */}
         {selectedBooking.returnDate && (
           <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-            <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Return Details</h3>
+            <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>{t("dashboard.Return Details")}</h3>
             <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-              <div><strong>Date:</strong> {selectedBooking.returnDate}</div>
-              <div><strong>Time:</strong> {selectedBooking.returnTime}</div>
+              <div><strong>{t("dashboard.Date")}:</strong> {selectedBooking.returnDate}</div>
+              <div><strong>{t("dashboard.Time")}:</strong> {selectedBooking.returnTime}</div>
             </div>
           </div>
         )}
 
         {/* Car Details */}
         <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
-          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Vehicle Details</h3>
+          <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>{t("dashboard.Vehicle Details")}</h3>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
             <img
               src={selectedBooking.carImage}
@@ -347,15 +355,15 @@ const DriverDashboard = () => {
               style={{ width: "80px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
             />
             <div style={{ fontSize: "13px", lineHeight: "1.8" }}>
-              <div><strong>Type:</strong> {selectedBooking.carType}</div>
-              <div><strong>Passengers:</strong> {selectedBooking.passengers}</div>
-              <div><strong>Luggage:</strong> {selectedBooking.luggage}</div>
+              <div><strong>{t("dashboard.Type")}:</strong> {selectedBooking.carType}</div>
+              <div><strong>{t("dashboard.passengers")}:</strong> {selectedBooking.passengers}</div>
+              <div><strong>{t("dashboard.Luggage")}:</strong> {selectedBooking.luggage}</div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
+        {/* <div style={{ borderTop: "1px solid #eee", paddingTop: "12px" }}>
           <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>Quick Actions</h3>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <Button
@@ -375,7 +383,7 @@ const DriverDashboard = () => {
               style={{ width: "100%" }}
             />
           </div>
-        </div>
+        </div> */}
       </div>
     );
   };
@@ -433,30 +441,30 @@ const DriverDashboard = () => {
             tableStyle={{ minWidth: "100%" }}
             scrollable
             scrollHeight="400px"
-            emptyMessage="No bookings allocated yet"
+            emptyMessage={t("dashboard.No bookings allocated yet")}
           >
             <Column
-              header="S.No"
+              header={t("dashboard.S.No")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
             />
             
             <Column
               field="refCustId"
-              header="Booking ID"
+              header={t("dashboard.Booking ID")}
               headerStyle={{ width: "7rem" }}
               body={bookingIdTemplate}
             />
             
             <Column
               field="customerName"
-              header="Name"
+              header={t("dashboard.name")}
               headerStyle={{ width: "10rem" }}
               style={{ fontSize: "13px" }}
             />
             
             <Column
-              header="Status"
+              header={t("dashboard.Status")}
               headerStyle={{ width: "8rem" }}
               body={statusBodyTemplate}
             />
@@ -473,53 +481,53 @@ const DriverDashboard = () => {
             emptyMessage="No bookings allocated yet"
           >
             <Column
-              header="S.No"
+              header={t("dashboard.S.No")}
               headerStyle={{ width: "3rem" }}
               body={(_, options) => options.rowIndex + 1}
             />
             
             <Column
               field="refCustId"
-              header="Booking ID"
+              header={t("dashboard.Booking ID")}
               headerStyle={{ width: "8rem" }}
               style={{ fontWeight: "600", color: "#0a5c9c" }}
             />
             
             <Column
               field="customerName"
-              header="Customer Name"
+              header={t("dashboard.Customer Name")}
               headerStyle={{ width: "12rem" }}
             />
             
             <Column
-              header="Car"
+              header={t("dashboard.car")}
               headerStyle={{ width: "12rem" }}
               body={carBodyTemplate}
             />
             
             <Column
               field="fromLocation"
-              header="From"
+              header={t("dashboard.From")}
               headerStyle={{ width: "15rem" }}
               body={(rowData: Booking) => <div style={{ fontSize: "12px" }}>{rowData.fromLocation}</div>}
             />
             
             <Column
               field="toLocation"
-              header="To"
+              header={t("dashboard.To")}
               headerStyle={{ width: "15rem" }}
               body={(rowData: Booking) => <div style={{ fontSize: "12px" }}>{rowData.toLocation}</div>}
             />
             
             <Column
-              header="Price"
+              header={t("dashboard.Price")}
               headerStyle={{ width: "8rem" }}
               body={(rowData: Booking) => `€${rowData.price.toFixed(2)}`}
               style={{ fontWeight: "600" }}
             />
             
             <Column
-              header="Pickup Date"
+              header={t("dashboard.Pickup Date")}
               headerStyle={{ width: "10rem" }}
               body={(rowData: Booking) => (
                 <div>
@@ -530,13 +538,13 @@ const DriverDashboard = () => {
             />
             
             <Column
-              header="Status"
+              header={t("dashboard.Status")}
               headerStyle={{ width: "12rem" }}
               body={statusBodyTemplate}
             />
             
             <Column
-              header="Actions"
+              header={t("dashboard.Actions")}
               headerStyle={{ width: "8rem" }}
               body={viewDetailsAction}
             />
@@ -551,10 +559,9 @@ const DriverDashboard = () => {
           onHide={() => setViewDetailsSidebar(false)}
           position="right"
           style={{ width: "500px" }}
+           header={customHeader}
         >
-          <h2 style={{ fontSize: "20px", fontWeight: "600", marginBottom: "20px" }}>
-            Booking Details
-          </h2>
+          
           {renderDetailsContent()}
         </Sidebar>
       )}
@@ -564,7 +571,7 @@ const DriverDashboard = () => {
         <Dialog
           visible={viewMobileDialog}
           onHide={() => setViewMobileDialog(false)}
-          header="Booking Details"
+          header={t("dashboard.Booking Details")}
           style={{ width: "95vw", maxWidth: "500px" }}
           contentStyle={{ 
             padding: "20px",

@@ -167,3 +167,19 @@
   max-height: calc(90vh - 60px); /* 60px approx header height */
   padding-bottom: 20px; /* So last button not stuck */
 }
+/* ///// */
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon input {
+  width: 100%;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}

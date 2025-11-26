@@ -9,7 +9,7 @@ import { InputTextarea } from "primereact/inputtextarea";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
-
+import '../16-CarSelection/carselection.css'
 import { useTranslation } from "react-i18next";
 interface DriverDetails {
   refDriverId: string;
@@ -131,7 +131,7 @@ const StaffTransfer: React.FC = () => {
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
   const toast = useRef<Toast>(null);
 
-    const { t } = useTranslation("global");
+  const { t } = useTranslation("global");
   // Form inputs state
   const [inputs, setInputs] = useState({
     refFirstLastName: "",
@@ -193,7 +193,15 @@ const StaffTransfer: React.FC = () => {
     });
     setVisible(true);
   };
+  const customHeader = (
 
+    <div className="flex align-items-center gap-2">
+
+      <h2 className="text-xl font-bold ">
+        {isEditMode ? t("dashboard.Edit Driver") : t("dashboard.Driver Registration Form")}
+      </h2>
+    </div>
+  );
   const addNewDriver = () => {
     setSubmitLoading(true);
 
@@ -203,33 +211,33 @@ const StaffTransfer: React.FC = () => {
         const updatedDrivers = drivers.map((driver) =>
           driver.refDriverId === editingDriverId
             ? {
-                ...driver,
-                refFirstLastName: inputs.refFirstLastName,
-                refDOB: inputs.refDOB
-                  ? inputs.refDOB.toISOString().split("T")[0]
-                  : "",
-                refNationality: inputs.refNationality,
-                refAddress: inputs.refAddress,
-                refPhoneWhatsApp: inputs.refPhoneWhatsApp,
-                refEmail: inputs.refEmail,
-                refDrivingLicenseCategory: inputs.refDrivingLicenseCategory,
-                refDrivingLicenseNumber: inputs.refDrivingLicenseNumber,
-                refDrivingLicenseExpiryDate: inputs.refDrivingLicenseExpiryDate
-                  ? inputs.refDrivingLicenseExpiryDate
-                      .toISOString()
-                      .split("T")[0]
-                  : "",
-                refIssuingCountry: inputs.refIssuingCountry,
-                refIDPassportNumber: inputs.refIDPassportNumber,
-                refIDPassportExpiryDate: inputs.refIDPassportExpiryDate
-                  ? inputs.refIDPassportExpiryDate.toISOString().split("T")[0]
-                  : "",
-                refEmploymentType: inputs.refEmploymentType,
-                refStartDate: inputs.refStartDate
-                  ? inputs.refStartDate.toISOString().split("T")[0]
-                  : "",
-                refNotes: inputs.refNotes,
-              }
+              ...driver,
+              refFirstLastName: inputs.refFirstLastName,
+              refDOB: inputs.refDOB
+                ? inputs.refDOB.toISOString().split("T")[0]
+                : "",
+              refNationality: inputs.refNationality,
+              refAddress: inputs.refAddress,
+              refPhoneWhatsApp: inputs.refPhoneWhatsApp,
+              refEmail: inputs.refEmail,
+              refDrivingLicenseCategory: inputs.refDrivingLicenseCategory,
+              refDrivingLicenseNumber: inputs.refDrivingLicenseNumber,
+              refDrivingLicenseExpiryDate: inputs.refDrivingLicenseExpiryDate
+                ? inputs.refDrivingLicenseExpiryDate
+                  .toISOString()
+                  .split("T")[0]
+                : "",
+              refIssuingCountry: inputs.refIssuingCountry,
+              refIDPassportNumber: inputs.refIDPassportNumber,
+              refIDPassportExpiryDate: inputs.refIDPassportExpiryDate
+                ? inputs.refIDPassportExpiryDate.toISOString().split("T")[0]
+                : "",
+              refEmploymentType: inputs.refEmploymentType,
+              refStartDate: inputs.refStartDate
+                ? inputs.refStartDate.toISOString().split("T")[0]
+                : "",
+              refNotes: inputs.refNotes,
+            }
             : driver
         );
         setDrivers(updatedDrivers);
@@ -241,7 +249,6 @@ const StaffTransfer: React.FC = () => {
           life: 3000,
         });
       } else {
-        // Add new driver
         const newDriverId = `DRV${String(drivers.length + 1).padStart(3, "0")}`;
 
         const newDriver: DriverDetails = {
@@ -315,7 +322,6 @@ const StaffTransfer: React.FC = () => {
   };
 
   useEffect(() => {
-    // Static data is already loaded in state
   }, []);
 
   const handleInput = (
@@ -352,11 +358,11 @@ const StaffTransfer: React.FC = () => {
   return (
     <div>
       <Toast ref={toast} />
-      <div className="p-4 mt-2">
-        <div className="flex justify-between items-center">
+      <div className="p-4 mt-">
+        <div className="flex justify-between  items-center sticky top-0 bg-white z-20 ">
           <h2 className="text-2xl font-semibold">{t("dashboard.Driver Management")}</h2>
           <Button
-            label="Add New Driver"
+            label={t("dashboard.Add New Driver")}
             severity="success"
             onClick={() => {
               setIsEditMode(false);
@@ -369,90 +375,93 @@ const StaffTransfer: React.FC = () => {
 
         <div className="mt-3 p-2">
           <h3 className="text-lg font-bold">{t("dashboard.Registered Drivers")}</h3>
-          <DataTable
-            value={drivers}
-            tableStyle={{ minWidth: "50rem" }}
-            scrollable
-            scrollHeight="500px"
-            paginator
-            rows={10}
-          >
-            <Column
-              header="S.No"
-              headerStyle={{ width: "3rem" }}
-              body={(_, options) => options.rowIndex + 1}
-            />
-            <Column
-              field="refDriverId"
-              header="Driver ID"
-              headerStyle={{ width: "10rem" }}
-              className="underline text-[#0a5c9c] cursor-pointer"
-              body={(rowData) => (
-                <div onClick={() => openEditSidebar(rowData)}>
-                  {rowData.refDriverId}
-                </div>
-              )}
-            />
-            <Column
-              field="refFirstLastName"
-              header="Name"
-              headerStyle={{ width: "15rem" }}
-            />
-            <Column
-              field="refDOB"
-              header="Date of Birth"
-              body={(rowData) => rowData.refDOB?.split("T")[0]}
-              headerStyle={{ width: "10rem" }}
-            />
-            <Column
-              field="refNationality"
-              header="Nationality"
-              headerStyle={{ width: "10rem" }}
-            />
-            <Column
-              field="refPhoneWhatsApp"
-              header="Phone/WhatsApp"
-              headerStyle={{ width: "12rem" }}
-            />
-            <Column
-              field="refEmail"
-              header="Email"
-              headerStyle={{ width: "15rem" }}
-            />
-            <Column
-              field="refDrivingLicenseNumber"
-              header="License Number"
-              headerStyle={{ width: "12rem" }}
-            />
-            <Column
-              field="refEmploymentType"
-              header="Employment Type"
-              headerStyle={{ width: "12rem" }}
-            />
-            <Column
-              field="refStartDate"
-              header="Start Date"
-              body={(rowData) => rowData.refStartDate?.split("T")[0]}
-              headerStyle={{ width: "10rem" }}
-            />
-            <Column body={actionDeleteDriver} header="Delete" />
-          </DataTable>
+          <div className="table-scroll-container">
+            <DataTable
+              value={drivers}
+              tableStyle={{ minWidth: "50rem" }}
+              scrollable
+              scrollHeight="500px"
+              paginator
+              rows={10}
+
+            >
+              <Column
+                header={t("dashboard.S.No")}
+                headerStyle={{ width: "3rem" }}
+                body={(_, options) => options.rowIndex + 1}
+              />
+              <Column
+                field="refDriverId"
+                header="Driver ID"
+                headerStyle={{ width: "10rem" }}
+                className="underline text-[#0a5c9c] cursor-pointer"
+                body={(rowData) => (
+                  <div onClick={() => openEditSidebar(rowData)}>
+                    {rowData.refDriverId}
+                  </div>
+                )}
+              />
+              <Column
+                field="refFirstLastName"
+                header={t("dashboard.name")}
+                headerStyle={{ width: "15rem" }}
+              />
+              <Column
+                field="refDOB"
+                header={t("dashboard.Date of Birth")}
+                body={(rowData) => rowData.refDOB?.split("T")[0]}
+                headerStyle={{ width: "10rem" }}
+              />
+              <Column
+                field="refNationality"
+                header={t("dashboard.Nationality")}
+                headerStyle={{ width: "10rem" }}
+              />
+              <Column
+                field="refPhoneWhatsApp"
+                header={t("dashboard.Phone/WhatsApp")}
+                headerStyle={{ width: "12rem" }}
+              />
+              <Column
+                field="refEmail"
+                header={t("dashboard.Email")}
+                headerStyle={{ width: "15rem" }}
+              />
+              <Column
+                field="refDrivingLicenseNumber"
+                header={t("dashboard.License Number")}
+                headerStyle={{ width: "12rem" }}
+              />
+              <Column
+                field="refEmploymentType"
+                header={t("dashboard.Employment Type")}
+                headerStyle={{ width: "12rem" }}
+              />
+              <Column
+                field="refStartDate"
+                header={t("dashboard.Start Date")}
+                body={(rowData) => rowData.refStartDate?.split("T")[0]}
+                headerStyle={{ width: "10rem" }}
+              />
+              <Column body={actionDeleteDriver} header={t("dashboard.Delete")} />
+            </DataTable>  
+          </div>
 
           <Dialog
-            header="Confirm Deletion"
+            header={t("dashboard.Confirm Deletion")}
             visible={visibleDialog}
             style={{ width: "350px" }}
             onHide={() => setVisibleDialog(false)}
             footer={
               <div className="flex justify-end gap-2">
                 <Button
-                  label="No"
+                  label={t("dashboard.No")}
                   icon="pi pi-times"
                   className="p-button-text"
                   onClick={() => setVisibleDialog(false)}
                 />
                 <Button
-                  label="Yes"
+                  label={t("dashboard.Yes")}
                   icon="pi pi-check"
                   className="p-button-danger"
                   onClick={() => {
@@ -477,10 +486,9 @@ const StaffTransfer: React.FC = () => {
             resetForm();
           }}
           position="right"
+          header={customHeader}
         >
-          <h2 className="text-xl font-bold mb-4">
-            {isEditMode ? "Edit Driver" : "Driver Registration Form"}
-          </h2>
+
           <p className="text-sm text-[#f60000] mb-3">
             {t("dashboard.Fill the fields below. Dropdowns available where applicable.")}
           </p>
@@ -495,7 +503,7 @@ const StaffTransfer: React.FC = () => {
               padding: "20px",
               borderRadius: "8px",
               background: "#fff",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+
             }}
           >
             <div className="grid grid-cols-2 gap-4">
@@ -662,7 +670,7 @@ const StaffTransfer: React.FC = () => {
                 name="refNotes"
                 value={inputs.refNotes}
                 onChange={handleInput}
-                placeholder="Notes (Optional)"
+                placeholder={t("dashboard.Notes (Optional)")}
                 rows={4}
                 className="col-span-2"
               />
@@ -671,7 +679,7 @@ const StaffTransfer: React.FC = () => {
               <div className="col-span-2">
                 <Button
                   type="submit"
-                  label={isEditMode ? "Update Driver" : "Add Driver"}
+                  label={isEditMode ? t("dashboard.Update Driver") : t("dashboard.Add Driver")}
                   loading={submitLoading}
                   className="w-full"
                 />
